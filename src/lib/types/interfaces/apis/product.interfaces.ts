@@ -1,5 +1,14 @@
 import { IMediaDataType } from '@/lib/types/interfaces/apis/image.interfaces';
 
+export interface IProductStatsDataType {
+  totalSold: number;
+  totalRevenue?: string;
+  avgRating?: string;
+  reviewCount: number;
+  viewCount: number;
+  lastSoldAt?: string;
+}
+
 export interface IProductDataType {
   id: string;
   createdAt: string;
@@ -13,11 +22,12 @@ export interface IProductDataType {
   isActive: boolean;
   isFeatured: boolean;
   brand: IProductBrandDataType;
-  primaryImage: IProductImageDataType;
+  primaryImage?: IProductImageDataType;
   productCategories: IProductCategoryDataType[];
-  images: IProductImageDataType[];
+  images?: IProductImageDataType[];
   variants: IProductVariantDataType[];
   badges: IProductBadgeDataType[];
+  stats?: IProductStatsDataType;
 }
 
 export interface IProductVariantDataType {

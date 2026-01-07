@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { Package } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -25,7 +26,7 @@ type ProductCardProps = {
 } & IPropsWithClassName;
 
 export function ProductCard2({ product, className }: ProductCardProps) {
-  const { name, brand, primaryImage } = product;
+  const { name, brand, primaryImage, stats } = product;
   const basePrice = Number(product.basePrice);
   const comparePrice = Number(product.comparePrice);
 
@@ -49,6 +50,11 @@ export function ProductCard2({ product, className }: ProductCardProps) {
     comparePrice && comparePrice > basePrice
       ? Math.round(((comparePrice - basePrice) / comparePrice) * 100)
       : null;
+
+  // Extract stats data with fallbacks
+  const avgRating = stats?.avgRating ? Number(stats.avgRating) : undefined;
+  const reviewCount = stats?.reviewCount ?? 0;
+  const totalSold = stats?.totalSold ?? 0;
 
   return (
     <article
@@ -76,6 +82,17 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         </h3>
       </div>
 
+      {/* Rating and Stats Section */}
+      <div className="mt-2 flex items-center justify-between gap-2">
+        <RatingStars rating={avgRating} reviewCount={reviewCount} />
+        {totalSold > 0 && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Package className="h-3 w-3" />
+            <span>Đã bán {totalSold.toLocaleString('vi-VN')}</span>
+          </div>
+        )}
+      </div>
+
       <ProductPrice basePrice={basePrice} comparePrice={comparePrice} />
 
       <ProductVariantSelector
@@ -90,8 +107,6 @@ export function ProductCard2({ product, className }: ProductCardProps) {
       >
         Xem chi tiết
       </Button>
-
-      <RatingStars rating={5} reviewCount={500} />
     </article>
   );
 }

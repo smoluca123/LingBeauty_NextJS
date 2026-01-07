@@ -6,13 +6,23 @@ import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn, formatCurrency } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
+import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
 import type { Product } from '@/types/product';
 
 type ProductCardProps = {
   product: Product;
+  showStock?: boolean;
+  soldQuantity?: number;
+  maxQuantity?: number;
 } & IPropsWithClassName;
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({
+  product,
+  className,
+  showStock = false,
+  soldQuantity = 0,
+  maxQuantity = 0,
+}: ProductCardProps) {
   const {
     name,
     brand,
@@ -129,12 +139,24 @@ export function ProductCard({ product, className }: ProductCardProps) {
         </div>
       )}
 
-      <Button
-        variant="outline"
-        className="mt-4 rounded-full border-primary-pink text-primary-pink hover:bg-primary-pink/10"
-      >
-        Xem chi tiết
-      </Button>
+      {/* Stock progress bar */}
+      {showStock && maxQuantity > 0 && (
+        <div className="mt-3">
+          <StockProgressBar
+            soldQuantity={soldQuantity}
+            maxQuantity={maxQuantity}
+          />
+        </div>
+      )}
+
+      {!showStock && (
+        <Button
+          variant="outline"
+          className="mt-4 rounded-full border-primary-pink text-primary-pink hover:bg-primary-pink/10"
+        >
+          Xem chi tiết
+        </Button>
+      )}
 
       {/*   Product rating */}
       <RatingStars rating={rating} reviewCount={reviewCount} />

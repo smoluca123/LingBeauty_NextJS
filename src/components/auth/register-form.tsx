@@ -1,6 +1,7 @@
 'use client';
 'use no memo';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -18,12 +19,16 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const { register } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -38,9 +43,21 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     mode: 'onTouched',
   });
 
-  function onSubmit(data: RegisterValues) {
-    console.log('Register form data:', data);
-    onSuccess?.();
+  async function onSubmit(data: RegisterValues) {
+    setError(null);
+    try {
+      await register({
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        username: data.username,
+        phone: data.phone,
+      });
+      onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Đăng ký thất bại');
+    }
   }
 
   return (
@@ -191,6 +208,12 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             </FormItem>
           )}
         />
+
+        {error && (
+          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
         <Button
           type="submit"

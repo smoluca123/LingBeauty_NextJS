@@ -133,8 +133,10 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
                   <DropdownMenuContent
                     align="start"
                     className="w-56"
-                    sideOffset={2}
+                    sideOffset={5}
                     onCloseAutoFocus={(e) => e.preventDefault()}
+                    onMouseEnter={() => handleMouseEnter(category.name)}
+                    onMouseLeave={handleMouseLeave}
                   >
                     {category.children.map((item) => {
                       if (item.type === 'BRAND') {
@@ -157,7 +159,11 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
               </DropdownMenu>
               {/* Invisible bridge to prevent gap */}
               {openCategory === category.name && (
-                <div className="absolute top-full left-0 right-0 h-2 -mt-2 z-40" />
+                <div
+                  className="absolute top-full left-0 right-0 h-3 z-40"
+                  onMouseEnter={() => handleMouseEnter(category.name)}
+                  onMouseLeave={handleMouseLeave}
+                />
               )}
             </div>
           ))}

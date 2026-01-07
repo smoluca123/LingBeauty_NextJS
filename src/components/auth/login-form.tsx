@@ -1,6 +1,7 @@
 'use client';
 'use no memo';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, type LoginValues } from '@/lib/zod-schemas/auth.schema';
@@ -14,12 +15,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
 
 interface LoginFormProps {
   onSuccess?: () => void;
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
+  const { login } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -29,9 +34,17 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     mode: 'onTouched',
   });
 
-  function onSubmit(data: LoginValues) {
-    console.log('Login form data:', data);
-    onSuccess?.();
+  async function onSubmit(data: LoginValues) {
+    setError(null);
+    try {
+      await login({
+        email: data.usernameOrEmail,
+        password: data.password,
+      });
+      onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
+    }
   }
 
   return (
@@ -75,6 +88,12 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
             </FormItem>
           )}
         />
+
+        {error && (
+          <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
         <div className="flex items-center justify-end">
           <Button

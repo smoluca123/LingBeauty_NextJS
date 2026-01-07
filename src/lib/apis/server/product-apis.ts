@@ -1,4 +1,5 @@
-import { kyServerInstance } from '@/lib/kyInstance/kyServer';
+'use server';
+import { kyInstance } from '@/lib/kyInstance/ky';
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
@@ -9,7 +10,7 @@ export const getProductsAPI = async (
   options: IApiPaginationParams = { page: 1, limit: 10 }
 ) => {
   try {
-    const data = await kyServerInstance
+    const data = await kyInstance
       .get('product', {
         searchParams: {
           page: options.page,

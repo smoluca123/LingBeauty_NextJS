@@ -10,7 +10,7 @@ type RatingStarsProps = {
 export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
   if (!rating) {
     return (
-      <p className="mt-3 text-sm text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         Chưa có đánh giá
         {typeof reviewCount === 'number' &&
           reviewCount > 0 &&
@@ -20,7 +20,7 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
   }
 
   return (
-    <div className="mt-3 flex items-center gap-1 text-sm text-muted-foreground mx-auto">
+    <div className="flex items-center gap-1 text-sm text-muted-foreground">
       {Array.from({ length: 5 }).map((_, index) => (
         <Star
           key={index}

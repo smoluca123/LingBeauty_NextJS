@@ -1,12 +1,12 @@
 import { kyClientInstance } from '@/lib/kyInstance/kyClient';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import { IUserWithUserStatsDataType } from '@/lib/types/interfaces/user.interfaces';
+import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 
 export const updateAvatarAPI = async ({
   avatar,
 }: {
   avatar: File;
-}): Promise<IApiResponseWrapperType<IUserWithUserStatsDataType>> => {
+}): Promise<IApiResponseWrapperType<IUserDataType>> => {
   const formData = new FormData();
   formData.append('file', avatar);
   try {
@@ -14,7 +14,7 @@ export const updateAvatarAPI = async ({
       .put('user/me/avatar', {
         body: formData,
       })
-      .json<IApiResponseWrapperType<IUserWithUserStatsDataType>>();
+      .json<IApiResponseWrapperType<IUserDataType>>();
 
     return data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

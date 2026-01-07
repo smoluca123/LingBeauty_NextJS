@@ -2,15 +2,35 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Store, BookOpen, User, Heart, ShoppingBag } from 'lucide-react';
+import {
+  Store,
+  BookOpen,
+  User,
+  Heart,
+  ShoppingBag,
+  LogOut,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/auth-modal';
 import { CartDrawer } from './cart-drawer';
+import { useAuth } from '@/hooks/use-auth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export function HeaderActions() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <>
@@ -33,16 +53,59 @@ export function HeaderActions() {
           <span className="whitespace-nowrap">Tạp chí làm đẹp</span>
         </Link>
 
-        {/* Login button - Show text on tablet+, icon only on mobile */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLoginOpen(true)}
-          className="flex items-center gap-1 md:gap-2"
-        >
-          <User className="h-4 w-4" />
-          <span className="hidden md:inline whitespace-nowrap">Đăng nhập</span>
-        </Button>
+        {/* Auth section */}
+        {isLoading ? (
+          <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
+        ) : isAuthenticated && user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1 md:gap-2"
+              >
+                <User className="h-4 w-4" />
+                <span className="hidden md:inline whitespace-nowrap max-w-24 truncate">
+                  {user.firstName || user.username}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Tài khoản
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/orders" className="cursor-pointer">
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Đơn hàng
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Đăng xuất
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLoginOpen(true)}
+            className="flex items-center gap-1 md:gap-2"
+          >
+            <User className="h-4 w-4" />
+            <span className="hidden md:inline whitespace-nowrap">
+              Đăng nhập
+            </span>
+          </Button>
+        )}
 
         {/* Wishlist - Always icon only */}
         <Link

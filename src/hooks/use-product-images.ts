@@ -7,31 +7,31 @@ import {
 
 /**
  * Hook to combine and deduplicate product images from primary, gallery, and variants
+ * Images are deduplicated by media URL and sorted by sortOrder
  */
 export function useProductImages(product: IProductDataType) {
   return useMemo(() => {
     const { primaryImage, images, variants } = product;
-    const allImages = [primaryImage];
 
-    if (images) {
-      allImages.push(...images);
+    // Collect all images in a single pass
+    const allImages = [
+      primaryImage,
+      ...(images || []),
+      ...(variants?.flatMap((variant) => variant.images || []) || []),
+    ].filter((img): img is IProductImageDataType => img !== undefined);
+
+    // Deduplicate by media URL, keeping the first occurrence (which preserves priority)
+    const uniqueImagesMap = new Map<string, IProductImageDataType>();
+
+    for (const img of allImages) {
+      if (!uniqueImagesMap.has(img.media.url)) {
+        uniqueImagesMap.set(img.media.url, img);
+      }
     }
 
-    if (variants) {
-      variants.forEach((variant) => {
-        if (variant.images && variant.images.length > 0) {
-          allImages.push(...variant.images);
-        }
-      });
-    }
-
-    // Remove duplicates based on media.url
-    const uniqueImages = Array.from(
-      new Map(
-        allImages.map((img: IProductImageDataType) => [img.media.url, img])
-      ).values()
+    // Sort by sortOrder to maintain intended display order
+    return Array.from(uniqueImagesMap.values()).sort(
+      (a, b) => a.sortOrder - b.sortOrder
     );
-
-    return uniqueImages;
   }, [product]);
 }

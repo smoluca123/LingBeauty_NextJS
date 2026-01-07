@@ -2,11 +2,8 @@
 import { env } from '@/lib/env.config';
 import { kyInstance } from '@/lib/kyInstance/ky';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import {
-  IUserDataWithAccessTokenType,
-  IUserStatsAndUserDataType,
-  IUserWithStatsAndSubscriptionDataType,
-} from '@/lib/types/interfaces/user.interfaces';
+import { IValidateTokenResponseType } from '@/lib/types/interfaces/apis/auth.interfaces';
+import { IUserDataWithAccessTokenType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { LoginValues, RegisterValues } from '@/lib/zod-schemas/auth.schema';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 import ky from 'ky';
@@ -17,9 +14,7 @@ export const signInApi = async (
 ): Promise<
   | {
       success: true;
-      data: IApiResponseWrapperType<
-        IUserWithStatsAndSubscriptionDataType & IUserDataWithAccessTokenType
-      >;
+      data: IApiResponseWrapperType<IUserDataWithAccessTokenType>;
     }
   | {
       success: false;
@@ -29,11 +24,7 @@ export const signInApi = async (
   try {
     const data = await kyInstance
       .post('auth/signin', { json: credentials })
-      .json<
-        IApiResponseWrapperType<
-          IUserWithStatsAndSubscriptionDataType & IUserDataWithAccessTokenType
-        >
-      >();
+      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
     return {
       success: true,
       data: data,
@@ -67,20 +58,14 @@ export const signUpApi = async (
 ): Promise<
   | {
       success: true;
-      data: IApiResponseWrapperType<
-        IUserWithStatsAndSubscriptionDataType & IUserDataWithAccessTokenType
-      >;
+      data: IApiResponseWrapperType<IUserDataWithAccessTokenType>;
     }
   | { success: false; message: string }
 > => {
   try {
     const data = await kyInstance
       .post('auth/signup', { json: credentials })
-      .json<
-        IApiResponseWrapperType<
-          IUserWithStatsAndSubscriptionDataType & IUserDataWithAccessTokenType
-        >
-      >();
+      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
     return {
       success: true,
       data: data,
@@ -108,47 +93,28 @@ export const signUpApi = async (
   }
 };
 
-export const getMeApi = async () => {
-  try {
-    const data = await kyInstance
-      .get('user/me')
-      .json<IApiResponseWrapperType<IUserWithStatsAndSubscriptionDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
-};
-
-export const getStatsApi = async () => {
-  try {
-    const data = await kyInstance
-      .get('user/stats')
-      .json<IApiResponseWrapperType<IUserStatsAndUserDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
-};
+// export const getMeApi = async () => {
+//   try {
+//     const data = await kyInstance
+//       .get('auth/validate-token')
+//       .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
+//     return data;
+//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   } catch (error: any) {
+//     if (error.response) {
+//       const errorData = await error.response.json();
+//       throw errorData.message;
+//     }
+//     throw error.message;
+//   }
+// };
 
 export const validateAccessTokenApi = async (payload?: {
   accessToken?: string;
 }): Promise<
   | {
       success: true;
-      data: IApiResponseWrapperType<
-        IUserWithStatsAndSubscriptionDataType &
-          IUserDataWithAccessTokenType & { expiresAt: number }
-      >;
+      data: IApiResponseWrapperType<IValidateTokenResponseType>;
     }
   | { success: false; message: string }
 > => {
@@ -170,14 +136,7 @@ export const validateAccessTokenApi = async (payload?: {
           accessToken: payload?.accessToken || accessTokenCookie?.value,
         },
       })
-      .json<
-        IApiResponseWrapperType<
-          IUserWithStatsAndSubscriptionDataType &
-            IUserDataWithAccessTokenType & {
-              expiresAt: number;
-            }
-        >
-      >();
+      .json<IApiResponseWrapperType<IValidateTokenResponseType>>();
     return {
       success: true,
       data: data,
@@ -207,11 +166,12 @@ export const refreshAccessTokenApi = async (payload?: {
         json: { accessToken: payload?.accessToken || accessTokenCookie?.value },
         headers: {
           Authorization: `Bearer ${env.NEXT_PUBLIC_AUTHORIZATION_TOKEN}`,
+          accessToken: payload?.accessToken || accessTokenCookie?.value,
         },
       })
       .json<
         IApiResponseWrapperType<
-          IUserWithStatsAndSubscriptionDataType & { accessToken: string }
+          IUserDataWithAccessTokenType & { accessToken: string }
         >
       >();
     return data;
@@ -233,7 +193,7 @@ export const updateUserInfomationAPI = async (
       .patch(`user/me`, {
         json: userData,
       })
-      .json<IApiResponseWrapperType<IUserWithStatsAndSubscriptionDataType>>();
+      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
 
     return data;
 
@@ -259,7 +219,7 @@ export const changeUserPasswordAPI = async ({
       .put('auth/change-password', {
         json: { oldPassword, newPassword },
       })
-      .json<IApiResponseWrapperType<IUserWithStatsAndSubscriptionDataType>>();
+      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
 
     return data;
 

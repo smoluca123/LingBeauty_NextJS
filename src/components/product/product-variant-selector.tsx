@@ -9,7 +9,7 @@ import {
 
 type ProductVariantSelectorProps = {
   variants: IProductVariantDataType[];
-  primaryImage: IProductImageDataType;
+  primaryImage?: IProductImageDataType;
   maxDisplay?: number;
   onVariantClick: (variant: IProductVariantDataType) => void;
 };
@@ -37,7 +37,9 @@ export function ProductVariantSelector({
           >
             {variant.size ? (
               <Image
-                src={variant.images[0]?.media.url || primaryImage.media.url}
+                src={
+                  variant.images[0]?.media.url || primaryImage?.media.url || ''
+                }
                 alt={variant.name}
                 fill
                 className="object-cover"

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getCategoriesServerAPI } from '@/lib/apis/server/header-apis';
+import { getCategoriesServerAPI } from '@/lib/apis/server/category-apis';
 import { NavigationBarClient } from './navigation-bar-client';
 import { NavigationBarLoading } from './navigation-bar-loading';
 
