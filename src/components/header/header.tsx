@@ -3,6 +3,8 @@ import { SearchBar } from './search-bar';
 import { HeaderActions } from './header-actions';
 import { NavigationBar } from './navigation-bar';
 import { MobileNavigationMenu } from './mobile-navigation-menu';
+import { Suspense } from 'react';
+import { NavigationBarLoading } from '@/components/header/navigation-bar-loading';
 
 export default function Header() {
   return (
@@ -46,7 +48,9 @@ export default function Header() {
 
         {/* Navigation Bar - Desktop only */}
         <div className="border-t hidden md:block">
-          <NavigationBar />
+          <Suspense fallback={<NavigationBarLoading />}>
+            <NavigationBar />
+          </Suspense>
         </div>
       </div>
     </header>

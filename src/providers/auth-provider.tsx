@@ -24,6 +24,18 @@ export function AuthProvider({ children }: PropsWithChildren) {
     useAuthStore();
   const [showVerificationModal, setShowVerificationModal] = useState(false);
 
+  // Listen to auth:logout event
+  // useEffect(() => {
+  //   window.addEventListener('auth:logout', () => {
+  //     clearAuth();
+  //   });
+  //   return () => {
+  //     window.removeEventListener('auth:logout', () => {
+  //       clearAuth();
+  //     });
+  //   };
+  // }, [clearAuth]);
+
   // Show verification modal when user is authenticated but email is not verified
   useEffect(() => {
     if (isAuthenticated && user && !user.isEmailVerified) {

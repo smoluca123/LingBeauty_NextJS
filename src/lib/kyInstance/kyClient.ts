@@ -1,5 +1,6 @@
 'use client';
 import { env } from '@/lib/env.config';
+import { useAuthStore } from '@/stores/auth.store';
 import ky, {
   type KyRequest,
   type KyResponse,
@@ -73,7 +74,7 @@ export const kyClientInstance = ky.create({
 
           // Refresh failed, clear auth state
           // This will be handled by the auth provider
-          window.dispatchEvent(new CustomEvent('auth:logout'));
+          useAuthStore.getState().clearAuth();
         }
 
         return response;

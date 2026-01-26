@@ -28,7 +28,9 @@ type ProductCardProps = {
 export function ProductCard2({ product, className }: ProductCardProps) {
   const { name, brand, primaryImage, stats } = product;
   const basePrice = Number(product.basePrice);
-  const comparePrice = Number(product.comparePrice);
+  const comparePrice = product.comparePrice
+    ? Number(product.comparePrice)
+    : null;
 
   const carouselRef = useRef<ProductImageCarouselRef>(null);
   const allImages = useProductImages(product);
