@@ -2,7 +2,7 @@ import { formatCurrency } from '@/lib/utils';
 
 type ProductPriceProps = {
   basePrice: number;
-  comparePrice?: number;
+  comparePrice?: number | null;
 };
 
 export function ProductPrice({ basePrice, comparePrice }: ProductPriceProps) {
