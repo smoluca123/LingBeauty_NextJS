@@ -1,5 +1,7 @@
-import { Facebook, Instagram, type LucideIcon } from 'lucide-react';
-import { TikTokIcon } from './tiktok-icon';
+import { type LucideIcon } from 'lucide-react';
+import { TikTokIcon } from '../icons/tiktok-icon';
+import { InstagramIcon } from '@/components/icons/instagram-icon';
+import { FacebookIcon } from '@/components/icons/facebook-icon';
 
 export interface FooterLink {
   label: string;
@@ -47,7 +49,9 @@ export const footerLinks: Record<string, FooterSection> = {
   },
   partners: {
     title: 'ĐỐI TÁC - LIÊN KẾT',
-    links: [{ label: 'THE FACE SHOP Vietnam', href: '/partners/the-face-shop' }],
+    links: [
+      { label: 'THE FACE SHOP Vietnam', href: '/partners/the-face-shop' },
+    ],
   },
 };
 
@@ -58,7 +62,7 @@ export interface SocialLink {
 }
 
 export const socialLinks: SocialLink[] = [
-  { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
-  { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+  { icon: FacebookIcon, href: 'https://facebook.com', label: 'Facebook' },
+  { icon: InstagramIcon, href: 'https://instagram.com', label: 'Instagram' },
   { icon: TikTokIcon, href: 'https://tiktok.com', label: 'TikTok' },
 ];

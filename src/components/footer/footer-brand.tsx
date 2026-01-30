@@ -25,7 +25,7 @@ export function FooterBrand() {
         className="inline-block"
       >
         <Image
-          src="/assets/footer/verified.png"
+          src="/assets/images/footer/verified.png"
           alt="Đã thông báo Bộ Công Thương"
           width={130}
           height={50}
