@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { trendCategories, getProductsByCategory } from './data';
 import { TrendCard } from './trend-card';
+import { SectionHeadingCenter } from '@/components/home/section-heading';
 
 export default function TopTrendSection() {
   const [activeTab, setActiveTab] = useState('all');
@@ -13,13 +14,19 @@ export default function TopTrendSection() {
   }, [activeTab]);
 
   return (
-    <section className="bg-linear-to-b from-white to-gray-50 py-16 md:py-20">
-      <div className="container mx-auto px-4">
+    <section className="">
+      <div className="">
         {/* Header */}
         <div className="mb-10 md:mb-12 text-center">
-          <h2 className="mb-8 md:mb-10 text-3xl md:text-4xl font-bold uppercase tracking-wide text-foreground">
+          {/* <h2 className="mb-8 md:mb-10 text-3xl md:text-4xl font-bold uppercase tracking-wide text-foreground">
             TOP TREND HÔM NAY
-          </h2>
+          </h2> */}
+          <SectionHeadingCenter
+            title="TOP TREND HÔM NAY"
+            subtitle="Khám phá những bài viết hay về làm đẹp"
+            eyebrow="BEAUTY"
+            className="w-full"
+          />
 
           {/* Tabs */}
           <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
@@ -34,7 +41,7 @@ export default function TopTrendSection() {
                     'after:bg-primary-pink after:transition-transform after:duration-300',
                     activeTab === tab.id
                       ? 'text-foreground font-semibold after:scale-x-100'
-                      : 'text-muted-foreground hover:text-foreground after:scale-x-0'
+                      : 'text-muted-foreground hover:text-foreground after:scale-x-0',
                   )}
                 >
                   {tab.label}
@@ -54,4 +61,3 @@ export default function TopTrendSection() {
     </section>
   );
 }
-

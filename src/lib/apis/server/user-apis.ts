@@ -3,14 +3,17 @@ import { env } from '@/lib/env.config';
 import { kyInstance } from '@/lib/kyInstance/ky';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IValidateTokenResponseType } from '@/lib/types/interfaces/apis/auth.interfaces';
-import { IUserDataWithAccessTokenType } from '@/lib/types/interfaces/apis/user.interfaces';
+import {
+  IUserDataType,
+  IUserDataWithAccessTokenType,
+} from '@/lib/types/interfaces/apis/user.interfaces';
 import { LoginValues, RegisterValues } from '@/lib/zod-schemas/auth.schema';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 import ky from 'ky';
 import { cookies } from 'next/headers';
 
 export const signInApi = async (
-  credentials: LoginValues
+  credentials: LoginValues,
 ): Promise<
   | {
       success: true;
@@ -54,7 +57,7 @@ export const signInApi = async (
 };
 
 export const signUpApi = async (
-  credentials: RegisterValues
+  credentials: RegisterValues,
 ): Promise<
   | {
       success: true;
@@ -93,21 +96,21 @@ export const signUpApi = async (
   }
 };
 
-// export const getMeApi = async () => {
-//   try {
-//     const data = await kyInstance
-//       .get('auth/validate-token')
-//       .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
-//     return data;
-//     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   } catch (error: any) {
-//     if (error.response) {
-//       const errorData = await error.response.json();
-//       throw errorData.message;
-//     }
-//     throw error.message;
-//   }
-// };
+export const getMeApi = async () => {
+  try {
+    const data = await kyInstance
+      .get('user/me')
+      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
+    return data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.response) {
+      const errorData = await error.response.json();
+      throw errorData.message;
+    }
+    throw error.message;
+  }
+};
 
 export const validateAccessTokenApi = async (payload?: {
   accessToken?: string;
@@ -186,7 +189,7 @@ export const refreshAccessTokenApi = async (payload?: {
 };
 
 export const updateUserInfomationAPI = async (
-  userData: UpdateUserInfomationValues
+  userData: UpdateUserInfomationValues,
 ) => {
   try {
     const data = await kyInstance

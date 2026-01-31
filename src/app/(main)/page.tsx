@@ -10,7 +10,7 @@ export default function MainPage() {
   return (
     <Suspense>
       <div className="font-sans">
-        <main className="container space-y-6 py-4 md:py-6">
+        <main className="container space-y-10 py-4 md:py-6">
           <HomeCarouselSection />
           <TopProductsSection />
           <BrandListSection />
