@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { beautyBoxCategories, getArticlesByCategory } from './data';
 import { Button } from '@/components/ui/button';
+import { SectionHeadingCenter } from '@/components/home/section-heading';
 
 export default function BeautyBoxSection() {
   const [activeTab, setActiveTab] = useState('all');
@@ -15,13 +16,19 @@ export default function BeautyBoxSection() {
   );
 
   return (
-    <section className="bg-linear-to-b from-white to-gray-50 py-20 md:py-24">
+    <section className="">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-12 text-center md:mb-16">
-          <h2 className="mb-8 text-3xl font-bold uppercase tracking-wide text-foreground md:mb-10 md:text-4xl">
+          {/* <h2 className="mb-8 text-3xl font-bold uppercase tracking-wide text-foreground md:mb-10 md:text-4xl">
             GÓC ĐẸP BEAUTY BOX
-          </h2>
+          </h2> */}
+          <SectionHeadingCenter
+            title="GÓC ĐẸP BEAUTY BOX"
+            subtitle="Khám phá những bài viết hay về làm đẹp"
+            eyebrow="BEAUTY"
+            className="w-full"
+          />
 
           {/* Tabs */}
           <div className="-mx-4 overflow-x-auto px-4 scrollbar-hide">
