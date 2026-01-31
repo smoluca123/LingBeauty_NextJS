@@ -35,7 +35,9 @@ export function AddressesContent() {
   const confirmDelete = () => {
     if (addressToDelete) {
       console.log('🗑️ Delete address:', addressToDelete);
-      setAddresses((prev) => prev.filter((addr) => addr.id !== addressToDelete));
+      setAddresses((prev) =>
+        prev.filter((addr) => addr.id !== addressToDelete),
+      );
       setAddressToDelete(null);
     }
     setDeleteConfirmOpen(false);
@@ -52,13 +54,13 @@ export function AddressesContent() {
       prev.map((addr) => ({
         ...addr,
         isDefault: addr.id === id,
-      }))
+      })),
     );
   };
 
   // Sort addresses: default first
   const sortedAddresses = [...addresses].sort((a, b) =>
-    a.isDefault ? -1 : b.isDefault ? 1 : 0
+    a.isDefault ? -1 : b.isDefault ? 1 : 0,
   );
 
   // Find the address that is about to be deleted for display in dialog
