@@ -100,7 +100,7 @@ export const getMeApi = async () => {
   try {
     const data = await kyInstance
       .get('user/me')
-      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
+      .json<IApiResponseWrapperType<IUserDataType>>();
     return data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
