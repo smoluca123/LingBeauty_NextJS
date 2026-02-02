@@ -65,3 +65,28 @@ export interface IAuthCookieData {
   accessToken: string;
   userId: string;
 }
+
+export interface IAuthApiResponse {
+  message: string;
+  data?: { user: IUserDataType };
+}
+
+export interface IGetAuthResponse {
+  isAuthenticated: boolean;
+  user: IUserDataType | null;
+  expiresAt: Date | null;
+}
+
+export interface IChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface IChangePasswordResponse {
+  message: string;
+}
+
+export interface IChangePasswordError {
+  message: string;
+  errorCode: string;
+}

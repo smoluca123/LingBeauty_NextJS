@@ -1,6 +1,11 @@
 import { kyClientInstance } from '@/lib/kyInstance/kyClient';
-import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import {
+  IApiResponseWrapperType,
+  INextApiResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
+import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 
 export const updateAvatarAPI = async ({
   avatar,
@@ -24,5 +29,30 @@ export const updateAvatarAPI = async ({
       throw errorData.message;
     }
     throw new Error(error as string);
+  }
+};
+
+export const updateMyInformationAPI = async (
+  userData: UpdateUserInfomationValues,
+) => {
+  try {
+    const data = await kyNextInstance
+      .patch(`me`, {
+        json: userData,
+      })
+      .json<
+        INextApiResponseWrapperType<IApiResponseWrapperType<IUserDataType>>
+      >();
+
+    return data;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error.response) {
+      const errorData = await error.response.json();
+      throw errorData.message;
+    }
+    throw error.message;
+    // throw error;
   }
 };

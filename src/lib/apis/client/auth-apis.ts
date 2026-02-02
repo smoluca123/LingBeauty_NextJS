@@ -1,29 +1,27 @@
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import {
+  IApiResponseWrapperType,
+  INextApiResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces';
 import type {
+  IAuthApiResponse,
+  IChangePasswordData,
+  IChangePasswordError,
+  IChangePasswordResponse,
+  IGetAuthResponse,
   ILoginCredentials,
   IRegisterData,
 } from '@/lib/types/interfaces/apis/auth.interfaces';
 import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { HTTPError } from 'ky';
 
-interface AuthApiResponse {
-  message: string;
-  data?: { user: IUserDataType };
-}
-
-interface GetAuthResponse {
-  isAuthenticated: boolean;
-  user: IUserDataType | null;
-  expiresAt: Date | null;
-}
-
 export async function loginApi(
-  credentials: ILoginCredentials
+  credentials: ILoginCredentials,
 ): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/login', { json: credentials })
-      .json<AuthApiResponse>();
+      .json<IAuthApiResponse>();
 
     if (!data.data?.user) {
       throw new Error('Invalid response from server');
@@ -40,12 +38,12 @@ export async function loginApi(
 }
 
 export async function registerApi(
-  registerData: IRegisterData
+  registerData: IRegisterData,
 ): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/register', { json: registerData })
-      .json<AuthApiResponse>();
+      .json<IAuthApiResponse>();
 
     if (!data.data?.user) {
       throw new Error('Invalid response from server');
@@ -77,7 +75,7 @@ export async function refreshTokenApi(): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/refresh')
-      .json<AuthApiResponse>();
+      .json<IAuthApiResponse>();
 
     if (!data.data?.user) {
       throw new Error('Invalid response from server');
@@ -102,11 +100,11 @@ export async function refreshTokenApi(): Promise<IUserDataType> {
 //   }
 // }
 
-export async function validateTokenApi(): Promise<GetAuthResponse> {
+export async function validateTokenApi(): Promise<IGetAuthResponse> {
   try {
     const data = await kyNextInstance
       .get('auth/validate-token')
-      .json<GetAuthResponse>();
+      .json<IGetAuthResponse>();
     return data;
   } catch {
     return { isAuthenticated: false, user: null, expiresAt: null };
@@ -154,7 +152,7 @@ export async function sendEmailVerificationApi(): Promise<SendOTPResponse> {
 }
 
 export async function verifyEmailApi(
-  code: string
+  code: string,
 ): Promise<VerifyEmailResponse> {
   try {
     const data = await kyNextInstance
@@ -190,9 +188,36 @@ export async function resendEmailVerificationApi(): Promise<SendOTPResponse> {
         throw rateLimitError;
       }
       throw new Error(
-        errorData.message || 'Failed to resend verification email'
+        errorData.message || 'Failed to resend verification email',
       );
     }
     throw error;
+  }
+}
+
+// ============ Change Password API ============
+
+export async function changePasswordAPI(
+  data: IChangePasswordData,
+): Promise<
+  INextApiResponseWrapperType<IApiResponseWrapperType<IChangePasswordResponse>>
+> {
+  try {
+    const response = await kyNextInstance
+      .post('auth/change-password', { json: data })
+      .json<
+        INextApiResponseWrapperType<
+          IApiResponseWrapperType<IChangePasswordResponse>
+        >
+      >();
+
+    return response;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    if (error instanceof HTTPError) {
+      const errorData = (await error.response.json()) as IChangePasswordError;
+      throw errorData.message;
+    }
+    throw error.message;
   }
 }

@@ -20,7 +20,7 @@ const buttonVariants = cva(
           'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
         'primary-pink':
-          'bg-background text-primary-pink border border-transparent hover:border-primary-pink transition-colors duration-300 ',
+          'bg-primary-pink text-white! border border-transparent hover:border-primary-pink hover:bg-primary-pink/90 transition-colors duration-300 ',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',
@@ -35,7 +35,7 @@ const buttonVariants = cva(
       variant: 'default',
       size: 'default',
     },
-  }
+  },
 );
 
 function Button({
