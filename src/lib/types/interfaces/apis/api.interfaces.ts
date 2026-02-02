@@ -24,3 +24,9 @@ export interface IApiPaginationParams {
   page?: number;
   limit?: number;
 }
+
+export interface INextApiResponseWrapperType<ResultDataType = null> {
+  success: boolean;
+  message: string;
+  data: ResultDataType;
+}

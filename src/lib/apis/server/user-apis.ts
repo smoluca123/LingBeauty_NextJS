@@ -209,29 +209,3 @@ export const updateMyInformationAPI = async (
     throw error.message;
   }
 };
-
-export const changeUserPasswordAPI = async ({
-  oldPassword,
-  newPassword,
-}: {
-  oldPassword: string;
-  newPassword: string;
-}) => {
-  try {
-    const data = await kyInstance
-      .put('auth/change-password', {
-        json: { oldPassword, newPassword },
-      })
-      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
-
-    return data;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
-};

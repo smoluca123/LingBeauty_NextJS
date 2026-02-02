@@ -1,8 +1,8 @@
-import { updateMyInformationAPI } from '@/lib/apis/server/user-apis';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/stores/auth.store';
+import { updateMyInformationAPI } from '@/lib/apis/client/user-apis';
 
 export const useUpdateUserInfomationMutation = () => {
   const { setUser } = useAuthStore();
@@ -17,10 +17,8 @@ export const useUpdateUserInfomationMutation = () => {
   const mutation = useMutation({
     mutationFn: updateUserInfomation,
     onSuccess: (data) => {
-      // remove accessToken from data
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { accessToken, ...restUserData } = data.data;
-      setUser(restUserData);
+      console.log(data);
+      setUser(data.data);
       toast.success('Cập nhật thông tin thành công');
     },
     onError: (error) => {
