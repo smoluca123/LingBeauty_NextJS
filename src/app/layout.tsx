@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import ReactQueryProvider from '@/components/react-query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
+import { Toaster } from '@/components/ui/sonner';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -34,6 +35,7 @@ export default function RootLayout({
       <body className={` ${inter.variable} antialiased`}>
         <ReactQueryProvider>
           <AuthProvider>{children}</AuthProvider>
+          <Toaster position="bottom-right" />
         </ReactQueryProvider>
       </body>
     </html>

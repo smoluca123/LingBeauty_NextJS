@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 
@@ -8,18 +7,13 @@ import { AlertCircle } from 'lucide-react';
  * Error boundary for Account page
  * Catches errors during data fetching and rendering
  */
-export default function AccountError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  useEffect(() => {
-    // Log error to error reporting service
-    console.error('Account page error:', error);
-  }, [error]);
 
+interface IProps {
+  message?: string;
+  reset: () => void;
+}
+
+export default function AccountError({ message, reset }: IProps) {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-foreground">Tài khoản</h1>
@@ -35,17 +29,17 @@ export default function AccountError({
               Không thể tải thông tin tài khoản
             </h2>
             <p className="text-sm text-muted-foreground">
-              {error.message || 'Đã xảy ra lỗi khi tải dữ liệu'}
+              {message || 'Đã xảy ra lỗi khi tải dữ liệu'}
             </p>
           </div>
 
           <div className="flex gap-3">
-            <Button onClick={reset} variant="outline" className="min-w-[120px]">
+            <Button onClick={reset} variant="outline" className="min-w-30">
               Thử lại
             </Button>
             <Button
               onClick={() => (window.location.href = '/')}
-              className="min-w-[120px] bg-primary-pink hover:bg-primary-pink/90"
+              className="min-w-30 bg-primary-pink hover:bg-primary-pink/90"
             >
               Về trang chủ
             </Button>

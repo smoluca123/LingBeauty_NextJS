@@ -188,7 +188,7 @@ export const refreshAccessTokenApi = async (payload?: {
   }
 };
 
-export const updateUserInfomationAPI = async (
+export const updateMyInformationAPI = async (
   userData: UpdateUserInfomationValues,
 ) => {
   try {

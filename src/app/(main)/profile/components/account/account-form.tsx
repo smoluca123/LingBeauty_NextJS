@@ -1,10 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -14,8 +12,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/use-auth';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
+import { useUpdateUserInfomationMutation } from '@/hooks/mutations/user.mutation';
+import LoadingButton from '@/components/ui/loading-button';
 
 // ============ Schema ============
 const accountFormSchema = z.object({
@@ -29,6 +28,8 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 // ============ Component ============
 export function AccountForm({ user }: { user: IUserDataType }) {
+  const { mutate, isPending: isPendingUpdateUserInfomation } =
+    useUpdateUserInfomationMutation();
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
@@ -49,6 +50,7 @@ export function AccountForm({ user }: { user: IUserDataType }) {
     console.log('Email:', data.email);
     console.log('Phone:', data.phone);
     console.log('---');
+    mutate(data);
   };
 
   return (
@@ -143,13 +145,21 @@ export function AccountForm({ user }: { user: IUserDataType }) {
 
         {/* Submit Button */}
         <div className="flex justify-end">
-          <Button
+          {/* <Button
             type="submit"
-            className="h-11 min-w-[120px] rounded-full bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
+            className="min-w-30 rounded-full bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? 'Đang lưu...' : 'Lưu'}
-          </Button>
+          </Button> */}
+          <LoadingButton
+            type="submit"
+            className="min-w-30 rounded-full"
+            loading={isPendingUpdateUserInfomation}
+            variant={'primary-pink'}
+          >
+            Lưu
+          </LoadingButton>
         </div>
       </form>
     </Form>

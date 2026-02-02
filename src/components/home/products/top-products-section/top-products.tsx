@@ -9,6 +9,8 @@ import { ProductCard } from '../../../product/product-card';
 import { SectionHeading } from '../../section-heading';
 import { useGetProductsQuery } from '@/hooks/querys/product.query';
 import { ProductCard2 } from '@/components/product/product-card2';
+import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
+import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 
 const topProducts: Product[] = [
   {
@@ -121,9 +123,18 @@ const topProducts: Product[] = [
   },
 ];
 
-export const TopProducts = () => {
+interface TopProductsProps {
+  initialData: IApiPaginationResponseWrapperType<IProductDataType>;
+}
+
+export const TopProducts = ({ initialData }: TopProductsProps) => {
+  // Use React Query for client-side updates, but fallback to initialData for SSR
   const { data } = useGetProductsQuery();
-  const pages = data?.pages?.flatMap((page) => page.data) || [];
+
+  // Prioritize React Query data, but use initialData for initial render (SEO)
+  // initialData has structure: { message, data: { items: [], ... } }
+  const products =
+    data?.pages?.flatMap((page) => page.data.items) || initialData.data.items;
 
   return (
     <section className="space-y-6">
@@ -146,11 +157,9 @@ export const TopProducts = () => {
         className="mt-4"
         slidesPerView={{ mobile: 1.5, tablet: 2.5, desktop: 5 }}
       >
-        {pages.map((page) =>
-          page.items.map((item) => (
-            <ProductCard2 key={item.id} product={item} className="w-full" />
-          ))
-        )}
+        {products.map((item) => (
+          <ProductCard2 key={item.id} product={item} className="w-full" />
+        ))}
 
         {topProducts.map((product) => (
           <ProductCard key={product.id} product={product} className="w-full" />
@@ -163,7 +172,7 @@ export const TopProducts = () => {
       <div className="text-center">
         <Button
           className={cn(
-            'rounded-full bg-primary-pink px-6 text-white hover:bg-primary-pink/90'
+            'rounded-full bg-primary-pink px-6 text-white hover:bg-primary-pink/90',
           )}
         >
           Xem thêm ưu đãi

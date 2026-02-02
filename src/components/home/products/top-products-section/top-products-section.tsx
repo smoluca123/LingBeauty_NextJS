@@ -9,6 +9,11 @@ import {
 
 export async function TopProductsSection() {
   const queryClient = new QueryClient();
+
+  // Fetch initial data on server for SEO
+  const initialData = await getProductsAPI({ page: 1 });
+
+  // Prefetch for React Query cache
   await queryClient.prefetchInfiniteQuery({
     queryKey: getProductsQueryKey,
     queryFn: ({ pageParam }) => getProductsAPI({ page: pageParam }),
@@ -18,7 +23,7 @@ export async function TopProductsSection() {
   return (
     <>
       <HydrationBoundary state={dehydrate(queryClient)}>
-        <TopProducts />
+        <TopProducts initialData={initialData} />
       </HydrationBoundary>
     </>
   );

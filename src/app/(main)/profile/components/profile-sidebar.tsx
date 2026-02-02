@@ -1,10 +1,8 @@
 'use client';
-
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { MembershipCard } from '@/components/membership-card';
-import { useAuth } from '@/hooks/use-auth';
 
 // ============ Types ============
 interface NavItem {
@@ -25,17 +23,11 @@ const NAV_ITEMS: NavItem[] = [
 // ============ Component ============
 export function ProfileSidebar() {
   const pathname = usePathname();
-  const { user } = useAuth();
 
   return (
     <aside className="w-full space-y-6">
       {/* Membership Card */}
-      <MembershipCard
-        user={user}
-        tier="BRONZE"
-        points={0}
-        pointsToNextTier={100}
-      />
+      <MembershipCard tier="BRONZE" points={0} pointsToNextTier={100} />
 
       {/* Navigation Menu */}
       <nav className="space-y-1">
@@ -50,7 +42,7 @@ export function ProfileSidebar() {
                 'block px-3 py-2 text-sm font-medium transition-colors',
                 isActive
                   ? 'text-foreground border-l-2 border-primary-pink'
-                  : 'text-muted-foreground hover:text-foreground'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {item.label}

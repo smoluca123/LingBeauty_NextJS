@@ -3,14 +3,14 @@
 import { useRef } from 'react';
 import Barcode from 'react-barcode';
 import { User } from 'lucide-react';
-import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import UserAvatar from '@/components/user-avatar';
+import { useAuth } from '@/hooks/use-auth';
+import { MembershipCardSkeleton } from './membership-card-skeleton';
 
 // ============ Types ============
 export type MembershipTier = 'BRONZE' | 'SILVER' | 'GOLD';
 
 interface MembershipCardProps {
-  user: IUserDataType | null;
   tier?: MembershipTier;
   points?: number;
   pointsToNextTier?: number;
@@ -40,61 +40,61 @@ const TIER_CONFIG: Record<
 
 // ============ Component ============
 export function MembershipCard({
-  user,
   tier = 'BRONZE',
   points = 0,
   pointsToNextTier = 100,
 }: MembershipCardProps) {
+  const { user, isLoading } = useAuth();
+
   const barcodeRef = useRef<HTMLDivElement>(null);
 
+  // Show skeleton while loading user data
+  if (isLoading || !user) {
+    return <MembershipCardSkeleton />;
+  }
+
   const tierConfig = TIER_CONFIG[tier];
-  const displayName = user
-    ? `${user.firstName} ${user.lastName}`.trim()
-    : 'Guest';
-  const phoneNumber = user?.phone || '0000000000';
+  const displayName = `${user.firstName} ${user.lastName}`.trim();
+  const phoneNumber = user.phone || '0000000000';
 
   return (
     <div className="w-full rounded-xl border border-border bg-card p-4 shadow-sm">
-      {user && (
-        <>
-          {/* User Info + Barcode */}
-          <div className=" gap-3">
-            {/* Avatar */}
-            <div className="relative flex shrink-0 items-center justify-center gap-x-5">
-              {user.avatarMedia?.url ? (
-                <UserAvatar
-                  avatarUrl={user.avatarMedia.url}
-                  fallbackName={displayName}
-                />
-              ) : (
-                <User className="h-6 w-6 text-muted-foreground" />
-              )}
-              <p className="font-semibold text-foreground">{displayName}</p>
-            </div>
+      {/* User Info + Barcode */}
+      <div className=" gap-3">
+        {/* Avatar */}
+        <div className="relative flex shrink-0 items-center justify-center gap-x-5">
+          {user.avatarMedia?.url ? (
+            <UserAvatar
+              avatarUrl={user.avatarMedia.url}
+              fallbackName={displayName}
+            />
+          ) : (
+            <User className="h-6 w-6 text-muted-foreground" />
+          )}
+          <p className="font-semibold text-foreground">{displayName}</p>
+        </div>
 
-            {/* Name + Barcode */}
-            <div className="w-fit mx-auto">
-              <div ref={barcodeRef} className="mt-1">
-                <Barcode
-                  value={phoneNumber}
-                  width={1.2}
-                  height={40}
-                  fontSize={12}
-                  displayValue={false}
-                  background="transparent"
-                  lineColor="currentColor"
-                />
-              </div>
-            </div>
+        {/* Name + Barcode */}
+        <div className="w-fit mx-auto">
+          <div ref={barcodeRef} className="mt-1">
+            <Barcode
+              value={phoneNumber}
+              width={1.2}
+              height={40}
+              fontSize={12}
+              displayValue={false}
+              background="transparent"
+              lineColor="currentColor"
+            />
           </div>
+        </div>
+      </div>
 
-          {/* Phone + Points */}
-          <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
-            <span>SĐT tích điểm</span>
-            <span className="font-medium text-foreground">{phoneNumber}</span>
-          </div>
-        </>
-      )}
+      {/* Phone + Points */}
+      <div className="mt-3 flex items-center justify-between text-sm text-muted-foreground">
+        <span>SĐT tích điểm</span>
+        <span className="font-medium text-foreground">{phoneNumber}</span>
+      </div>
 
       {/* Membership Tier Card */}
       <div
