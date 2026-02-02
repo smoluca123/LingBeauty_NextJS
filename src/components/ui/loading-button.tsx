@@ -1,12 +1,7 @@
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
+import { ButtonProps } from '@/lib/types/interfaces/utils.interfaces';
 import { cn } from '@/lib/utils';
-import { VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
-
-type ButtonProps = React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  };
 
 interface ILoadingButtonProps extends ButtonProps {
   loading: boolean;
@@ -25,7 +20,7 @@ export default function LoadingButton({
       className={cn('flex items-center gap-2', className)}
       {...props}
     >
-      {loading && <Loader2 className='size-5 animate-spin' />}
+      {loading && <Loader2 className="size-5 animate-spin" />}
       {children}
     </Button>
   );

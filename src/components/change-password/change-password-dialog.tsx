@@ -104,7 +104,14 @@ export function ChangePasswordDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              form.handleSubmit(onSubmit)(e);
+            }}
+            className="space-y-4"
+          >
             {/* Current Password */}
             <FormField
               control={form.control}
@@ -129,6 +136,7 @@ export function ChangePasswordDialog({
                           setShowCurrentPassword(!showCurrentPassword)
                         }
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
                       >
                         {showCurrentPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -164,6 +172,7 @@ export function ChangePasswordDialog({
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
                       >
                         {showNewPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -202,6 +211,7 @@ export function ChangePasswordDialog({
                           setShowConfirmPassword(!showConfirmPassword)
                         }
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        tabIndex={-1}
                       >
                         {showConfirmPassword ? (
                           <EyeOff className="h-5 w-5" />
@@ -216,7 +226,7 @@ export function ChangePasswordDialog({
               )}
             />
 
-            <DialogFooter className="gap-2 sm:gap-0">
+            <DialogFooter className="space-x-2">
               <Button
                 type="button"
                 variant="outline"

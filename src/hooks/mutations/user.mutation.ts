@@ -18,7 +18,7 @@ export const useUpdateUserInfomationMutation = () => {
     mutationFn: updateUserInfomation,
     onSuccess: (data) => {
       console.log(data);
-      setUser(data.data);
+      setUser(data.data.data);
       toast.success('Cập nhật thông tin thành công');
     },
     onError: (error) => {

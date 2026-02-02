@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,12 +12,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { useUpdateUserInfomationMutation } from '@/hooks/mutations/user.mutation';
 import LoadingButton from '@/components/ui/loading-button';
-import { ChangePasswordDialog } from './change-password-dialog';
-import { KeyRound } from 'lucide-react';
+import ChangePasswordButton from '@/components/change-password/change-password-button';
 
 // ============ Schema ============
 const accountFormSchema = z.object({
@@ -32,9 +29,6 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 // ============ Component ============
 export function AccountForm({ user }: { user: IUserDataType }) {
-  const [isChangePasswordDialogOpen, setIsChangePasswordDialogOpen] =
-    useState(false);
-
   const { mutate, isPending: isPendingUpdateUserInfomation } =
     useUpdateUserInfomationMutation();
   const form = useForm<AccountFormValues>({
@@ -153,15 +147,10 @@ export function AccountForm({ user }: { user: IUserDataType }) {
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="outline"
+            <ChangePasswordButton
               className="min-w-30 rounded-full gap-2"
-              onClick={() => setIsChangePasswordDialogOpen(true)}
-            >
-              <KeyRound className="h-4 w-4" />
-              Đổi mật khẩu
-            </Button>
+              type="button"
+            />
             <LoadingButton
               type="submit"
               className="min-w-30 rounded-full"
@@ -173,11 +162,6 @@ export function AccountForm({ user }: { user: IUserDataType }) {
           </div>
         </form>
       </Form>
-
-      <ChangePasswordDialog
-        open={isChangePasswordDialogOpen}
-        onOpenChange={setIsChangePasswordDialogOpen}
-      />
     </>
   );
 }
