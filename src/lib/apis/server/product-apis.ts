@@ -7,7 +7,7 @@ import {
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 
 export const getProductsAPI = async (
-  options: IApiPaginationParams = { page: 1, limit: 10 }
+  options: IApiPaginationParams = { page: 1, limit: 10 },
 ) => {
   try {
     const data = await kyInstance
@@ -17,7 +17,7 @@ export const getProductsAPI = async (
           limit: options.limit,
         },
         next: {
-          revalidate: 60,
+          revalidate: 300,
         },
       })
       .json<IApiPaginationResponseWrapperType<IProductDataType>>();

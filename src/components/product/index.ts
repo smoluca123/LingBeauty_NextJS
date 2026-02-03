@@ -1,6 +1,7 @@
 // Product cards
 export { ProductCard } from './product-card';
 export { ProductCard2 } from './product-card2';
+export { ProductCard2Skeleton } from './product-card2-skeleton';
 
 // Product card sub-components
 export { ProductImageCarousel } from './product-image-carousel';

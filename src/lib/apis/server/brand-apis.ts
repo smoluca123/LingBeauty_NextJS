@@ -1,3 +1,5 @@
+'use server';
+
 import { kyInstance } from '@/lib/kyInstance/ky';
 import {
   IApiPaginationParams,
@@ -6,7 +8,7 @@ import {
 import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 
 export const getBrandsAPI = async (
-  options: IApiPaginationParams = { page: 1, limit: 10 }
+  options: IApiPaginationParams = { page: 1, limit: 10 },
 ) => {
   try {
     const data = await kyInstance
@@ -16,7 +18,7 @@ export const getBrandsAPI = async (
           limit: options.limit,
         },
         next: {
-          revalidate: 60,
+          revalidate: 300,
         },
       })
       .json<IApiPaginationResponseWrapperType<IBrandDataType>>();
