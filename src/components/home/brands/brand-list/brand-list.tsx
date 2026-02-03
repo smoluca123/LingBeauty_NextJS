@@ -5,13 +5,19 @@ import { useGetBrandsQuery } from '@/hooks/querys/brand.query';
 import { BrandListSkeleton } from './brand-list-skeleton';
 import Image from 'next/image';
 import Link from 'next/link';
+import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 
-export function BrandList() {
+interface IProps {
+  initialData: IBrandDataType[];
+}
+
+export function BrandList({ initialData }: IProps) {
   const { data: brandsQuery, isLoading: brandsLoading } = useGetBrandsQuery({
     limit: 20,
   });
 
-  const brands = brandsQuery?.pages.flatMap((page) => page.data.items) ?? [];
+  const brands =
+    brandsQuery?.pages.flatMap((page) => page.data.items) ?? initialData;
 
   if (brandsLoading) {
     return <BrandListSkeleton />;

@@ -1,6 +1,4 @@
-import { Suspense } from 'react';
 import { BrandList } from '@/components/home/brands/brand-list';
-import { BrandListSkeleton } from './brand-list-skeleton';
 import { getBrandsQueryKey } from '@/hooks/querys/brand.query';
 import { getBrandsAPI } from '@/lib/apis/server/brand-apis';
 import {
@@ -11,6 +9,7 @@ import {
 
 export async function BrandListSection() {
   const queryClient = new QueryClient();
+  const initialData = await getBrandsAPI({ page: 1, limit: 20 });
   await queryClient.prefetchInfiniteQuery({
     queryKey: getBrandsQueryKey,
     queryFn: ({ pageParam }) => getBrandsAPI({ page: pageParam, limit: 20 }),
@@ -18,10 +17,8 @@ export async function BrandListSection() {
   });
 
   return (
-    <Suspense fallback={<BrandListSkeleton />}>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <BrandList />
-      </HydrationBoundary>
-    </Suspense>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <BrandList initialData={initialData.data.items} />
+    </HydrationBoundary>
   );
 }
