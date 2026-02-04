@@ -22,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSearchParams } from 'next/navigation';
 
 export function HeaderActions() {
   const [loginOpen, setLoginOpen] = useState(false);

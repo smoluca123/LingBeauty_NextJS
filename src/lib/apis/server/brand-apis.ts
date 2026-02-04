@@ -1,24 +1,25 @@
 'use server';
 
-import { kyInstance } from '@/lib/kyInstance/ky';
+import { publicKyInstance } from '@/lib/kyInstance/publicKy';
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+import { cacheLife, cacheTag } from 'next/cache';
 
 export const getBrandsAPI = async (
   options: IApiPaginationParams = { page: 1, limit: 10 },
 ) => {
+  'use cache';
+  cacheLife('hours');
+  cacheTag('brands');
   try {
-    const data = await kyInstance
+    const data = await publicKyInstance
       .get('brand', {
         searchParams: {
           page: options.page,
           limit: options.limit,
-        },
-        next: {
-          revalidate: 300,
         },
       })
       .json<IApiPaginationResponseWrapperType<IBrandDataType>>();

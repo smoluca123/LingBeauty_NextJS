@@ -1,30 +1,8 @@
 import { TopProducts } from '@/components/home/products/top-products-section/top-products';
-import { getProductsQueryKey } from '@/hooks/querys/product.query';
 import { getProductsAPI } from '@/lib/apis/server/product-apis';
-import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
-} from '@tanstack/react-query';
 
 export async function TopProductsSection() {
-  const queryClient = new QueryClient();
-
-  // Fetch initial data on server for SEO
   const initialData = await getProductsAPI({ page: 1 });
 
-  // Prefetch for React Query cache
-  await queryClient.prefetchInfiniteQuery({
-    queryKey: getProductsQueryKey,
-    queryFn: ({ pageParam }) => getProductsAPI({ page: pageParam }),
-    initialPageParam: 1,
-  });
-
-  return (
-    <>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <TopProducts initialData={initialData} />
-      </HydrationBoundary>
-    </>
-  );
+  return <TopProducts initialData={initialData} />;
 }
