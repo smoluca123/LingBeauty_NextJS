@@ -1,11 +1,10 @@
-
 interface CollectionBannerProps {
   name: string;
 }
 
 export function CollectionBanner({ name }: CollectionBannerProps) {
   return (
-    <div className="relative w-full h-[200px] sm:h-[280px] md:h-[340px] lg:h-[400px] overflow-hidden">
+    <div className="relative w-full h-50 sm:h-70 md:h-85 lg:h-100 overflow-hidden">
       {/* Background gradient layer */}
       <div className="absolute inset-0 bg-linear-to-b from-sky-300 via-sky-200 to-emerald-300" />
 
