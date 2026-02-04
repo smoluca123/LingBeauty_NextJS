@@ -12,16 +12,7 @@ interface IProps {
 }
 
 export function BrandList({ initialData }: IProps) {
-  const { data: brandsQuery, isLoading: brandsLoading } = useGetBrandsQuery({
-    limit: 20,
-  });
-
-  const brands =
-    brandsQuery?.pages.flatMap((page) => page.data.items) ?? initialData;
-
-  if (brandsLoading) {
-    return <BrandListSkeleton />;
-  }
+  const brands = initialData;
 
   return (
     <HorizontalScroller

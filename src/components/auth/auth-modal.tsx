@@ -31,7 +31,7 @@ export function AuthModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] rounded-2xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-125 rounded-2xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4 bg-linear-to-br from-primary-pink/5 to-transparent">
           <DialogTitle className="text-2xl font-bold text-center">
             {activeTab === 'login' ? 'Chào mừng trở lại!' : 'Tạo tài khoản mới'}
