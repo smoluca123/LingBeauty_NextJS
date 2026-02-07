@@ -11,7 +11,7 @@ interface CountdownTimerProps {
 
 export function CountdownTimer({ endTime, onExpire }: CountdownTimerProps) {
   const [time, setTime] = useState<CountdownTime>(() =>
-    calculateTimeRemaining(endTime)
+    calculateTimeRemaining(endTime),
   );
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export function CountdownTimer({ endTime, onExpire }: CountdownTimerProps) {
 
 function TimeUnit({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex items-center gap-1 rounded-md bg-white px-2 py-1">
+    <div className="flex md:flex-row flex-col items-center justify-center gap-1 rounded-md bg-white px-2 py-1">
       <span
-        className="min-w-[24px] text-center text-lg font-bold text-purple-700"
+        className="min-w-6 text-center text-lg font-bold text-purple-700"
         suppressHydrationWarning
       >
         {padZero(value)}

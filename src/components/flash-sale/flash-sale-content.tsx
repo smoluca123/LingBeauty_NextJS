@@ -24,7 +24,7 @@ export function FlashSaleContent({ flashSale }: FlashSaleContentProps) {
       <div className="bg-linear-to-b from-purple-100 to-pink-50 p-4 md:p-6">
         <HorizontalScroller
           ariaLabel="Flash sale products"
-          slidesPerView={{ mobile: 2, tablet: 3, desktop: 5 }}
+          slidesPerView={{ mobile: 1, tablet: 3, desktop: 5 }}
         >
           {flashSale.products.map((product) => (
             <FlashSaleProductCard key={product.id} product={product} />
