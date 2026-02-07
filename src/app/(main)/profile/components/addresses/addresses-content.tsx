@@ -8,22 +8,56 @@ import {
   type Address,
 } from '../../addresses/_data/mock-addresses';
 import { AddressCard } from './address-card';
-import { DeleteConfirmationDialog } from './delete-confirmation-dialog';
+import { DeleteConfirmationDialog, AddressFormDialog } from './components';
 
 // ============ Main Component ============
 export function AddressesContent() {
   const [addresses, setAddresses] = useState<Address[]>(MOCK_ADDRESSES);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
   const handleAddAddress = () => {
-    console.log('📍 Add new address clicked');
-    // TODO: Open address modal when implemented
+    setEditingAddress(null);
+    setFormDialogOpen(true);
   };
 
   const handleEditAddress = (id: string) => {
-    console.log('✏️ Edit address:', id);
-    // TODO: Open edit address modal
+    const address = addresses.find((addr) => addr.id === id);
+    if (address) {
+      setEditingAddress(address);
+      setFormDialogOpen(true);
+    }
+  };
+
+  const handleFormSubmit = (data: Omit<Address, 'id'>) => {
+    if (editingAddress) {
+      // Update existing address
+      console.log('✏️ Update address:', editingAddress.id, data);
+      setAddresses((prev) =>
+        prev.map((addr) =>
+          addr.id === editingAddress.id
+            ? { ...data, id: addr.id }
+            : data.isDefault
+              ? { ...addr, isDefault: false }
+              : addr,
+        ),
+      );
+    } else {
+      // Add new address
+      const newAddress: Address = {
+        ...data,
+        id: Date.now().toString(),
+      };
+      console.log('➕ Add new address:', newAddress);
+      setAddresses((prev) => {
+        if (newAddress.isDefault) {
+          return [...prev.map((addr) => ({ ...addr, isDefault: false })), newAddress];
+        }
+        return [...prev, newAddress];
+      });
+    }
   };
 
   const handleDeleteAddress = (id: string) => {
@@ -98,6 +132,14 @@ export function AddressesContent() {
           ))}
         </div>
       </div>
+
+      {/* Address Form Dialog */}
+      <AddressFormDialog
+        open={formDialogOpen}
+        onOpenChange={setFormDialogOpen}
+        onSubmit={handleFormSubmit}
+        editAddress={editingAddress}
+      />
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

@@ -1,0 +1,23 @@
+
+> client@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack, Cache Components)
+- Environments: .env
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 18.3s
+  Running TypeScript ...
+Failed to compile.
+
+./src/app/(main)/profile/components/addresses/hooks/use-address-auto-fill.ts:11:40
+Type error: Cannot find module '../address-form-schema' or its corresponding type declarations.
+
+   9 |   type LocationMode,
+  10 | } from '../data';
+> 11 | import type { AddressFormValues } from '../address-form-schema';
+     |                                        ^
+  12 |
+  13 | // ============ Types ============
+  14 | interface UseAddressAutoFillParams {
+Next.js build worker exited with code: 1 and signal: null
