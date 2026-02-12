@@ -31,7 +31,12 @@ import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { VIETNAM_LOCATIONS } from '../../../addresses/_data/vietnam-locations';
+import {
+  useVietnameseProvinces,
+  type ApiVersion,
+  isProvinceV1,
+  isProvinceV2,
+} from '@/hooks/useVietnameseProvinces';
 import type { Address } from '../../../addresses/_data/mock-addresses';
 
 // Form validation schema
@@ -64,6 +69,10 @@ export function AddressFormDialog({
   onSubmit,
   editAddress,
 }: AddressFormDialogProps) {
+  const [apiVersion, setApiVersion] = useState<ApiVersion>('v2');
+  const { provinces, loading: loadingProvinces } = useVietnameseProvinces({
+    version: apiVersion,
+  });
   const [selectedProvince, setSelectedProvince] = useState<string>('');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
 
@@ -93,13 +102,35 @@ export function AddressFormDialog({
         },
   });
 
-  // Get available districts based on selected province
-  const availableDistricts =
-    VIETNAM_LOCATIONS.find((p) => p.name === selectedProvince)?.districts || [];
+  // Get available districts based on selected province (v1 only)
+  const availableDistricts = (() => {
+    const province = provinces.find((p) => p.name === selectedProvince);
+    if (!province || !isProvinceV1(province)) {
+      return [];
+    }
+    return province.districts;
+  })();
 
-  // Get available wards based on selected district
-  const availableWards =
-    availableDistricts.find((d) => d.name === selectedDistrict)?.wards || [];
+  // Get available wards based on API version
+  const availableWards = (() => {
+    const province = provinces.find((p) => p.name === selectedProvince);
+    if (!province) return [];
+
+    // V2: wards directly in province
+    if (isProvinceV2(province)) {
+      return province.wards;
+    }
+
+    // V1: wards in districts
+    if (isProvinceV1(province)) {
+      const district = province.districts.find(
+        (d) => d.name === selectedDistrict,
+      );
+      return district?.wards || [];
+    }
+
+    return [];
+  })();
 
   // Handle province change
   const handleProvinceChange = (value: string) => {
@@ -114,6 +145,16 @@ export function AddressFormDialog({
   const handleDistrictChange = (value: string) => {
     setSelectedDistrict(value);
     form.setValue('district', value);
+    form.setValue('ward', '');
+  };
+
+  // Handle version change - reset selections
+  const handleVersionChange = (newVersion: ApiVersion) => {
+    setApiVersion(newVersion);
+    setSelectedProvince('');
+    setSelectedDistrict('');
+    form.setValue('city', '');
+    form.setValue('district', '');
     form.setValue('ward', '');
   };
 
@@ -152,8 +193,11 @@ export function AddressFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+        <Form {...form} key={apiVersion}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
             {/* Contact Information */}
             <div className="space-y-4">
               <h3 className="text-sm font-medium text-muted-foreground">
@@ -193,17 +237,49 @@ export function AddressFormDialog({
 
             {/* Location Selection */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Địa chỉ giao hàng
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Địa chỉ giao hàng
+                </h3>
+                {/* API Version Selector */}
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs text-muted-foreground">
+                    Dữ liệu:
+                  </Label>
+                  <div className="flex rounded-md border">
+                    <button
+                      type="button"
+                      onClick={() => handleVersionChange('v1')}
+                      className={`px-3 py-1 text-xs transition-colors ${
+                        apiVersion === 'v1'
+                          ? 'bg-primary-pink text-white'
+                          : 'bg-background text-muted-foreground hover:bg-muted'
+                      }`}
+                    >
+                      Trước 07/2025
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleVersionChange('v2')}
+                      className={`px-3 py-1 text-xs transition-colors ${
+                        apiVersion === 'v2'
+                          ? 'bg-primary-pink text-white'
+                          : 'bg-background text-muted-foreground hover:bg-muted'
+                      }`}
+                    >
+                      Sau 07/2025
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-4">
                 {/* Province/City Select */}
                 <FormField
                   control={form.control}
                   name="city"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="md:col-span-3">
                       <FormLabel>Tỉnh/Thành phố</FormLabel>
                       <Select
                         onValueChange={(value) => {
@@ -213,16 +289,25 @@ export function AddressFormDialog({
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Chọn Tỉnh/Thành phố" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {VIETNAM_LOCATIONS.map((province) => (
-                            <SelectItem key={province.id} value={province.name}>
-                              {province.name}
+                          {loadingProvinces ? (
+                            <SelectItem value="loading" disabled>
+                              Đang tải dữ liệu...
                             </SelectItem>
-                          ))}
+                          ) : (
+                            provinces.map((province) => (
+                              <SelectItem
+                                key={province.code}
+                                value={province.name}
+                              >
+                                {province.name}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -230,68 +315,81 @@ export function AddressFormDialog({
                   )}
                 />
 
+                <div
+                  className={`grid grid-cols-1 gap-4 ${apiVersion === 'v1' ? 'md:grid-cols-2' : ''}`}
+                >
+                  {/* District Select - Only show for v1 */}
+                  {apiVersion === 'v1' && (
+                    <FormField
+                      control={form.control}
+                      name="district"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel>Quận/Huyện</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              handleDistrictChange(value);
+                              field.onChange(value);
+                            }}
+                            value={field.value}
+                            disabled={!selectedProvince}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Chọn Quận/Huyện" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {availableDistricts.map((district) => (
+                                <SelectItem
+                                  key={district.code}
+                                  value={district.name}
+                                >
+                                  {district.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+
+                  {/* Ward Select */}
+                  <FormField
+                    control={form.control}
+                    name="ward"
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Phường/Xã</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          disabled={
+                            !selectedProvince ||
+                            (apiVersion === 'v1' && !selectedDistrict)
+                          }
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full ">
+                              <SelectValue placeholder="Chọn Phường/Xã" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {availableWards.map((ward) => (
+                              <SelectItem key={ward.code} value={ward.name}>
+                                {ward.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 {/* District Select */}
-                <FormField
-                  control={form.control}
-                  name="district"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Quận/Huyện</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          handleDistrictChange(value);
-                          field.onChange(value);
-                        }}
-                        value={field.value}
-                        disabled={!selectedProvince}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn Quận/Huyện" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableDistricts.map((district) => (
-                            <SelectItem key={district.id} value={district.name}>
-                              {district.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Ward Select */}
-                <FormField
-                  control={form.control}
-                  name="ward"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Phường/Xã</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        disabled={!selectedDistrict}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Chọn Phường/Xã" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {availableWards.map((ward) => (
-                            <SelectItem key={ward.id} value={ward.name}>
-                              {ward.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Street Address */}
@@ -302,10 +400,7 @@ export function AddressFormDialog({
                   <FormItem>
                     <FormLabel>Địa chỉ cụ thể</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Số nhà, tên đường..."
-                        {...field}
-                      />
+                      <Input placeholder="Số nhà, tên đường..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
