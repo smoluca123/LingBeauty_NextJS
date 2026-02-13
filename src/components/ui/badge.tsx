@@ -18,6 +18,8 @@ const badgeVariants = cva(
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        "primary-pink": "bg-primary-pink text-white [a&]:hover:bg-primary-pink/90",
+        success: "bg-green-500 text-white",
       },
     },
     defaultVariants: {
