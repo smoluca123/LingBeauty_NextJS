@@ -1,51 +1,58 @@
 'use client';
 
-import {
-  MapPin,
-  Phone,
-  Home,
-  Building2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  CheckCircle2,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  ADDRESS_TYPE_LABELS,
-  getFullAddress,
-  type Address,
-} from '../../addresses/_data/mock-addresses';
+  DeleteConfirmationDialog,
+  EditFormDialog,
+  DefaultConfirmationDialog,
+} from './components';
+import { AddressHeader } from './components/address-header';
+import { AddressInfo } from './components/address-info';
+import { AddressActionsMenu } from './components/address-actions-menu';
+import { useAddressActions } from './hooks/use-address-actions';
 
-// ============ Address Type Icons ============
-const ADDRESS_TYPE_ICONS: Record<Address['type'], React.ReactNode> = {
-  home: <Home className="h-4 w-4" />,
-  office: <Building2 className="h-4 w-4" />,
-  other: <MapPin className="h-4 w-4" />,
-};
-
-// ============ Address Card Component ============
 interface AddressCardProps {
-  address: Address;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-  onSetDefault: (id: string) => void;
+  address: IAddressDataType;
 }
 
-export function AddressCard({
-  address,
-  onEdit,
-  onDelete,
-  onSetDefault,
-}: AddressCardProps) {
+/**
+ * AddressCard Component
+ *
+ * Displays a single address card with:
+ * - Header with name, default badge, and type badge
+ * - Contact information (phone and address)
+ * - Actions menu (set default, edit, delete)
+ * - Delete confirmation dialog
+ * - Edit form dialog (managed internally)
+ * - Set default confirmation dialog (managed internally)
+ *
+ * Optimized for React Compiler with:
+ * - Pure sub-components
+ * - Custom hooks for state management
+ * - Minimized inline logic
+ */
+export function AddressCard({ address }: AddressCardProps) {
+  const {
+    deleteConfirmOpen,
+    isDeleting,
+    closeDeleteConfirm,
+    confirmDelete,
+    openDeleteConfirm,
+    editFormOpen,
+    addressToEdit,
+    isUpdating,
+    openEditForm,
+    closeEditForm,
+    confirmEdit,
+    defaultConfirmOpen,
+    addressToSetDefault,
+    isSettingDefault,
+    openDefaultConfirm,
+    closeDefaultConfirm,
+    confirmDefault,
+  } = useAddressActions();
+
   return (
     <Card
       className={`overflow-hidden transition-all ${
@@ -56,70 +63,57 @@ export function AddressCard({
     >
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
-          {/* Info */}
+          {/* Main content */}
           <div className="flex-1 space-y-2">
-            {/* Name & Default Badge */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-semibold text-foreground">
-                {address.name}
-              </span>
-              {address.isDefault && (
-                <Badge className="bg-primary-pink/10 text-primary-pink border-0 text-xs">
-                  <CheckCircle2 className="mr-1 h-3 w-3" />
-                  Mặc định
-                </Badge>
-              )}
-              <Badge
-                variant="outline"
-                className="text-xs gap-1 text-muted-foreground"
-              >
-                {ADDRESS_TYPE_ICONS[address.type]}
-                {ADDRESS_TYPE_LABELS[address.type]}
-              </Badge>
-            </div>
-
-            {/* Phone */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Phone className="h-3.5 w-3.5" />
-              <span>{address.phone}</span>
-            </div>
-
-            {/* Address */}
-            <div className="flex items-start gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-              <span>{getFullAddress(address)}</span>
-            </div>
+            <AddressHeader
+              fullName={address.fullName}
+              isDefault={address.isDefault}
+              type={address.type}
+            />
+            <AddressInfo address={address} />
           </div>
 
-          {/* Actions */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {!address.isDefault && (
-                <DropdownMenuItem onClick={() => onSetDefault(address.id)}>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Đặt làm mặc định
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => onEdit(address.id)}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Chỉnh sửa
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => onDelete(address.id)}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Xóa
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* Actions menu */}
+          <AddressActionsMenu
+            addressId={address.id}
+            isDefault={address.isDefault}
+            onEdit={() => openEditForm(address)}
+            onSetDefault={() => openDefaultConfirm(address)}
+            onDelete={openDeleteConfirm}
+          />
         </div>
       </CardContent>
+
+      {/* Delete confirmation dialog */}
+      <DeleteConfirmationDialog
+        open={deleteConfirmOpen}
+        addressName={address.fullName}
+        isSubmitting={isDeleting}
+        onConfirm={confirmDelete}
+        onCancel={closeDeleteConfirm}
+      />
+
+      {/* Edit form dialog */}
+      {addressToEdit && (
+        <EditFormDialog
+          open={editFormOpen}
+          address={addressToEdit}
+          isSubmitting={isUpdating}
+          onSubmit={confirmEdit}
+          onCancel={closeEditForm}
+        />
+      )}
+
+      {/* Set default confirmation dialog */}
+      {addressToSetDefault && (
+        <DefaultConfirmationDialog
+          open={defaultConfirmOpen}
+          addressName={addressToSetDefault.fullName}
+          isSubmitting={isSettingDefault}
+          onConfirm={confirmDefault}
+          onCancel={closeDefaultConfirm}
+        />
+      )}
     </Card>
   );
 }

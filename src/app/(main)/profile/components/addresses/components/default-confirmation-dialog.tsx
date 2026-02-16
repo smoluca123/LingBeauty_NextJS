@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { Home, Loader2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-interface DeleteConfirmationDialogProps {
+interface DefaultConfirmationDialogProps {
   open: boolean;
   addressName: string | null;
   onConfirm: () => void;
@@ -20,51 +20,52 @@ interface DeleteConfirmationDialogProps {
   isSubmitting: boolean;
 }
 
-export function DeleteConfirmationDialog({
+export function DefaultConfirmationDialog({
   open,
   addressName,
   onConfirm,
   onCancel,
   isSubmitting,
-}: DeleteConfirmationDialogProps) {
+}: DefaultConfirmationDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary-pink/10">
+              <Home className="h-5 w-5 text-primary-pink" />
             </div>
-            <AlertDialogTitle>Xác nhận xóa địa chỉ</AlertDialogTitle>
+            <AlertDialogTitle>
+              Xác nhận đặt làm địa chỉ mặc định
+            </AlertDialogTitle>
           </div>
           <AlertDialogDescription className="pt-2">
-            Bạn có chắc chắn muốn xóa địa chỉ{' '}
+            Bạn có chắc chắn muốn đặt{' '}
             <span className="font-semibold text-foreground">
-              {addressName || 'này'}
-            </span>
-            ? Hành động này không thể hoàn tác.
+              {addressName || 'địa chỉ này'}
+            </span>{' '}
+            làm địa chỉ mặc định?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Hủy</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
             onClick={(e) => {
               e.preventDefault();
               onConfirm();
             }}
             disabled={isSubmitting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-primary-pink text-white hover:bg-primary-pink/90"
           >
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Đang xóa...
+                Đang xử lý...
               </>
             ) : (
               <>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Xóa địa chỉ
+                <Home className="mr-2 h-4 w-4" />
+                Đặt làm mặc định
               </>
             )}
           </AlertDialogAction>

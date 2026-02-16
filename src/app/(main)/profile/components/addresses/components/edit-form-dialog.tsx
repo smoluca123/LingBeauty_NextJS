@@ -43,54 +43,52 @@ import {
   AddressFormValues,
 } from '@/lib/zod-schemas/addresses.schema';
 
-interface AddressFormDialogProps {
+interface EditFormDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  address: IAddressDataType;
+  isSubmitting: boolean;
   onSubmit: (data: AddressFormValues) => void | Promise<void>;
-  editAddress?: IAddressDataType | null;
-  isSubmitting?: boolean;
+  onCancel: () => void;
 }
 
-export function AddressFormDialog({
+/**
+ * Edit Form Dialog Component
+ *
+ * Dedicated dialog for editing existing addresses.
+ * Manages its own form state and Vietnamese address data.
+ */
+export function EditFormDialog({
   open,
-  onOpenChange,
+  address,
+  isSubmitting,
   onSubmit,
-  editAddress,
-  isSubmitting = false,
-}: AddressFormDialogProps) {
+  onCancel,
+}: EditFormDialogProps) {
   const [apiVersion] = useState<ApiVersion>('v1');
   const { provinces, loading: loadingProvinces } = useVietnameseProvinces({
     version: apiVersion,
   });
-  const [selectedProvince, setSelectedProvince] = useState<string>('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  const [selectedProvince, setSelectedProvince] = useState<string>(
+    address.province,
+  );
+  const [selectedDistrict, setSelectedDistrict] = useState<string>(
+    address.city,
+  );
 
   const form = useForm<AddressFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(addressFormSchema) as any,
-    defaultValues: editAddress
-      ? {
-          fullName: editAddress.fullName,
-          phone: editAddress.phone,
-          addressLine1: editAddress.addressLine1,
-          addressLine2: editAddress.addressLine2 || '',
-          city: editAddress.city,
-          province: editAddress.province,
-          postalCode: editAddress.postalCode,
-          type: editAddress.type,
-          isDefault: editAddress.isDefault,
-        }
-      : {
-          fullName: '',
-          phone: '',
-          addressLine1: '',
-          addressLine2: '',
-          city: '',
-          province: '',
-          postalCode: '',
-          type: 'HOME',
-          isDefault: false,
-        },
+    defaultValues: {
+      fullName: address.fullName,
+      phone: address.phone,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2 || '',
+      city: address.city,
+      province: address.province,
+      postalCode: address.postalCode,
+      type: address.type,
+      isDefault: address.isDefault,
+    },
   });
 
   // Get available districts based on selected province (v1 only)
@@ -123,43 +121,22 @@ export function AddressFormDialog({
     return [];
   })();
 
-  // Reset form values when editAddress changes or dialog opens
+  // Reset form when address changes or dialog state changes
   useEffect(() => {
     if (open) {
-      if (editAddress) {
-        // Editing mode: populate form with existing data
-        form.reset({
-          fullName: editAddress.fullName,
-          phone: editAddress.phone,
-          addressLine1: editAddress.addressLine1,
-          addressLine2: editAddress.addressLine2 || '',
-          city: editAddress.city,
-          province: editAddress.province,
-          postalCode: editAddress.postalCode,
-          type: editAddress.type,
-          isDefault: editAddress.isDefault,
-        });
-        // Set local state for dropdowns
-        setSelectedProvince(editAddress.province);
-        setSelectedDistrict(editAddress.city);
-      } else {
-        // Add mode: reset to default values
-        form.reset({
-          fullName: '',
-          phone: '',
-          addressLine1: '',
-          addressLine2: '',
-          city: '',
-          province: '',
-          postalCode: '',
-          type: 'HOME',
-          isDefault: false,
-        });
-        setSelectedProvince('');
-        setSelectedDistrict('');
-      }
+      form.reset({
+        fullName: address.fullName,
+        phone: address.phone,
+        addressLine1: address.addressLine1,
+        addressLine2: address.addressLine2 || '',
+        city: address.city,
+        province: address.province,
+        postalCode: address.postalCode,
+        type: address.type,
+        isDefault: address.isDefault,
+      });
     }
-  }, [editAddress, open, form]);
+  }, [address, open, form]);
 
   // Handle province change
   const handleProvinceChange = (value: string) => {
@@ -177,32 +154,16 @@ export function AddressFormDialog({
     form.setValue('postalCode', '');
   };
 
-  // Handle version change - reset selections
-  // const handleVersionChange = (newVersion: ApiVersion) => {
-  //   setApiVersion(newVersion);
-  //   setSelectedProvince('');
-  //   setSelectedDistrict('');
-  //   form.setValue('city', '');
-  //   form.setValue('district', '');
-  //   form.setValue('ward', '');
-  // };
-
   // Handle form submission
   const handleSubmit = async (data: AddressFormValues) => {
     try {
-      console.log('📝 Form submitted:', data);
-      // Ensure isDefault is always a boolean
       const submissionData = {
         ...data,
         isDefault: data.isDefault ?? false,
       };
       await onSubmit(submissionData);
     } catch (error) {
-      console.error('📝 Form submission failed:', error);
-    } finally {
-      form.reset();
-      setSelectedProvince('');
-      setSelectedDistrict('');
+      console.error('📝 Edit form submission failed:', error);
     }
   };
 
@@ -211,7 +172,7 @@ export function AddressFormDialog({
     form.reset();
     setSelectedProvince('');
     setSelectedDistrict('');
-    onOpenChange(false);
+    onCancel();
   };
 
   return (
@@ -219,7 +180,7 @@ export function AddressFormDialog({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">
-            {editAddress ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới'}
+            Chỉnh sửa địa chỉ
           </DialogTitle>
           <DialogDescription>
             Vui lòng điền đầy đủ thông tin địa chỉ giao hàng
@@ -270,41 +231,9 @@ export function AddressFormDialog({
 
             {/* Location Selection */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-muted-foreground">
-                  Địa chỉ giao hàng
-                </h3>
-                {/* API Version Selector */}
-                {/* <div className="flex items-center gap-2">
-                  <Label className="text-xs text-muted-foreground">
-                    Dữ liệu:
-                  </Label>
-                  <div className="flex rounded-md border">
-                    <button
-                      type="button"
-                      onClick={() => handleVersionChange('v1')}
-                      className={`px-3 py-1 text-xs transition-colors ${
-                        apiVersion === 'v1'
-                          ? 'bg-primary-pink text-white'
-                          : 'bg-background text-muted-foreground hover:bg-muted'
-                      }`}
-                    >
-                      Trước 07/2025
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleVersionChange('v2')}
-                      className={`px-3 py-1 text-xs transition-colors ${
-                        apiVersion === 'v2'
-                          ? 'bg-primary-pink text-white'
-                          : 'bg-background text-muted-foreground hover:bg-muted'
-                      }`}
-                    >
-                      Sau 07/2025
-                    </button>
-                  </div>
-                </div> */}
-              </div>
+              <h3 className="text-sm font-medium text-muted-foreground">
+                Địa chỉ giao hàng
+              </h3>
 
               <div className="space-y-4">
                 {/* Province/City Select */}
@@ -422,7 +351,6 @@ export function AddressFormDialog({
                     )}
                   />
                 </div>
-                {/* District Select */}
               </div>
 
               {/* Street Address */}
@@ -524,10 +452,10 @@ export function AddressFormDialog({
                 {isSubmitting ? (
                   <>
                     <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Đang xử lý...
+                    Đang cập nhật...
                   </>
                 ) : (
-                  <>{editAddress ? 'Cập nhật' : 'Thêm địa chỉ'}</>
+                  'Cập nhật'
                 )}
               </Button>
             </div>

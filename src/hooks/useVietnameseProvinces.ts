@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { kyClientInstance } from '@/lib/kyInstance/kyClient';
 
 // V1 Types (3-level: Province -> District -> Ward)
@@ -110,7 +110,7 @@ export function isProvinceV2(province: Province): province is ProvinceV2 {
 export function useVietnameseProvinces(
   options: UseVietnameseProvincesOptions = {},
 ) {
-  const { version = 'v2' } = options;
+  const { version = 'v1' } = options;
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,8 +118,7 @@ export function useVietnameseProvinces(
   const { data: cacheKey, expiry: expiryKey } = getCacheKey(version);
 
   // Helper to get cached data
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const getCachedData = (): Province[] | null => {
+  const getCachedData = useCallback((): Province[] | null => {
     try {
       const cachedData = localStorage.getItem(cacheKey);
       const cacheExpiry = localStorage.getItem(expiryKey);
@@ -134,18 +133,23 @@ export function useVietnameseProvinces(
       console.error('Error reading cache:', err);
     }
     return null;
-  };
+  }, [cacheKey, expiryKey]);
 
   // Helper to set cached data
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const setCachedData = (data: Province[]) => {
-    try {
-      localStorage.setItem(cacheKey, JSON.stringify(data));
-      localStorage.setItem(expiryKey, (Date.now() + CACHE_DURATION).toString());
-    } catch (err) {
-      console.error('Error setting cache:', err);
-    }
-  };
+  const setCachedData = useCallback(
+    (data: Province[]) => {
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(
+          expiryKey,
+          (Date.now() + CACHE_DURATION).toString(),
+        );
+      } catch (err) {
+        console.error('Error setting cache:', err);
+      }
+    },
+    [cacheKey, expiryKey],
+  );
 
   useEffect(() => {
     const fetchProvinces = async () => {

@@ -1,4 +1,6 @@
+import { Suspense } from 'react';
 import { AddressesContent } from '../components';
+import { Loader2 } from 'lucide-react';
 
 export default function AddressesPage() {
   return (
@@ -6,7 +8,15 @@ export default function AddressesPage() {
       <h1 className="text-2xl font-semibold text-foreground">
         Địa chỉ giao nhận
       </h1>
-      <AddressesContent />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center">
+            <Loader2 className="animate-spin text-primary-pink" />
+          </div>
+        }
+      >
+        <AddressesContent />
+      </Suspense>
     </div>
   );
 }
