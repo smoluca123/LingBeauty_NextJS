@@ -1,6 +1,29 @@
 import { getBrandsAPI } from '@/lib/apis/server/brand-apis';
 import { IApiPaginationParams } from '@/lib/types/interfaces/apis/api.interfaces';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+
+export const getBrandsListForSEOQueryKey = ['brands', 'list-for-seo'];
+export const useGetBrandsListForSEO = ({
+  initialData,
+}: {
+  initialData?: IBrandDataType[];
+}) => {
+  const getBrands = async () => {
+    try {
+      const response = await getBrandsAPI();
+      return response.data.items;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  };
+
+  return useQuery({
+    queryKey: getBrandsListForSEOQueryKey,
+    queryFn: getBrands,
+    initialData,
+  });
+};
 
 export const getBrandsQueryKey = ['brands'];
 export const useGetBrandsQuery = (options?: {

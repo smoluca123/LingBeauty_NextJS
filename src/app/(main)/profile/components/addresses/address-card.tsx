@@ -10,7 +10,9 @@ import {
 import { AddressHeader } from './components/address-header';
 import { AddressInfo } from './components/address-info';
 import { AddressActionsMenu } from './components/address-actions-menu';
-import { useAddressActions } from './hooks/use-address-actions';
+import { useDeleteAddress } from './hooks/use-delete-address';
+import { useEditAddress } from './hooks/use-edit-address';
+import { useSetDefaultAddress } from './hooks/use-set-default-address';
 
 interface AddressCardProps {
   address: IAddressDataType;
@@ -24,34 +26,16 @@ interface AddressCardProps {
  * - Contact information (phone and address)
  * - Actions menu (set default, edit, delete)
  * - Delete confirmation dialog
- * - Edit form dialog (managed internally)
- * - Set default confirmation dialog (managed internally)
+ * - Edit form dialog
+ * - Set default confirmation dialog
  *
- * Optimized for React Compiler with:
- * - Pure sub-components
- * - Custom hooks for state management
- * - Minimized inline logic
+ * Each action is managed by its own dedicated hook
+ * following Single Responsibility Principle
  */
 export function AddressCard({ address }: AddressCardProps) {
-  const {
-    deleteConfirmOpen,
-    isDeleting,
-    closeDeleteConfirm,
-    confirmDelete,
-    openDeleteConfirm,
-    editFormOpen,
-    addressToEdit,
-    isUpdating,
-    openEditForm,
-    closeEditForm,
-    confirmEdit,
-    defaultConfirmOpen,
-    addressToSetDefault,
-    isSettingDefault,
-    openDefaultConfirm,
-    closeDefaultConfirm,
-    confirmDefault,
-  } = useAddressActions();
+  const deleteAction = useDeleteAddress();
+  const editAction = useEditAddress();
+  const setDefaultAction = useSetDefaultAddress();
 
   return (
     <Card
@@ -77,41 +61,41 @@ export function AddressCard({ address }: AddressCardProps) {
           <AddressActionsMenu
             addressId={address.id}
             isDefault={address.isDefault}
-            onEdit={() => openEditForm(address)}
-            onSetDefault={() => openDefaultConfirm(address)}
-            onDelete={openDeleteConfirm}
+            onEdit={() => editAction.open(address)}
+            onSetDefault={() => setDefaultAction.open(address)}
+            onDelete={() => deleteAction.open(address.id)}
           />
         </div>
       </CardContent>
 
       {/* Delete confirmation dialog */}
       <DeleteConfirmationDialog
-        open={deleteConfirmOpen}
+        open={deleteAction.isOpen}
         addressName={address.fullName}
-        isSubmitting={isDeleting}
-        onConfirm={confirmDelete}
-        onCancel={closeDeleteConfirm}
+        isSubmitting={deleteAction.isDeleting}
+        onConfirm={deleteAction.confirm}
+        onCancel={deleteAction.close}
       />
 
       {/* Edit form dialog */}
-      {addressToEdit && (
+      {editAction.address && (
         <EditFormDialog
-          open={editFormOpen}
-          address={addressToEdit}
-          isSubmitting={isUpdating}
-          onSubmit={confirmEdit}
-          onCancel={closeEditForm}
+          open={editAction.isOpen}
+          address={editAction.address}
+          isSubmitting={editAction.isUpdating}
+          onSubmit={editAction.confirm}
+          onCancel={editAction.close}
         />
       )}
 
       {/* Set default confirmation dialog */}
-      {addressToSetDefault && (
+      {setDefaultAction.address && (
         <DefaultConfirmationDialog
-          open={defaultConfirmOpen}
-          addressName={addressToSetDefault.fullName}
-          isSubmitting={isSettingDefault}
-          onConfirm={confirmDefault}
-          onCancel={closeDefaultConfirm}
+          open={setDefaultAction.isOpen}
+          addressName={setDefaultAction.address.fullName}
+          isSubmitting={setDefaultAction.isSettingDefault}
+          onConfirm={setDefaultAction.confirm}
+          onCancel={setDefaultAction.close}
         />
       )}
     </Card>

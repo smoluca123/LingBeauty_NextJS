@@ -1,27 +1,21 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
+import { kyClientInstance } from '@/lib/kyInstance/kyClient';
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
+import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 import { HTTPError } from 'ky';
 
-export const getMyAddressesAPI = async (
-  params?: IApiPaginationParams & {
-    search?: string;
-  },
-) => {
+export const getBrandsAPI = async (params?: IApiPaginationParams) => {
   try {
-    //   const response = await getMyAddressesAPI(params || {});
-    const response = await kyNextInstance
-      .get('me/address', {
+    const response = await kyClientInstance
+      .get('brand', {
         searchParams: {
           limit: params?.limit,
           page: params?.page,
-          search: params?.search,
         },
       })
-      .json<IApiPaginationResponseWrapperType<IAddressDataType>>();
+      .json<IApiPaginationResponseWrapperType<IBrandDataType>>();
     return response;
   } catch (error) {
     if (error instanceof HTTPError) {

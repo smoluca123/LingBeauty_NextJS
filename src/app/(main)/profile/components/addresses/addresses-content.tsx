@@ -20,10 +20,11 @@ export function AddressesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
-  const [page, setPage] = useState(
-    Number(searchParams.get('page')) || DEFAULT_PAGE,
-  );
-  const [limit] = useState(Number(searchParams.get('limit')) || DEFAULT_LIMIT);
+
+  // Derive page and limit directly from URL search params
+  // Ensures state stays in sync with URL (browser back/forward)
+  const page = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const limit = Number(searchParams.get('limit')) || DEFAULT_LIMIT;
 
   // Fetch addresses from API
   const { data, isLoading, error } = useGetMyAddressesQuery({
@@ -58,11 +59,10 @@ export function AddressesContent() {
     }
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set('page', page.toString());
+    params.set('page', newPage.toString());
     router.push(`?${params.toString()}`, { scroll: false });
-    setPage(page);
   };
 
   return (

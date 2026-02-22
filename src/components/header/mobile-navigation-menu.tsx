@@ -19,90 +19,26 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 
-const categories = [
-  {
-    label: 'Thương hiệu',
-    href: '/brands',
-    items: [
-      { label: 'Thương hiệu nổi tiếng', href: '/brands/popular' },
-      { label: 'Thương hiệu mới', href: '/brands/new' },
-      { label: 'Tất cả thương hiệu', href: '/brands/all' },
-    ],
-  },
-  {
-    label: 'Khuyến mãi hot',
-    href: '/promotions',
-    items: [
-      { label: 'Deal hôm nay', href: '/promotions/today' },
-      { label: 'Flash sale', href: '/promotions/flash-sale' },
-      { label: 'Mua 1 tặng 1', href: '/promotions/buy-1-get-1' },
-    ],
-  },
-  {
-    label: 'Sản phẩm cao cấp',
-    href: '/premium',
-    items: [
-      { label: 'Skincare cao cấp', href: '/premium/skincare' },
-      { label: 'Makeup cao cấp', href: '/premium/makeup' },
-      { label: 'Chăm sóc da', href: '/premium/care' },
-    ],
-  },
-  {
-    label: 'Trang điểm',
-    href: '/makeup',
-    items: [
-      { label: 'Foundation', href: '/makeup/foundation' },
-      { label: 'Lipstick', href: '/makeup/lipstick' },
-      { label: 'Eye makeup', href: '/makeup/eye' },
-      { label: 'Blush', href: '/makeup/blush' },
-    ],
-  },
-  {
-    label: 'Chăm Sóc Da',
-    href: '/skincare',
-    items: [
-      { label: 'Cleanser', href: '/skincare/cleanser' },
-      { label: 'Serum', href: '/skincare/serum' },
-      { label: 'Moisturizer', href: '/skincare/moisturizer' },
-      { label: 'Sunscreen', href: '/skincare/sunscreen' },
-    ],
-  },
-  {
-    label: 'Chăm sóc cá nhân',
-    href: '/personal-care',
-    items: [
-      { label: 'Hair care', href: '/personal-care/hair' },
-      { label: 'Body care', href: '/personal-care/body' },
-      { label: 'Fragrance', href: '/personal-care/fragrance' },
-    ],
-  },
-  {
-    label: 'Chăm sóc cơ thể',
-    href: '/body-care',
-    items: [
-      { label: 'Body wash', href: '/body-care/wash' },
-      { label: 'Body lotion', href: '/body-care/lotion' },
-      { label: 'Scrub', href: '/body-care/scrub' },
-    ],
-  },
-  {
-    label: 'Sản Phẩm Mới',
-    href: '/new-products',
-    items: [
-      { label: 'Sản phẩm mới nhất', href: '/new-products/latest' },
-      { label: 'Xu hướng mới', href: '/new-products/trending' },
-    ],
-  },
-];
+interface MobileNavigationMenuProps {
+  categories: ICategoryDataType[];
+}
 
-export function MobileNavigationMenu() {
+export function MobileNavigationMenu({
+  categories,
+}: MobileNavigationMenuProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <Drawer open={open} onOpenChange={setOpen} direction="left">
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden" aria-label="Menu">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          aria-label="Menu"
+        >
           <Menu className="h-5 w-5" />
         </Button>
       </DrawerTrigger>
@@ -120,35 +56,11 @@ export function MobileNavigationMenu() {
         <div className="flex-1 overflow-y-auto p-4">
           <Accordion type="single" collapsible className="w-full">
             {categories.map((category) => (
-              <AccordionItem key={category.label} value={category.label}>
-                <div className="flex items-center justify-between">
-                  <AccordionTrigger className="flex-1 text-left py-4">
-                    {category.label}
-                  </AccordionTrigger>
-                  <Link
-                    href={category.href}
-                    onClick={() => setOpen(false)}
-                    className="px-4 py-4 text-sm text-primary-pink hover:underline"
-                  >
-                    Xem tất cả
-                  </Link>
-                </div>
-                <AccordionContent>
-                  <ul className="space-y-2 pl-4 pb-2">
-                    {category.items.map((item) => (
-                      <li key={item.label}>
-                        <Link
-                          href={item.href}
-                          onClick={() => setOpen(false)}
-                          className="block py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {item.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
+              <MobileCategoryItem
+                key={category.id}
+                category={category}
+                onNavigate={() => setOpen(false)}
+              />
             ))}
           </Accordion>
         </div>
@@ -157,3 +69,86 @@ export function MobileNavigationMenu() {
   );
 }
 
+interface MobileCategoryItemProps {
+  category: ICategoryDataType;
+  onNavigate: () => void;
+}
+
+/**
+ * Renders a single category item in the mobile accordion menu.
+ * If category has children, shows an accordion with expandable sub-items.
+ * If no children, shows a simple link.
+ */
+function MobileCategoryItem({ category, onNavigate }: MobileCategoryItemProps) {
+  const hasChildren = category.children.length > 0;
+
+  // Category without children - render as simple link
+  if (!hasChildren) {
+    return (
+      <div className="border-b">
+        <Link
+          href={category.slug}
+          onClick={onNavigate}
+          className="flex items-center py-4 text-sm font-medium hover:text-primary-pink transition-colors"
+        >
+          {category.name}
+        </Link>
+      </div>
+    );
+  }
+
+  // Category with children - render as accordion
+  return (
+    <AccordionItem value={category.id}>
+      <div className="flex items-center justify-between">
+        <AccordionTrigger className="flex-1 text-left py-4">
+          {category.name}
+        </AccordionTrigger>
+        <Link
+          href={category.slug}
+          onClick={onNavigate}
+          className="px-4 py-4 text-sm text-primary-pink hover:underline"
+        >
+          Xem tất cả
+        </Link>
+      </div>
+      <AccordionContent>
+        <ul className="space-y-2 pl-4 pb-2">
+          {category.children.map((child) => (
+            <MobileChildItem
+              key={child.type === 'BRAND' ? child.brand.id : child.id}
+              item={child}
+              onNavigate={onNavigate}
+            />
+          ))}
+        </ul>
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
+
+interface MobileChildItemProps {
+  item: ICategoryDataType;
+  onNavigate: () => void;
+}
+
+/**
+ * Renders a child item inside an accordion.
+ * Handles both BRAND and CATEGORY types using discriminated union.
+ */
+function MobileChildItem({ item, onNavigate }: MobileChildItemProps) {
+  const href = item.type === 'BRAND' ? item.brand.slug : item.slug;
+  const label = item.type === 'BRAND' ? item.brand.name : item.name;
+
+  return (
+    <li>
+      <Link
+        href={href}
+        onClick={onNavigate}
+        className="block py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        {label}
+      </Link>
+    </li>
+  );
+}

@@ -1,3 +1,4 @@
+import { addMyAddressAPI } from '@/lib/apis/client/actions/address.actions';
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 import {
@@ -12,32 +13,23 @@ export const useAddMyAddress = () => {
   // const queryClient = useQueryClient();
   const addMyAddress = async (data: AddressFormValues) => {
     try {
-      const response = await kyNextInstance
-        .post('me/address', {
-          json: data,
-        })
-        .json<
-          INextApiResponseWrapperType<IApiResponseWrapperType<IAddressDataType>>
-        >();
-      return response.data;
+      const response = await addMyAddressAPI(data);
+      return response;
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Failed to add address');
+      throw new Error(error as string);
     }
   };
 
   return useMutation({
     mutationFn: addMyAddress,
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate queries to refetch addresses
       // queryClient.invalidateQueries({
       //   queryKey: getMyAddressesQueryKey({ page: values., limit }),
       // });
 
       // Show success toast
-      toast.success('Thêm địa chỉ thành công!');
+      toast.success(data.message || 'Thêm địa chỉ thành công!');
     },
     onError: (error) => {
       toast.error(error.message || 'Thêm địa chỉ thất bại!');
@@ -73,7 +65,7 @@ export const useUpdateMyAddress = () => {
 
   return useMutation({
     mutationFn: updateMyAddress,
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       // Invalidate queries to refetch addresses
       // queryClient.invalidateQueries({
       //   queryKey: getMyAddressesQueryKey({ page: values., limit }),
@@ -83,7 +75,7 @@ export const useUpdateMyAddress = () => {
         queryKey: ['addresses'],
       });
       // Show success toast
-      toast.success('Cập nhật địa chỉ thành công!');
+      toast.success(data.message || 'Cập nhật địa chỉ thành công!');
     },
     onError: (error) => {
       toast.error(error.message || 'Cập nhật địa chỉ thất bại!');

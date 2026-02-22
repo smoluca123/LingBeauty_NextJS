@@ -1,9 +1,4 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
-import {
-  IApiPaginationResponseWrapperType,
-  INextApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+import { getMyAddressesAPI } from '@/lib/apis/client/address.apis';
 import { useQuery } from '@tanstack/react-query';
 
 export const getMyAddressesQueryKey = (params?: {
@@ -29,22 +24,10 @@ export const useGetMyAddressesQuery = (params?: {
   const getMyAddresses = async () => {
     try {
       //   const response = await getMyAddressesAPI(params || {});
-      const response = await kyNextInstance
-        .get('me/address', {
-          searchParams: {
-            limit: params?.limit?.toString(),
-            page: params?.page?.toString(),
-            search: params?.search,
-          },
-        })
-        .json<
-          INextApiResponseWrapperType<
-            IApiPaginationResponseWrapperType<IAddressDataType>
-          >
-        >();
-      return response.data;
+      const response = await getMyAddressesAPI(params);
+      return response;
     } catch (error) {
-      throw error;
+      throw new Error(error as string);
     }
   };
 

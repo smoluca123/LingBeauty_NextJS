@@ -68,7 +68,7 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
       .filter(
         (b) =>
           (b.position === 'SIDE_TOP' || b.position === 'SIDE_BOTTOM') &&
-          b.isActive
+          b.isActive,
       )
       .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((b) => ({
@@ -190,7 +190,7 @@ function CarouselControls({
   onSelect,
 }: CarouselControlsProps) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-between p-3">
+    <div className="pointer-events-none absolute inset-0 z-10 hidden items-end justify-between p-3 sm:flex">
       <div className="flex items-center gap-1.5">
         <Button
           variant="outline"
@@ -220,7 +220,7 @@ function CarouselControls({
             onClick={() => onSelect(index)}
             className={cn(
               'h-1.5 rounded-full transition-all cursor-pointer shadow-sm shadow-black/20',
-              index === activeIndex ? 'w-5 bg-primary-pink' : 'w-2 bg-muted'
+              index === activeIndex ? 'w-5 bg-primary-pink' : 'w-2 bg-muted',
             )}
             aria-label={`Chuyển đến banner ${index + 1}`}
           />

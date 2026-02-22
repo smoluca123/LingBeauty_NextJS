@@ -1,9 +1,6 @@
 import { kyClientInstance } from '@/lib/kyInstance/kyClient';
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import {
-  IApiResponseWrapperType,
-  INextApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 
@@ -40,9 +37,7 @@ export const updateMyInformationAPI = async (
       .patch(`me`, {
         json: userData,
       })
-      .json<
-        INextApiResponseWrapperType<IApiResponseWrapperType<IUserDataType>>
-      >();
+      .json<IApiResponseWrapperType<IUserDataType>>();
 
     return data;
 

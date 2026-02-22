@@ -1,8 +1,6 @@
 'use client';
 
 import { HorizontalScroller } from '@/components/home/horizontal-scroller';
-import { useGetBrandsQuery } from '@/hooks/querys/brand.query';
-import { BrandListSkeleton } from './brand-list-skeleton';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
