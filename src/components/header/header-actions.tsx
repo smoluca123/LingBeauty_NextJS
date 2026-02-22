@@ -14,7 +14,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { AuthModal } from '@/components/auth/auth-modal';
 import { CartDrawer } from './cart-drawer';
-import { useAuth } from '@/hooks/use-auth';
+import {
+  useAuthUser,
+  useIsAuthenticated,
+  useAuthLoading,
+} from '@/hooks/use-auth';
+import { useLogoutMutation } from '@/hooks/mutations/auth.mutation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,15 +27,17 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useSearchParams } from 'next/navigation';
 
 export function HeaderActions() {
   const [loginOpen, setLoginOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const user = useAuthUser();
+  const isAuthenticated = useIsAuthenticated();
+  const isLoading = useAuthLoading();
+  const logoutMutation = useLogoutMutation();
 
   const handleLogout = async () => {
-    await logout();
+    logoutMutation.mutate();
   };
 
   return (

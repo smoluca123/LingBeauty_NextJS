@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Barcode from 'react-barcode';
 import { User } from 'lucide-react';
 import UserAvatar from '@/components/user-avatar';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuthUser, useAuthLoading } from '@/hooks/use-auth';
 import { MembershipCardSkeleton } from './membership-card-skeleton';
 
 // ============ Types ============
@@ -44,7 +44,8 @@ export function MembershipCard({
   points = 0,
   pointsToNextTier = 100,
 }: MembershipCardProps) {
-  const { user, isLoading } = useAuth();
+  const user = useAuthUser();
+  const isLoading = useAuthLoading();
 
   const barcodeRef = useRef<HTMLDivElement>(null);
 

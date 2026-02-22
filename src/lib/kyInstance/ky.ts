@@ -1,8 +1,49 @@
 'use server';
-import { refreshAccessTokenApi } from '@/lib/apis/server/actions/user-actions';
 import { env } from '@/lib/env.config';
 import ky from 'ky';
 import { cookies } from 'next/headers';
+
+// Token refresh queue to prevent race conditions
+let refreshPromise: Promise<{ accessToken: string }> | null = null;
+
+async function refreshTokenOnce(
+  currentAccessToken: string,
+): Promise<{ accessToken: string }> {
+  // If already refreshing, reuse the existing promise
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = (async () => {
+    try {
+      const res = await ky
+        .post(`${env.NEXT_PUBLIC_API_URL}auth/refresh-token`, {
+          json: { accessToken: currentAccessToken },
+          headers: {
+            Authorization: `Bearer ${env.NEXT_PUBLIC_AUTHORIZATION_TOKEN}`,
+            accessToken: currentAccessToken,
+          },
+        })
+        .json<{
+          data: { accessToken: string; user: { id: string } };
+        }>();
+
+      // Update cookie with new token
+      const cookieStore = await cookies();
+      cookieStore.set('accessToken', res.data.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7,
+      });
+
+      return { accessToken: res.data.accessToken };
+    } finally {
+      refreshPromise = null;
+    }
+  })();
+
+  return refreshPromise;
+}
 
 export const kyInstance = ky.create({
   prefixUrl: env.NEXT_PUBLIC_API_URL,
@@ -18,56 +59,43 @@ export const kyInstance = ky.create({
   hooks: {
     beforeRequest: [
       async (request) => {
-        // Use cookie directly instead of validateAuth for every request
-        // This avoids repeated validation calls
         const cookieStore = await cookies();
         const accessToken = cookieStore.get('accessToken');
 
         if (accessToken) {
           request.headers.set('accessToken', accessToken.value);
         }
-        // Only call validateAuth if we're making a request that needs full user info
-        // or we need to validate the token's authenticity
       },
     ],
     afterResponse: [
-      async (request, options, response) => {
-        console.log('afterResponse hook triggered', response.status);
-        // Return early if the response is ok
+      async (request, _options, response) => {
         if (response.ok) {
-          console.log('Response is OK');
           return response;
         }
+
         if (response.status === 401) {
-          console.log('401 Unauthorized detected, attempting to refresh token');
           const cookieStore = await cookies();
           const accessToken = cookieStore.get('accessToken')?.value;
+
           if (!accessToken) {
-            console.log('No access token found in cookies');
             return response;
           }
+
           try {
-            console.log('Attempting to refresh token', accessToken);
-            const res = await refreshAccessTokenApi({
-              accessToken,
-            });
-            console.log('Token refresh successful');
-            request.headers.set('accessToken', res.data.accessToken);
-            cookieStore.set('accessToken', res.data.accessToken);
-            // Create a new request with the updated token and retry
+            const refreshed = await refreshTokenOnce(accessToken);
+            request.headers.set('accessToken', refreshed.accessToken);
+
+            // Retry the original request with new token
             const newRequest = new Request(request, {
               headers: request.headers,
             });
-            console.log('Retrying request with new token');
             return ky(newRequest);
-          } catch (error) {
-            console.error('Token refresh failed:', error);
+          } catch {
             cookieStore.delete('accessToken');
             return response;
           }
         }
-        // Return the response for other status codes
-        console.log(`Non-401 error: ${response.status}`);
+
         return response;
       },
     ],

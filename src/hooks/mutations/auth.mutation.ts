@@ -1,28 +1,83 @@
-import { changePasswordAPI } from '@/lib/apis/client/auth-apis';
-import { IChangePasswordData } from '@/lib/types/interfaces/apis/auth.interfaces';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '@/stores/auth.store';
+import {
+  loginApi,
+  registerApi,
+  logoutApi,
+  changePasswordAPI,
+} from '@/lib/apis/client/auth-apis';
+import type {
+  IChangePasswordData,
+  ILoginCredentials,
+  IRegisterData,
+} from '@/lib/types/interfaces/apis/auth.interfaces';
 import { toast } from 'sonner';
 
-export const useChangePasswordMutation = () => {
-  const changePassword = async (data: IChangePasswordData) => {
-    try {
-      const response = await changePasswordAPI(data);
-      return response;
-    } catch (error) {
-      throw error;
-    }
-  };
+// ============ Auth Query Keys ============
+export const authKeys = {
+  all: ['auth'] as const,
+  session: () => [...authKeys.all, 'session'] as const,
+};
 
-  const mutation = useMutation({
-    mutationFn: changePassword,
-    onSuccess: (data) => {
-      toast.success(data.message || 'Change password successfully');
+// ============ Login Mutation ============
+export const useLoginMutation = () => {
+  const setUser = useAuthStore((s) => s.setUser);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  return useMutation({
+    mutationFn: (credentials: ILoginCredentials) => loginApi(credentials),
+    onSuccess: (userData) => {
+      setUser(userData);
+      toast.success('Đăng nhập thành công');
     },
-    onError: (error) => {
-      // Handle specific error codes
-      toast.error((error as unknown as string) || 'Change password failed');
+    onError: () => {
+      clearAuth();
     },
   });
+};
 
-  return mutation;
+// ============ Register Mutation ============
+export const useRegisterMutation = () => {
+  const setUser = useAuthStore((s) => s.setUser);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  return useMutation({
+    mutationFn: (data: IRegisterData) => registerApi(data),
+    onSuccess: (userData) => {
+      setUser(userData);
+      toast.success('Đăng ký thành công');
+    },
+    onError: () => {
+      clearAuth();
+    },
+  });
+};
+
+// ============ Logout Mutation ============
+export const useLogoutMutation = () => {
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => logoutApi(),
+    onSettled: () => {
+      // Always clear auth state regardless of success/failure
+      clearAuth();
+      // Invalidate all queries to refetch after logout
+      queryClient.clear();
+    },
+  });
+};
+
+// ============ Change Password Mutation ============
+export const useChangePasswordMutation = () => {
+  return useMutation({
+    mutationFn: (data: IChangePasswordData) => changePasswordAPI(data),
+    onSuccess: (data) => {
+      toast.success(data.message || 'Đổi mật khẩu thành công');
+    },
+    onError: (error) => {
+      toast.error((error as unknown as string) || 'Đổi mật khẩu thất bại');
+    },
+  });
 };
