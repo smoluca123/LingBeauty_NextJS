@@ -11,9 +11,9 @@ interface FlashSaleHeaderProps {
 
 export function FlashSaleHeader({ endTime, onExpire }: FlashSaleHeaderProps) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-t-2xl bg-primary-pink px-4 py-3 md:px-6">
+    <div className="flex md:flex-row flex-col flex-wrap items-center justify-center md:justify-between gap-4 rounded-t-2xl bg-primary-pink px-4 py-3 md:px-6">
       {/* Title */}
-      <div className="flex items-center gap-2 w-60">
+      <div className="flex justify-center items-center gap-2 md:w-60 w-full">
         <h2 className="font-script text-2xl font-bold italic text-white drop-shadow-md md:text-3xl">
           Flash Sale
         </h2>
@@ -28,7 +28,7 @@ export function FlashSaleHeader({ endTime, onExpire }: FlashSaleHeaderProps) {
       </div>
 
       {/* View all button */}
-      <div className="w-60 text-right">
+      <div className="w-60 text-center md:text-right">
         <Button
           asChild
           variant="outline"

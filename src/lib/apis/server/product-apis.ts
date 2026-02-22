@@ -1,4 +1,5 @@
 'use server';
+import { DEFAULT_CACHE_TIME } from '@/constants/cache';
 import { publicKyInstance } from '@/lib/kyInstance/publicKy';
 import {
   IApiPaginationParams,
@@ -11,7 +12,7 @@ export const getProductsAPI = async (
   options: IApiPaginationParams = { page: 1, limit: 10 },
 ) => {
   'use cache';
-  cacheLife('hours');
+  cacheLife(DEFAULT_CACHE_TIME);
   cacheTag('products');
   try {
     const data = await publicKyInstance

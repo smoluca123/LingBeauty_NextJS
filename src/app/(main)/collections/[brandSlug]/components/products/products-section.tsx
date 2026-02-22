@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { ProductsHeader } from './products-header';
 import { ProductsGrid } from './products-grid';
-import { Pagination } from './pagination';
+import { Pagination } from '../../../../../../components/pagination';
 
 interface ProductsSectionProps {
   products: IProductDataType[];

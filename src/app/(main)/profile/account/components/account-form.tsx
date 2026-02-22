@@ -21,7 +21,7 @@ import ChangePasswordButton from '@/components/change-password/change-password-b
 const accountFormSchema = z.object({
   firstName: z.string().min(1, 'Vui lòng nhập tên'),
   lastName: z.string().min(1, 'Vui lòng nhập họ'),
-  email: z.string().email('Email không hợp lệ'),
+  email: z.email('Email không hợp lệ'),
   phone: z.string().min(1, 'Vui lòng nhập số điện thoại'),
 });
 

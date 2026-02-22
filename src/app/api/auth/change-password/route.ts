@@ -1,4 +1,4 @@
-import { changeUserPasswordAPI } from '@/lib/apis/server/auth-api';
+import { changeUserPasswordAPI } from '@/lib/apis/server/actions/auth-actions';
 import { ChangePasswordValues } from '@/lib/zod-schemas/auth.schema';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';

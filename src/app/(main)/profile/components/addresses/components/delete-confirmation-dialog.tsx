@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, Trash2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +17,7 @@ interface DeleteConfirmationDialogProps {
   addressName: string | null;
   onConfirm: () => void;
   onCancel: () => void;
+  isSubmitting: boolean;
 }
 
 export function DeleteConfirmationDialog({
@@ -24,9 +25,10 @@ export function DeleteConfirmationDialog({
   addressName,
   onConfirm,
   onCancel,
+  isSubmitting,
 }: DeleteConfirmationDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={(isOpen) => !isOpen && onCancel()}>
+    <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <div className="flex items-center gap-2">
@@ -47,11 +49,24 @@ export function DeleteConfirmationDialog({
           <AlertDialogCancel onClick={onCancel}>Hủy</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
-            onClick={onConfirm}
+            onClick={(e) => {
+              e.preventDefault();
+              onConfirm();
+            }}
+            disabled={isSubmitting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Xóa địa chỉ
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Đang xóa...
+              </>
+            ) : (
+              <>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Xóa địa chỉ
+              </>
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

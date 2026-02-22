@@ -1,5 +1,4 @@
 export { ProfileSidebar } from './profile-sidebar';
-export { AccountForm } from './account/account-form';
 export { OrdersContent } from './orders/orders-content';
 export { AddressesContent } from './addresses/addresses-content';
 export { OffersContent } from './offers/offers-content';

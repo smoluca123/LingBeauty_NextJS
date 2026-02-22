@@ -1,80 +1,81 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  MOCK_ADDRESSES,
-  type Address,
-} from '../../addresses/_data/mock-addresses';
+import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { useGetMyAddressesQuery } from '@/hooks/querys/address.query';
+import { useAddMyAddress } from '@/hooks/mutations/address.mutation';
+import { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
 import { AddressCard } from './address-card';
-import { DeleteConfirmationDialog } from './delete-confirmation-dialog';
+import { AddressCardSkeleton } from './address-card-skeleton';
+import { AddressFormDialog } from './components';
+import { Pagination } from '@/components/pagination';
+import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@/constants/api';
 
 // ============ Main Component ============
 export function AddressesContent() {
-  const [addresses, setAddresses] = useState<Address[]>(MOCK_ADDRESSES);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
+  // Derive page and limit directly from URL search params
+  // Ensures state stays in sync with URL (browser back/forward)
+  const page = Number(searchParams.get('page')) || DEFAULT_PAGE;
+  const limit = Number(searchParams.get('limit')) || DEFAULT_LIMIT;
+
+  // Fetch addresses from API
+  const { data, isLoading, error } = useGetMyAddressesQuery({
+    page,
+    limit,
+  });
+
+  // Mutations
+  const addAddressMutation = useAddMyAddress();
+
+  // Local state for add dialog only
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+
+  // Handlers
   const handleAddAddress = () => {
-    console.log('📍 Add new address clicked');
-    // TODO: Open address modal when implemented
+    setFormDialogOpen(true);
   };
 
-  const handleEditAddress = (id: string) => {
-    console.log('✏️ Edit address:', id);
-    // TODO: Open edit address modal
-  };
+  const handleFormSubmit = async (formData: AddressFormValues) => {
+    try {
+      await addAddressMutation.mutateAsync(formData);
 
-  const handleDeleteAddress = (id: string) => {
-    // Open confirmation dialog instead of deleting immediately
-    setAddressToDelete(id);
-    setDeleteConfirmOpen(true);
-  };
+      await queryClient.invalidateQueries({
+        queryKey: ['addresses'],
+      });
 
-  const confirmDelete = () => {
-    if (addressToDelete) {
-      console.log('🗑️ Delete address:', addressToDelete);
-      setAddresses((prev) =>
-        prev.filter((addr) => addr.id !== addressToDelete),
-      );
-      setAddressToDelete(null);
+      // Close dialog
+      setFormDialogOpen(false);
+    } catch {
+      // Error handling with toast
+      toast.error('Không thể thêm địa chỉ. Vui lòng thử lại.');
     }
-    setDeleteConfirmOpen(false);
   };
 
-  const cancelDelete = () => {
-    setAddressToDelete(null);
-    setDeleteConfirmOpen(false);
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
   };
-
-  const handleSetDefault = (id: string) => {
-    console.log('⭐ Set default address:', id);
-    setAddresses((prev) =>
-      prev.map((addr) => ({
-        ...addr,
-        isDefault: addr.id === id,
-      })),
-    );
-  };
-
-  // Sort addresses: default first
-  const sortedAddresses = [...addresses].sort((a, b) =>
-    a.isDefault ? -1 : b.isDefault ? 1 : 0,
-  );
-
-  // Find the address that is about to be deleted for display in dialog
-  const addressToDeleteData = addressToDelete
-    ? addresses.find((addr) => addr.id === addressToDelete)
-    : null;
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Header with Add Button */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {addresses.length} địa chỉ đã lưu
+            {isLoading
+              ? 'Đang tải...'
+              : error
+                ? 'Không thể tải địa chỉ'
+                : `${data?.data.totalCount || 0} địa chỉ đã lưu`}
           </p>
           <Button
             onClick={handleAddAddress}
@@ -85,26 +86,69 @@ export function AddressesContent() {
           </Button>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="grid gap-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <AddressCardSkeleton key={index} />
+            ))}
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-destructive">
+              Có lỗi xảy ra khi tải danh sách địa chỉ. Vui lòng thử lại sau.
+            </p>
+          </div>
+        )}
+
         {/* Address List */}
-        <div className="grid gap-4">
-          {sortedAddresses.map((address) => (
-            <AddressCard
-              key={address.id}
-              address={address}
-              onEdit={handleEditAddress}
-              onDelete={handleDeleteAddress}
-              onSetDefault={handleSetDefault}
+        {!isLoading && !error && data?.data && data.data.items.length > 0 && (
+          <div className="grid gap-4">
+            {data?.data.items.map((address) => (
+              <AddressCard key={address.id} address={address} />
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && !error && data?.data && data.data.items.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground mb-4">
+              Bạn chưa có địa chỉ nào được lưu.
+            </p>
+            <Button
+              onClick={handleAddAddress}
+              className="rounded-full bg-primary-pink hover:bg-primary-pink/90 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Thêm địa chỉ đầu tiên
+            </Button>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading &&
+          !error &&
+          data?.data.totalPage &&
+          data.data.totalPage > 1 && (
+            <Pagination
+              currentPage={page}
+              totalPages={data.data.totalPage}
+              onPageChange={handlePageChange}
+              className="mt-6"
             />
-          ))}
-        </div>
+          )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
-      <DeleteConfirmationDialog
-        open={deleteConfirmOpen}
-        addressName={addressToDeleteData?.name || null}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
+      {/* Add Address Form Dialog */}
+      <AddressFormDialog
+        open={formDialogOpen}
+        onOpenChange={setFormDialogOpen}
+        onSubmit={handleFormSubmit}
+        isSubmitting={addAddressMutation.isPending}
       />
     </>
   );

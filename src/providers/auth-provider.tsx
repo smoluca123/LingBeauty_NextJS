@@ -14,8 +14,8 @@ import type {
   IRegisterData,
   IAuthContextType,
 } from '@/lib/types/interfaces/apis/auth.interfaces';
-import { validateAccessTokenApi } from '@/lib/apis/server/user-apis';
 import { EmailVerificationModal } from '@/components/auth/email-verification-modal';
+import { validateAccessTokenApi } from '@/lib/apis/server/actions/user-actions';
 
 const AuthContext = createContext<IAuthContextType | null>(null);
 
@@ -101,6 +101,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   };
 
   const refreshAuth = async () => {
+    setLoading(true);
     try {
       const response = await validateAccessTokenApi();
       if (!response.success) throw new Error(response.message);
@@ -113,6 +114,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     } catch (error) {
       console.error('Failed to refresh auth:', error);
       clearAuth();
+    } finally {
+      setLoading(false);
     }
   };
 

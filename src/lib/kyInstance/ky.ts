@@ -1,5 +1,5 @@
 'use server';
-import { refreshAccessTokenApi } from '@/lib/apis/server/user-apis';
+import { refreshAccessTokenApi } from '@/lib/apis/server/actions/user-actions';
 import { env } from '@/lib/env.config';
 import ky from 'ky';
 import { cookies } from 'next/headers';

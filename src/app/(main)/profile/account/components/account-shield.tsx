@@ -1,19 +1,19 @@
 'use client';
 
-import { AccountForm } from '@/app/(main)/profile/components';
 import { useAuth } from '@/hooks/use-auth';
 import AccountError from './error';
 import AccountLoading from '@/app/(main)/profile/account/components/account-loading';
+import { AccountForm } from '@/app/(main)/profile/account/components';
 
 export default function AccountShield() {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, refreshAuth } = useAuth();
 
   if (isLoading) {
     return <AccountLoading />;
   }
 
   if (!user) {
-    return <AccountError reset={() => {}} />;
+    return <AccountError reset={refreshAuth} />;
   }
 
   return (
