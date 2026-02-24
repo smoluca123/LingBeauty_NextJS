@@ -7,7 +7,7 @@ import {
   resendEmailVerificationApi,
   RateLimitError,
 } from '@/lib/apis/client/auth-apis';
-import { useAuth } from '@/hooks/use-auth';
+import { useRefreshAuth } from '@/hooks/use-auth';
 
 export type VerificationStep = 'initial' | 'otp-input';
 export type VerificationStatus =
@@ -42,7 +42,7 @@ function isRateLimitError(error: unknown): error is RateLimitError {
 }
 
 export function useEmailVerification(): UseEmailVerificationReturn {
-  const { refreshAuth } = useAuth();
+  const refreshAuth = useRefreshAuth();
   const [step, setStep] = useState<VerificationStep>('initial');
   const [status, setStatus] = useState<VerificationStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -89,20 +89,20 @@ export function useEmailVerification(): UseEmailVerificationReturn {
     try {
       await sendEmailVerificationApi();
       setStep('otp-input');
-      setStatus('idle'); // Reset to idle so OTP input form is shown
+      setStatus('idle');
     } catch (err) {
       if (isRateLimitError(err)) {
         setStatus('rate-limited');
         setCooldownSeconds(err.remainingCooldown);
         setError(
-          `Vui lòng đợi ${err.remainingCooldown} giây trước khi gửi lại.`
+          `Vui lòng đợi ${err.remainingCooldown} giây trước khi gửi lại.`,
         );
       } else {
         setStatus('error');
         setError(
           err instanceof Error
             ? err.message
-            : 'Không thể gửi mã xác thực. Vui lòng thử lại.'
+            : 'Không thể gửi mã xác thực. Vui lòng thử lại.',
         );
       }
     }
@@ -129,7 +129,7 @@ export function useEmailVerification(): UseEmailVerificationReturn {
         return false;
       }
     },
-    [refreshAuth]
+    [refreshAuth],
   );
 
   const resendOTP = useCallback(async () => {
@@ -138,20 +138,20 @@ export function useEmailVerification(): UseEmailVerificationReturn {
 
     try {
       await resendEmailVerificationApi();
-      setStatus('idle'); // Reset to idle so OTP input form remains visible
+      setStatus('idle');
     } catch (err) {
       if (isRateLimitError(err)) {
         setStatus('rate-limited');
         setCooldownSeconds(err.remainingCooldown);
         setError(
-          `Vui lòng đợi ${err.remainingCooldown} giây trước khi gửi lại.`
+          `Vui lòng đợi ${err.remainingCooldown} giây trước khi gửi lại.`,
         );
       } else {
         setStatus('error');
         setError(
           err instanceof Error
             ? err.message
-            : 'Không thể gửi lại mã xác thực. Vui lòng thử lại.'
+            : 'Không thể gửi lại mã xác thực. Vui lòng thử lại.',
         );
       }
     }

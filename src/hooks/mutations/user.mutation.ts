@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth.store';
 import { updateMyInformationAPI } from '@/lib/apis/client/user-apis';
 
 export const useUpdateUserInfomationMutation = () => {
-  const { setUser } = useAuthStore();
+  const setUser = useAuthStore((s) => s.setUser);
   const updateUserInfomation = async (data: UpdateUserInfomationValues) => {
     try {
       const response = await updateMyInformationAPI(data);
@@ -17,7 +17,6 @@ export const useUpdateUserInfomationMutation = () => {
   const mutation = useMutation({
     mutationFn: updateUserInfomation,
     onSuccess: (data) => {
-      console.log(data);
       setUser(data.data);
       toast.success(data.message || 'Cập nhật thông tin thành công');
     },

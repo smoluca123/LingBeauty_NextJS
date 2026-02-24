@@ -8,7 +8,6 @@ import {
   registerSchema,
   type RegisterValues,
 } from '@/lib/zod-schemas/auth.schema';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -19,14 +18,15 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/use-auth';
+import { useRegisterMutation } from '@/hooks/mutations/auth.mutation';
+import LoadingButton from '@/components/ui/loading-button';
 
 interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
-  const { register } = useAuth();
+  const registerMutation = useRegisterMutation();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<RegisterValues>({
@@ -45,19 +45,22 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
 
   async function onSubmit(data: RegisterValues) {
     setError(null);
-    try {
-      await register({
+    registerMutation.mutate(
+      {
         email: data.email,
         password: data.password,
         firstName: data.firstName,
         lastName: data.lastName,
         username: data.username,
         phone: data.phone,
-      });
-      onSuccess?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đăng ký thất bại');
-    }
+      },
+      {
+        onSuccess: () => onSuccess?.(),
+        onError: (err) => {
+          setError(err instanceof Error ? err.message : 'Đăng ký thất bại');
+        },
+      },
+    );
   }
 
   return (
@@ -215,13 +218,13 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           </div>
         )}
 
-        <Button
+        <LoadingButton
           type="submit"
           className="w-full h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
-          disabled={form.formState.isSubmitting}
+          loading={registerMutation.isPending}
         >
-          {form.formState.isSubmitting ? 'Đang xử lý...' : 'Đăng ký'}
-        </Button>
+          Đăng ký
+        </LoadingButton>
       </form>
     </Form>
   );

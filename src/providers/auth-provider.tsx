@@ -1,68 +1,41 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  PropsWithChildren,
-} from 'react';
+import { useEffect, PropsWithChildren } from 'react';
 import { useAuthStore } from '@/stores/auth.store';
-import { loginApi, registerApi, logoutApi } from '@/lib/apis/client/auth-apis';
-import type {
-  ILoginCredentials,
-  IRegisterData,
-  IAuthContextType,
-} from '@/lib/types/interfaces/apis/auth.interfaces';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import { EmailVerificationModal } from '@/components/auth/email-verification-modal';
-import { validateAccessTokenApi } from '@/lib/apis/server/actions/user-actions';
+import type { IGetAuthResponse } from '@/lib/types/interfaces/apis/auth.interfaces';
 
-const AuthContext = createContext<IAuthContextType | null>(null);
-
+/**
+ * AuthProvider handles:
+ * 1. Initialize auth state on mount (validate token via API route)
+ * 2. Show email verification modal when user is not verified
+ *
+ * No Context needed - auth state lives in Zustand store.
+ * Auth actions (login, register, logout) are in auth.mutation.ts hooks.
+ */
 export function AuthProvider({ children }: PropsWithChildren) {
-  const { user, isAuthenticated, isLoading, setUser, setLoading, clearAuth } =
-    useAuthStore();
-  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const setUser = useAuthStore((s) => s.setUser);
+  const setLoading = useAuthStore((s) => s.setLoading);
+  const clearAuth = useAuthStore((s) => s.clearAuth);
 
-  // Listen to auth:logout event
-  // useEffect(() => {
-  //   window.addEventListener('auth:logout', () => {
-  //     clearAuth();
-  //   });
-  //   return () => {
-  //     window.removeEventListener('auth:logout', () => {
-  //       clearAuth();
-  //     });
-  //   };
-  // }, [clearAuth]);
-
-  // Show verification modal when user is authenticated but email is not verified
-  useEffect(() => {
-    if (isAuthenticated && user && !user.isEmailVerified) {
-      setShowVerificationModal(true);
-    } else {
-      setShowVerificationModal(false);
-    }
-  }, [isAuthenticated, user]);
-
-  // Initialize auth state on mount
+  // Initialize auth state on mount via API route (not Server Action)
   useEffect(() => {
     const initAuth = async () => {
       try {
         setLoading(true);
-        const response = await validateAccessTokenApi();
+        const data = await kyNextInstance
+          .get('auth/validate-token')
+          .json<IGetAuthResponse>();
 
-        if (!response.success) throw new Error(response.message);
-
-        const { valid: isAuth, user: userData } = response.data.data;
-
-        if (isAuth && userData) {
-          setUser(userData);
+        if (data.isAuthenticated && data.user) {
+          setUser(data.user);
         } else {
           clearAuth();
         }
-      } catch (error) {
-        console.error('Failed to initialize auth:', error);
+      } catch {
         clearAuth();
       }
     };
@@ -70,86 +43,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
     initAuth();
   }, [setUser, setLoading, clearAuth]);
 
-  const login = async (credentials: ILoginCredentials) => {
-    setLoading(true);
-    try {
-      const userData = await loginApi(credentials);
-      setUser(userData);
-    } catch (error) {
-      clearAuth();
-      throw error;
-    }
-  };
-
-  const register = async (data: IRegisterData) => {
-    setLoading(true);
-    try {
-      const userData = await registerApi(data);
-      setUser(userData);
-    } catch (error) {
-      clearAuth();
-      throw error;
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await logoutApi();
-    } finally {
-      clearAuth();
-    }
-  };
-
-  const refreshAuth = async () => {
-    setLoading(true);
-    try {
-      const response = await validateAccessTokenApi();
-      if (!response.success) throw new Error(response.message);
-      const { valid: isAuth, user: userData } = response.data.data;
-      if (isAuth && userData) {
-        setUser(userData);
-      } else {
-        clearAuth();
-      }
-    } catch (error) {
-      console.error('Failed to refresh auth:', error);
-      clearAuth();
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const value: IAuthContextType = {
-    user,
-    isAuthenticated,
-    isLoading,
-    login,
-    register,
-    logout,
-    refreshAuth,
-  };
+  // Derive verification modal visibility directly from auth state
+  const showVerificationModal =
+    isAuthenticated && user !== null && !user.isEmailVerified;
 
   return (
-    <AuthContext.Provider value={value}>
+    <>
       {children}
       {user && (
         <EmailVerificationModal
           open={showVerificationModal}
-          onOpenChange={setShowVerificationModal}
+          onOpenChange={() => {
+            // Modal can only be dismissed by verifying email
+          }}
           userEmail={user.email}
           onVerificationSuccess={() => {
-            setShowVerificationModal(false);
+            // Auth state will be refreshed by useEmailVerification hook
           }}
         />
       )}
-    </AuthContext.Provider>
+    </>
   );
-}
-
-export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return context;
 }

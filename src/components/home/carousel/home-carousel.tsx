@@ -1,4 +1,4 @@
-import { HomeCarouselClient } from '@/components/home/home-carousel-client';
+import { HomeCarouselClient } from '@/components/home/carousel/home-carousel-client';
 import { getActiveBannerGroupAPI } from '@/lib/apis/server/banner-apis';
 import { IBannerGroupMapping } from '@/lib/types/interfaces/apis/banner.interfaces';
 

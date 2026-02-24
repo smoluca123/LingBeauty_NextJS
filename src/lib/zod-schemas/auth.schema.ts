@@ -4,47 +4,53 @@ import { z } from 'zod';
 // Password validation schema
 export const passwordSchema = z
   .string()
-  .min(8, 'Password must be at least 8 characters')
-  .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
-  .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
-  .regex(
-    /[0-9]|[^A-Za-z0-9]/,
-    'Password must contain at least one number or symbol',
-  );
+  .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+  .max(50, 'Mật khẩu không được vượt quá 50 ký tự')
+  .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
+  .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
+  .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số')
+  .regex(/[@$!%*?&]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt');
 
 export const loginSchema = z.object({
-  usernameOrEmail: requiredString('Username or Email'),
-  password: requiredString('Password'),
+  usernameOrEmail: requiredString('Username hoặc Email'),
+  password: requiredString('Mật khẩu'),
 });
 
 export const registerSchema = z
   .object({
-    firstName: requiredString('First name'),
-    lastName: requiredString('Last name'),
+    firstName: requiredString('Tên'),
+    lastName: requiredString('Họ'),
     username: requiredString('Username'),
-    email: z.email('Invalid email address'),
+    email: z.email('Địa chỉ email không hợp lệ'),
     password: passwordSchema,
-    confirmPassword: requiredString('Confirm password'),
-    phone: z.optional(z.string().min(10, 'Invalid phone number')),
+    confirmPassword: requiredString('Xác nhận mật khẩu'),
+    phone: z.optional(z.string().min(10, 'Số điện thoại không hợp lệ')),
     // age: z.optional(z.number().min(10, 'Must be at least 10 years old')),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword'],
   });
 
 export const commentSchema = z.object({
-  content: requiredString('Content'),
+  content: requiredString('Nội dung'),
 });
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: requiredString('Current password'),
-    newPassword: passwordSchema,
-    confirmPassword: requiredString('Confirm password'),
+    currentPassword: z.string().min(1, 'Vui lòng nhập mật khẩu hiện tại'),
+    newPassword: z
+      .string()
+      .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
+      .max(50, 'Mật khẩu không được vượt quá 50 ký tự')
+      .regex(/[A-Z]/, 'Mật khẩu phải chứa ít nhất 1 chữ hoa')
+      .regex(/[a-z]/, 'Mật khẩu phải chứa ít nhất 1 chữ thường')
+      .regex(/[0-9]/, 'Mật khẩu phải chứa ít nhất 1 số')
+      .regex(/[@$!%*?&]/, 'Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt'),
+    confirmPassword: z.string().min(1, 'Vui lòng xác nhận mật khẩu mới'),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
+    message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword'],
   });
 

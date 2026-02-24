@@ -8,7 +8,6 @@ import ky, {
 } from 'ky';
 
 // Refresh token state management
-let isRefreshing = false;
 let refreshPromise: Promise<boolean> | null = null;
 
 async function refreshToken(): Promise<boolean> {
@@ -22,20 +21,19 @@ async function refreshToken(): Promise<boolean> {
 
 async function handleTokenRefresh(): Promise<boolean> {
   // If already refreshing, wait for the existing promise
-  if (isRefreshing && refreshPromise) {
+  if (refreshPromise) {
     return refreshPromise;
   }
 
-  isRefreshing = true;
-  refreshPromise = refreshToken();
+  refreshPromise = (async () => {
+    try {
+      return await refreshToken();
+    } finally {
+      refreshPromise = null;
+    }
+  })();
 
-  try {
-    const result = await refreshPromise;
-    return result;
-  } finally {
-    isRefreshing = false;
-    refreshPromise = null;
-  }
+  return refreshPromise;
 }
 
 export const kyClientInstance = ky.create({
@@ -50,18 +48,11 @@ export const kyClientInstance = ky.create({
     });
   },
   hooks: {
-    beforeRequest: [
-      async () => {
-        // Get access token from cookie via API route
-        // The server-side API routes handle token management
-        // This hook is here for future enhancements like proactive refresh
-      },
-    ],
     afterResponse: [
       async (
         request: KyRequest,
         options: NormalizedOptions,
-        response: KyResponse
+        response: KyResponse,
       ): Promise<KyResponse> => {
         // Handle 401 Unauthorized
         if (response.status === 401) {
@@ -73,7 +64,6 @@ export const kyClientInstance = ky.create({
           }
 
           // Refresh failed, clear auth state
-          // This will be handled by the auth provider
           useAuthStore.getState().clearAuth();
         }
 

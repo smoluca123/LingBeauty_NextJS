@@ -15,14 +15,15 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/use-auth';
+import { useLoginMutation } from '@/hooks/mutations/auth.mutation';
+import LoadingButton from '@/components/ui/loading-button';
 
 interface LoginFormProps {
   onSuccess?: () => void;
 }
 
 export function LoginForm({ onSuccess }: LoginFormProps) {
-  const { login } = useAuth();
+  const loginMutation = useLoginMutation();
   const [error, setError] = useState<string | null>(null);
 
   const form = useForm<LoginValues>({
@@ -36,15 +37,18 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
 
   async function onSubmit(data: LoginValues) {
     setError(null);
-    try {
-      await login({
+    loginMutation.mutate(
+      {
         email: data.usernameOrEmail,
         password: data.password,
-      });
-      onSuccess?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
-    }
+      },
+      {
+        onSuccess: () => onSuccess?.(),
+        onError: (err) => {
+          setError(err instanceof Error ? err.message : 'Đăng nhập thất bại');
+        },
+      },
+    );
   }
 
   return (
@@ -105,13 +109,13 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
           </Button>
         </div>
 
-        <Button
+        <LoadingButton
           type="submit"
           className="w-full h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
-          disabled={form.formState.isSubmitting}
+          loading={loginMutation.isPending}
         >
-          {form.formState.isSubmitting ? 'Đang xử lý...' : 'Đăng nhập'}
-        </Button>
+          Đăng nhập
+        </LoadingButton>
       </form>
     </Form>
   );
