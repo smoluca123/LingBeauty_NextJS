@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import { PriceRange, priceRanges } from '../mock-products';
+import { PRICE_RANGES, PriceRange } from '../constants';
 import { CustomCheckbox } from './custom-checkbox';
 
 interface FilterPriceProps {
@@ -42,13 +42,11 @@ export function FilterPrice({
         </AccordionTrigger>
         <AccordionContent className="pb-3">
           <div className="space-y-0.5">
-            {priceRanges.map((range: PriceRange) => (
+            {PRICE_RANGES.map((range: PriceRange) => (
               <CustomCheckbox
                 key={range.id}
                 checked={selectedRanges.includes(range.id)}
-                onChange={(checked) =>
-                  handleCheckboxChange(range.id, checked)
-                }
+                onChange={(checked) => handleCheckboxChange(range.id, checked)}
                 label={range.label}
               />
             ))}
@@ -58,4 +56,3 @@ export function FilterPrice({
     </Accordion>
   );
 }
-

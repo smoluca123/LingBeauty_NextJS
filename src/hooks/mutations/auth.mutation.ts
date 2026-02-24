@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/stores/auth.store';
 import {
   loginApi,
@@ -12,6 +12,7 @@ import type {
   IRegisterData,
 } from '@/lib/types/interfaces/apis/auth.interfaces';
 import { toast } from 'sonner';
+import { getQueryClient } from '@/lib/query-client/query-client';
 
 // ============ Auth Query Keys ============
 export const authKeys = {
@@ -56,7 +57,7 @@ export const useRegisterMutation = () => {
 // ============ Logout Mutation ============
 export const useLogoutMutation = () => {
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
 
   return useMutation({
     mutationFn: () => logoutApi(),

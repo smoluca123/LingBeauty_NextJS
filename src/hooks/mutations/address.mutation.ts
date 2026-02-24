@@ -1,12 +1,13 @@
 import { addMyAddressAPI } from '@/lib/apis/client/actions/address.actions';
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import { getQueryClient } from '@/lib/query-client/query-client';
 import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 import {
   IApiResponseWrapperType,
   INextApiResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
 import { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useAddMyAddress = () => {
@@ -38,7 +39,7 @@ export const useAddMyAddress = () => {
 };
 
 export const useUpdateMyAddress = () => {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const updateMyAddress = async ({
     id,
     data,
@@ -84,7 +85,7 @@ export const useUpdateMyAddress = () => {
 };
 
 export const useDeleteMyAddress = () => {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const deleteMyAddress = async (id: string) => {
     try {
       const response = await kyNextInstance.delete(`me/address/${id}`).json<
@@ -124,7 +125,7 @@ export const useDeleteMyAddress = () => {
 };
 
 export const useSetDefaultMyAddress = () => {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const setDefaultMyAddress = async (id: string) => {
     try {
       const response = await kyNextInstance

@@ -2,9 +2,9 @@
 
 import { cn } from '@/lib/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
+import { Pagination } from '@/components/pagination';
 import { ProductsHeader } from './products-header';
 import { ProductsGrid } from './products-grid';
-import { Pagination } from '../../../../../../components/pagination';
 
 interface ProductsSectionProps {
   products: IProductDataType[];
@@ -16,6 +16,7 @@ interface ProductsSectionProps {
   onPageChange: (page: number) => void;
   onFilterClick?: () => void;
   activeFiltersCount?: number;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -29,6 +30,7 @@ export function ProductsSection({
   onPageChange,
   onFilterClick,
   activeFiltersCount = 0,
+  isLoading = false,
   className,
 }: ProductsSectionProps) {
   return (
@@ -42,7 +44,14 @@ export function ProductsSection({
         className="mb-4"
       />
 
-      <ProductsGrid products={products} />
+      <div
+        className={cn(
+          'relative transition-opacity',
+          isLoading && products.length > 0 && 'opacity-50 pointer-events-none',
+        )}
+      >
+        <ProductsGrid products={products} isLoading={isLoading} />
+      </div>
 
       {/* Pagination */}
       <Pagination

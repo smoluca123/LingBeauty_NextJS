@@ -87,7 +87,7 @@ function MobileCategoryItem({ category, onNavigate }: MobileCategoryItemProps) {
     return (
       <div className="border-b">
         <Link
-          href={category.slug}
+          href={`/categories/${category.slug}`}
           onClick={onNavigate}
           className="flex items-center py-4 text-sm font-medium hover:text-primary-pink transition-colors"
         >
@@ -105,7 +105,7 @@ function MobileCategoryItem({ category, onNavigate }: MobileCategoryItemProps) {
           {category.name}
         </AccordionTrigger>
         <Link
-          href={category.slug}
+          href={`/categories/${category.slug}`}
           onClick={onNavigate}
           className="px-4 py-4 text-sm text-primary-pink hover:underline"
         >
@@ -137,7 +137,10 @@ interface MobileChildItemProps {
  * Handles both BRAND and CATEGORY types using discriminated union.
  */
 function MobileChildItem({ item, onNavigate }: MobileChildItemProps) {
-  const href = item.type === 'BRAND' ? item.brand.slug : item.slug;
+  const href =
+    item.type === 'BRAND'
+      ? `/collections/${item.brand.slug}`
+      : `/categories/${item.slug}`;
   const label = item.type === 'BRAND' ? item.brand.name : item.name;
 
   return (

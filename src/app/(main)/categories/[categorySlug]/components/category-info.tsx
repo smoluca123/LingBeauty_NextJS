@@ -4,19 +4,19 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, Package, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface CollectionInfoProps {
+interface CategoryInfoProps {
   name: string;
   productCount: number;
   purchaseCount: string;
   description: string;
 }
 
-export function CollectionInfo({
+export function CategoryInfo({
   name,
   productCount,
   purchaseCount,
   description,
-}: CollectionInfoProps) {
+}: CategoryInfoProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
