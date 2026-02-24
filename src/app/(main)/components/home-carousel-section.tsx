@@ -1,5 +1,4 @@
-import { HomeCarousel } from '@/components/home/home-carousel';
-import { HomeCarouselSkeleton } from '@/components/home/home-carousel-skeleton';
+import { HomeCarousel, HomeCarouselSkeleton } from '@/components/home/carousel';
 import { Suspense } from 'react';
 
 export default function HomeCarouselSection() {

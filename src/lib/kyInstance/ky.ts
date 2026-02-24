@@ -3,23 +3,23 @@ import { env } from '@/lib/env.config';
 import ky from 'ky';
 import { cookies } from 'next/headers';
 
-// Token refresh queue to prevent race conditions
-let refreshPromise: Promise<{ accessToken: string }> | null = null;
+// Per-token refresh map to prevent race conditions across different users
+const refreshMap = new Map<string, Promise<{ accessToken: string }>>();
 
 async function refreshTokenOnce(
   currentAccessToken: string,
 ): Promise<{ accessToken: string }> {
-  // If already refreshing, reuse the existing promise
-  if (refreshPromise) return refreshPromise;
+  // If already refreshing for this specific token, reuse the existing promise
+  const existing = refreshMap.get(currentAccessToken);
+  if (existing) return existing;
 
-  refreshPromise = (async () => {
+  const promise = (async () => {
     try {
       const res = await ky
         .post(`${env.NEXT_PUBLIC_API_URL}auth/refresh-token`, {
           json: { accessToken: currentAccessToken },
           headers: {
             Authorization: `Bearer ${env.NEXT_PUBLIC_AUTHORIZATION_TOKEN}`,
-            accessToken: currentAccessToken,
           },
         })
         .json<{
@@ -38,11 +38,12 @@ async function refreshTokenOnce(
 
       return { accessToken: res.data.accessToken };
     } finally {
-      refreshPromise = null;
+      refreshMap.delete(currentAccessToken);
     }
   })();
 
-  return refreshPromise;
+  refreshMap.set(currentAccessToken, promise);
+  return promise;
 }
 
 export const kyInstance = ky.create({
@@ -69,10 +70,6 @@ export const kyInstance = ky.create({
     ],
     afterResponse: [
       async (request, _options, response) => {
-        if (response.ok) {
-          return response;
-        }
-
         if (response.status === 401) {
           const cookieStore = await cookies();
           const accessToken = cookieStore.get('accessToken')?.value;

@@ -1,4 +1,4 @@
-import { kyClientInstance } from '@/lib/kyInstance/kyClient';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
@@ -8,7 +8,7 @@ import { HTTPError } from 'ky';
 
 export const getBrandsAPI = async (params?: IApiPaginationParams) => {
   try {
-    const response = await kyClientInstance
+    const response = await kyNextInstance
       .get('brand', {
         searchParams: {
           limit: params?.limit,

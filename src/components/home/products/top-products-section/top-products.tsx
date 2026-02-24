@@ -7,7 +7,6 @@ import type { Product } from '@/types/product';
 import { HorizontalScroller } from '../../horizontal-scroller';
 import { ProductCard } from '../../../product/product-card';
 import { SectionHeading } from '../../section-heading';
-import { useGetProductsQuery } from '@/hooks/querys/product.query';
 import { ProductCard2 } from '@/components/product/product-card2';
 import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
@@ -128,13 +127,7 @@ interface TopProductsProps {
 }
 
 export const TopProducts = ({ initialData }: TopProductsProps) => {
-  // Use React Query for client-side updates, but fallback to initialData for SSR
-  const { data } = useGetProductsQuery();
-
-  // Prioritize React Query data, but use initialData for initial render (SEO)
-  // initialData has structure: { message, data: { items: [], ... } }
-  const products =
-    data?.pages?.flatMap((page) => page.data.items) || initialData.data.items;
+  const products = initialData.data.items;
 
   return (
     <section className="space-y-6">

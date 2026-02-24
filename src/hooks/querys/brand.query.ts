@@ -1,4 +1,4 @@
-import { getBrandsAPI } from '@/lib/apis/server/brand-apis';
+import { getBrandsAPI } from '@/lib/apis/client/brand.apis';
 import { IApiPaginationParams } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
