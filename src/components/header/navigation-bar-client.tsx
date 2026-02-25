@@ -119,7 +119,7 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
                 }}
               >
                 <DropdownMenuTrigger asChild>
-                  <Link href={category.slug}>
+                  <Link href={`/categories/${category.slug}`}>
                     <Button
                       variant="outline"
                       size="sm"
@@ -142,7 +142,7 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
                       if (item.type === 'BRAND') {
                         return (
                           <DropdownMenuItem key={item.brand.id} asChild>
-                            <Link href={item.brand.slug}>
+                            <Link href={`/collections/${item.brand.slug}`}>
                               {item.brand.name}
                             </Link>
                           </DropdownMenuItem>
@@ -150,7 +150,9 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
                       }
                       return (
                         <DropdownMenuItem key={item.name} asChild>
-                          <Link href={item.slug}>{item.name}</Link>
+                          <Link href={`/categories/${item.slug}`}>
+                            {item.name}
+                          </Link>
                         </DropdownMenuItem>
                       );
                     })}

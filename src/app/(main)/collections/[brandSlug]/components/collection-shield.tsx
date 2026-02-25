@@ -1,9 +1,9 @@
-import { CollectionBanner } from '@/app/(main)/collections/[brandSlug]/components/collection-banner';
-import { CollectionInfo } from '@/app/(main)/collections/[brandSlug]/components/collection-info';
-import { CollectionProducts } from '@/app/(main)/collections/[brandSlug]/components/collection-products';
-import { getCollectionBySlug } from '@/app/(main)/collections/[brandSlug]/components/mock-collections';
-import { mockProducts } from '@/app/(main)/collections/[brandSlug]/components/mock-products';
 import { notFound } from 'next/navigation';
+import { getBrandsAPI } from '@/lib/apis/server/brand-apis';
+import { getProductStatsAPI } from '@/lib/apis/server/product-apis';
+import { CollectionBanner } from './collection-banner';
+import { CollectionInfo } from './collection-info';
+import { CollectionProducts } from './collection-products';
 
 export async function CollectionShield({
   params,
@@ -12,32 +12,43 @@ export async function CollectionShield({
 }) {
   const { brandSlug } = await params;
 
-  // Get collection data by slug
-  const collection = getCollectionBySlug(brandSlug);
+  // Fetch brands to find the brand by slug
+  const brandsResponse = await getBrandsAPI({ page: 1, limit: 100 });
 
-  // If collection not found, show 404
-  if (!collection) {
+  const brand = brandsResponse.data.items.find(
+    (b) => b.slug.toLowerCase() === brandSlug.toLowerCase(),
+  );
+
+  // If brand not found, show 404
+  if (!brand) {
     notFound();
   }
 
-  // For now, use all mock products for this collection
-  // In real app, this would be fetched from API based on brandSlug
-  const products = mockProducts;
+  // Fetch lightweight stats instead of fetching all products
+  const statsResponse = await getProductStatsAPI({ brandId: brand.id });
+
   return (
     <div className="space-y-6 py-4 md:py-6 container">
-      <CollectionBanner name={collection.name} />
+      <CollectionBanner name={brand.name} />
       <CollectionInfo
-        name={collection.name}
-        productCount={collection.productCount}
-        purchaseCount={collection.purchaseCount}
-        description={collection.description}
-        featuredProducts={collection.featuredProducts}
-        advantages={collection.advantages}
-        targetAudience={collection.targetAudience}
+        name={brand.name}
+        productCount={statsResponse.data?.productCount ?? 0}
+        purchaseCount={formatCount(statsResponse.data?.totalSold ?? 0)}
+        description={brand.description}
       />
 
-      {/* Products Section with Filter */}
-      <CollectionProducts products={products} />
+      {/* Products Section — categories are auto-fetched by ProductListingSection */}
+      <CollectionProducts brandId={brand.id} />
     </div>
   );
+}
+
+/**
+ * Format number to readable string (e.g. 1700 -> "1.7K")
+ */
+function formatCount(count: number): string {
+  if (count >= 1000) {
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+  }
+  return count.toString();
 }

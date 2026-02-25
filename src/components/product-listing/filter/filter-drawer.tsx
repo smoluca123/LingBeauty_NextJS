@@ -7,6 +7,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { FilterSearch } from './filter-search';
 import { FilterPrice } from './filter-price';
 import { FilterCategoryComponent } from './filter-category';
@@ -17,6 +18,7 @@ import { getActiveFiltersCount } from './filter-utils';
 interface FilterDrawerProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  categories?: IFilterCategoryDataType[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -24,6 +26,7 @@ interface FilterDrawerProps {
 export function FilterDrawer({
   filters,
   onFiltersChange,
+  categories = [],
   open,
   onOpenChange,
 }: FilterDrawerProps) {
@@ -73,6 +76,7 @@ export function FilterDrawer({
               />
 
               <FilterCategoryComponent
+                categories={categories}
                 selectedCategories={filters.categories}
                 onChange={handleCategoryChange}
               />
@@ -94,4 +98,3 @@ export function FilterDrawer({
     </Sheet>
   );
 }
-

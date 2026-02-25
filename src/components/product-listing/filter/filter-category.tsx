@@ -10,24 +10,26 @@ import {
 } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { FilterCategory, mockCategories } from '../mock-products';
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { CustomCheckbox } from './custom-checkbox';
 
 interface FilterCategoryProps {
+  categories: IFilterCategoryDataType[];
   selectedCategories: string[];
   onChange: (categories: string[]) => void;
   className?: string;
 }
 
 export function FilterCategoryComponent({
+  categories,
   selectedCategories,
   onChange,
   className,
 }: FilterCategoryProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredCategories = mockCategories.filter((category) =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = categories.filter((category) =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const handleCheckboxChange = (categorySlug: string, checked: boolean) => {
@@ -65,7 +67,7 @@ export function FilterCategoryComponent({
 
             {/* Category checkboxes */}
             <div className="space-y-0.5">
-              {filteredCategories.map((category: FilterCategory) => (
+              {filteredCategories.map((category: IFilterCategoryDataType) => (
                 <CustomCheckbox
                   key={category.id}
                   checked={selectedCategories.includes(category.slug)}
@@ -83,4 +85,3 @@ export function FilterCategoryComponent({
     </Accordion>
   );
 }
-

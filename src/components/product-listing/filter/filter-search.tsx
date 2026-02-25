@@ -14,7 +14,7 @@ interface FilterSearchProps {
 export function FilterSearch({
   value,
   onChange,
-  placeholder = 'Tìm kiếm trong bộ sưu tập...',
+  placeholder = 'Tìm kiếm sản phẩm...',
   className,
 }: FilterSearchProps) {
   return (

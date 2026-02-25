@@ -2,7 +2,7 @@ import { GC_TIME, STALE_TIME } from '@/constants/cache';
 import { QueryClient } from '@tanstack/react-query';
 import { cache } from 'react';
 
-export const queryClient = cache(
+export const getQueryClient = cache(
   () =>
     new QueryClient({
       defaultOptions: {

@@ -17,24 +17,35 @@ export function CustomCheckbox({
   count,
 }: CustomCheckboxProps) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 group py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/60 transition-colors">
+    <div
+      role="checkbox"
+      aria-checked={checked}
+      tabIndex={0}
+      onClick={() => onChange(!checked)}
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          onChange(!checked);
+        }
+      }}
+      className="flex cursor-pointer items-center gap-3 group py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/60 transition-colors"
+    >
       <div
         className={cn(
-          'flex h-[18px] w-[18px] items-center justify-center rounded-md border-2 transition-all duration-200 shadow-sm',
+          'flex h-[18px] w-[18px] items-center justify-center rounded-md border-2 transition-all duration-200 shadow-sm shrink-0',
           checked
             ? 'border-primary-pink bg-primary-pink'
-            : 'border-gray-300 bg-white group-hover:border-primary-pink/50'
+            : 'border-gray-300 bg-white group-hover:border-primary-pink/50',
         )}
-        onClick={() => onChange(!checked)}
       >
         {checked && <Check className="h-3 w-3 text-white stroke-3" />}
       </div>
       <span
         className={cn(
-          'text-sm transition-colors flex items-center gap-1.5',
+          'text-sm transition-colors flex items-center gap-1.5 select-none',
           checked
             ? 'text-foreground font-medium'
-            : 'text-muted-foreground group-hover:text-foreground'
+            : 'text-muted-foreground group-hover:text-foreground',
         )}
       >
         {label}
@@ -44,6 +55,6 @@ export function CustomCheckbox({
           </span>
         )}
       </span>
-    </label>
+    </div>
   );
 }

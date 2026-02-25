@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { sortOptions, SortOption } from '../mock-products';
+import { SORT_OPTIONS, SortOption } from '../constants';
 
 interface ProductsHeaderProps {
   totalResults: number;
@@ -29,15 +29,15 @@ export function ProductsHeader({
   activeFiltersCount = 0,
   className,
 }: ProductsHeaderProps) {
-  const selectedOption = sortOptions.find(
-    (option) => option.value === selectedSort
+  const selectedOption = SORT_OPTIONS.find(
+    (option) => option.value === selectedSort,
   );
 
   return (
     <div
       className={cn(
         'flex items-center justify-between gap-4 pb-4 border-b border-gray-100',
-        className
+        className,
       )}
     >
       {/* Left side - Filter button (mobile) + Results count */}
@@ -79,7 +79,7 @@ export function ProductsHeader({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {sortOptions.map((option: SortOption) => (
+            {SORT_OPTIONS.map((option: SortOption) => (
               <SelectItem
                 key={option.id}
                 value={option.value}

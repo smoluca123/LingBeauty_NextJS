@@ -1,4 +1,4 @@
-import { FilterState } from './filter-sidebar';
+import { FilterState } from '@/components/product-listing/filter/filter-sidebar';
 
 interface UseFilterHandlersProps {
   filters: FilterState;

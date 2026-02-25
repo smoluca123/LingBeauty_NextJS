@@ -1,30 +1,24 @@
-'use client';
+import { Package, ShoppingBag } from 'lucide-react';
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, Package, ShoppingBag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-
-interface CollectionInfoProps {
-  name: string;
+interface ProductsInfoProps {
   productCount: number;
   purchaseCount: string;
-  description: string;
 }
 
-export function CollectionInfo({
-  name,
+/**
+ * Stats section showing total products and total purchases.
+ * Follows the same design pattern as CategoryInfo / CollectionInfo.
+ */
+export function ProductsInfo({
   productCount,
   purchaseCount,
-  description,
-}: CollectionInfoProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
+}: ProductsInfoProps) {
   return (
     <section className="container mx-auto px-4 py-8">
-      {/* Header with gradient background */}
+      {/* Header with gradient text */}
       <div className="text-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-bold bg-linear-to-r from-primary-pink via-pink-400 to-primary-pink bg-clip-text text-transparent mb-4">
-          {name}
+          Tất Cả Sản Phẩm
         </h2>
 
         {/* Stats Cards */}
@@ -54,42 +48,6 @@ export function CollectionInfo({
           </div>
         </div>
       </div>
-
-      {/* Description */}
-      {description && (
-        <div className="max-w-4xl mx-auto">
-          <p
-            className={`text-sm sm:text-base text-muted-foreground leading-relaxed text-center mb-6 px-4 ${
-              !isExpanded ? 'line-clamp-3' : ''
-            }`}
-          >
-            {description}
-          </p>
-
-          {/* Toggle button - only show if description is long enough */}
-          {description.length > 200 && (
-            <div className="mt-4 text-center">
-              <Button
-                variant="ghost"
-                onClick={() => setIsExpanded(!isExpanded)}
-                className="group cursor-pointer text-muted-foreground hover:text-foreground font-semibold text-sm px-6 py-3 rounded-full border-2 border-border hover:border-primary-pink hover:bg-primary-pink/5 transition-all duration-300"
-              >
-                {isExpanded ? (
-                  <>
-                    <ChevronUp className="w-4 h-4 mr-2 group-hover:animate-bounce" />
-                    ẨN BỚT NỘI DUNG
-                  </>
-                ) : (
-                  <>
-                    XEM THÊM NỘI DUNG
-                    <ChevronDown className="w-4 h-4 ml-2 group-hover:animate-bounce" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
     </section>
   );
 }

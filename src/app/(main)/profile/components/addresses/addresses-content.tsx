@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useGetMyAddressesQuery } from '@/hooks/querys/address.query';
 import { useAddMyAddress } from '@/hooks/mutations/address.mutation';
@@ -14,12 +13,13 @@ import { AddressCardSkeleton } from './address-card-skeleton';
 import { AddressFormDialog } from './components';
 import { Pagination } from '@/components/pagination';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@/constants/api';
+import { getQueryClient } from '@/lib/query-client/query-client';
 
 // ============ Main Component ============
 export function AddressesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
 
   // Derive page and limit directly from URL search params
   // Ensures state stays in sync with URL (browser back/forward)

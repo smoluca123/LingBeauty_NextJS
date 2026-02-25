@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { FilterSearch } from './filter-search';
 import { FilterPrice } from './filter-price';
 import { FilterCategoryComponent } from './filter-category';
@@ -15,12 +16,14 @@ export interface FilterState {
 interface FilterSidebarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  categories?: IFilterCategoryDataType[];
   className?: string;
 }
 
 export function FilterSidebar({
   filters,
   onFiltersChange,
+  categories = [],
   className,
 }: FilterSidebarProps) {
   const { handleSearchChange, handlePriceChange, handleCategoryChange } =
@@ -39,6 +42,7 @@ export function FilterSidebar({
         />
 
         <FilterCategoryComponent
+          categories={categories}
           selectedCategories={filters.categories}
           onChange={handleCategoryChange}
         />
@@ -46,4 +50,3 @@ export function FilterSidebar({
     </aside>
   );
 }
-

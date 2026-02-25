@@ -1,6 +1,6 @@
 import { IMediaDataType } from '@/lib/types/interfaces/apis/image.interfaces';
 
-export interface IProductStatsDataType {
+export interface IProductDetailStatsDataType {
   totalSold: number;
   totalRevenue?: string;
   avgRating?: string;
@@ -27,7 +27,7 @@ export interface IProductDataType {
   images?: IProductImageDataType[];
   variants: IProductVariantDataType[];
   badges: IProductBadgeDataType[];
-  stats?: IProductStatsDataType;
+  stats?: IProductDetailStatsDataType;
 }
 
 export interface IProductVariantDataType {
@@ -116,3 +116,17 @@ interface IProductBadgeDataType {
 
 export type ProductBadgeType = 'NEW' | 'SALE' | 'BEST_SELLER' | 'FREESHIPPING';
 export type ProductBadgeVariantType = 'INFO' | 'PRIMARY' | 'NEUTRAL';
+
+/** Filter category returned by the filter-categories endpoint */
+export interface IFilterCategoryDataType {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+}
+
+/** Lightweight product stats returned by the stats endpoint */
+export interface IProductStatsDataType {
+  productCount: number;
+  totalSold: number;
+}

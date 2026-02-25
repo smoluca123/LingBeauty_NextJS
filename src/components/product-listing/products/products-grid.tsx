@@ -3,13 +3,36 @@
 import { cn } from '@/lib/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { ProductCard2 } from '@/components/product/product-card2';
+import { PRODUCTS_PER_PAGE } from '../constants';
+import { ProductCard2Skeleton } from '@/components/product/product-card2-skeleton';
 
 interface ProductsGridProps {
   products: IProductDataType[];
+  isLoading?: boolean;
   className?: string;
 }
 
-export function ProductsGrid({ products, className }: ProductsGridProps) {
+export function ProductsGrid({
+  products,
+  isLoading = false,
+  className,
+}: ProductsGridProps) {
+  // Show skeleton grid on initial load
+  if (isLoading && products.length === 0) {
+    return (
+      <div
+        className={cn(
+          'grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4',
+          className,
+        )}
+      >
+        {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, i) => (
+          <ProductCard2Skeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -27,7 +50,7 @@ export function ProductsGrid({ products, className }: ProductsGridProps) {
     <div
       className={cn(
         'grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4',
-        className
+        className,
       )}
     >
       {products.map((product) => (
