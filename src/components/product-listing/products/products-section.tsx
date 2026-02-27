@@ -14,6 +14,8 @@ interface ProductsSectionProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  /** When provided, pagination renders SEO-friendly <Link> elements */
+  getPageHref?: (page: number) => string;
   onFilterClick?: () => void;
   activeFiltersCount?: number;
   isLoading?: boolean;
@@ -28,6 +30,7 @@ export function ProductsSection({
   currentPage,
   totalPages,
   onPageChange,
+  getPageHref,
   onFilterClick,
   activeFiltersCount = 0,
   isLoading = false,
@@ -58,6 +61,7 @@ export function ProductsSection({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={onPageChange}
+        getPageHref={getPageHref}
         className="mt-8"
       />
     </section>

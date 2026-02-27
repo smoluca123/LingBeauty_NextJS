@@ -9,24 +9,40 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { formatCount } from '@/lib/utils';
 import { connection } from 'next/server';
 import { getProductListingQueryKey } from '@/hooks/querys/product-listing.query';
+import { notFound } from 'next/navigation';
+
+interface ProductsShieldProps {
+  page: number;
+}
 
 /**
- * Server Component that pre-fetches initial products + stats for SEO.
+ * Server Component that pre-fetches products for the given page + stats for SEO.
  * Product data is included in the HTML on first render, then React Query takes over.
  */
-export async function ProductsShield() {
+export async function ProductsShield({ page }: ProductsShieldProps) {
   await connection();
 
   const queryClient = getQueryClient();
 
-  const initialParams = { page: 1, limit: PRODUCTS_PER_PAGE };
+  const initialParams = { page, limit: PRODUCTS_PER_PAGE };
 
-  await queryClient.prefetchQuery({
-    queryKey: getProductListingQueryKey(initialParams),
-    queryFn: () => getProductsAPI(initialParams),
-  });
+  // Prefetch products for the current page & stats in parallel
+  const [, statsResponse] = await Promise.all([
+    queryClient.prefetchQuery({
+      queryKey: getProductListingQueryKey(initialParams),
+      queryFn: () => getProductsAPI(initialParams),
+    }),
+    getProductStatsAPI({}),
+  ]);
 
-  const statsResponse = await getProductStatsAPI();
+  // Validate page is within range
+  const productsData = queryClient.getQueryData<
+    Awaited<ReturnType<typeof getProductsAPI>>
+  >(getProductListingQueryKey(initialParams));
+
+  if (productsData && page > 1 && productsData.data.totalPage < page) {
+    notFound();
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -38,7 +54,7 @@ export async function ProductsShield() {
         />
 
         {/* Products Section — SSR initial data, client takes over for filter/sort/pagination */}
-        <AllProducts />
+        <AllProducts initialPage={page} />
       </div>
     </HydrationBoundary>
   );

@@ -1,10 +1,13 @@
-import { kyClientInstance } from '@/lib/kyInstance/kyClient';
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
+import { extractErrorMessage } from '@/lib/utils';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 
-export const updateAvatarAPI = async ({
+// ============ Upload Avatar ============
+// Calls the Next.js proxy route handler, which forwards to the real backend.
+// The backend URL and auth token never leave the server.
+export const uploadAvatarAPI = async ({
   avatar,
 }: {
   avatar: File;
@@ -12,42 +15,27 @@ export const updateAvatarAPI = async ({
   const formData = new FormData();
   formData.append('file', avatar);
   try {
-    const data = await kyClientInstance
-      .put('user/me/avatar', {
-        body: formData,
-      })
+    const data = await kyNextInstance
+      .post('me/avatar', { body: formData })
       .json<IApiResponseWrapperType<IUserDataType>>();
-
     return data;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw new Error(error as string);
+    throw await extractErrorMessage(error, 'Cập nhật ảnh đại diện thất bại');
   }
 };
 
+// ============ Update My Information ============
 export const updateMyInformationAPI = async (
   userData: UpdateUserInfomationValues,
 ) => {
   try {
     const data = await kyNextInstance
-      .patch(`me`, {
-        json: userData,
-      })
+      .patch(`me`, { json: userData })
       .json<IApiResponseWrapperType<IUserDataType>>();
-
     return data;
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-    // throw error;
+    throw await extractErrorMessage(error, 'Cập nhật thông tin thất bại');
   }
 };

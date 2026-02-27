@@ -124,26 +124,15 @@ import { updateMyInformationAPI } from '@/lib/apis/server/actions/user-actions';
  * Requires accessToken cookie
  * Returns user data or null if not authenticated
  */
-export async function GET(): Promise<
-  NextResponse<IApiResponseWrapperType<IUserDataType>>
-> {
-  // Fetch current user from backend
+export async function GET(): Promise<NextResponse> {
   const response = await kyInstance
     .get('user/me')
     .json<IApiResponseWrapperType<IUserDataType>>();
-
   return NextResponse.json(response);
 }
 
-export async function PATCH(
-  request: Request,
-): Promise<NextResponse<IApiResponseWrapperType<IUserDataType>>> {
+export async function PATCH(request: Request): Promise<NextResponse> {
   const body: UpdateUserInfomationValues = await request.json();
-
-  // Fetch current user from backend
   const response = await updateMyInformationAPI(body);
-
-  // console.log(response);
-
   return NextResponse.json(response);
 }

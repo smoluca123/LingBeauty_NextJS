@@ -47,3 +47,24 @@ const countFormatter = new Intl.NumberFormat('en-US', {
 export function formatCount(count: number): string {
   return countFormatter.format(count);
 }
+
+// ============ Helper: safely parse ky HTTPError response ============
+// error.response.json() can throw SyntaxError when the response body is
+// plain text (e.g. Next.js 500 "Internal Server Error"). Wrapping it
+// prevents the SyntaxError from escaping the outer catch block.
+export async function extractErrorMessage(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any,
+  fallback: string,
+): Promise<string> {
+  if (error?.response) {
+    try {
+      const errorData = await error.response.json();
+      return errorData?.message || fallback;
+    } catch {
+      // Response body is not JSON (e.g. plain-text 500 from Next.js)
+      return error.message || fallback;
+    }
+  }
+  return error?.message || fallback;
+}

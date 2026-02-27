@@ -13,6 +13,7 @@ import type {
 } from '@/lib/types/interfaces/apis/auth.interfaces';
 import { toast } from 'sonner';
 import { getQueryClient } from '@/lib/query-client/query-client';
+import { useRouter } from 'next/navigation';
 
 // ============ Auth Query Keys ============
 export const authKeys = {
@@ -58,6 +59,7 @@ export const useRegisterMutation = () => {
 export const useLogoutMutation = () => {
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const queryClient = getQueryClient();
+  const navigate = useRouter();
 
   return useMutation({
     mutationFn: () => logoutApi(),
@@ -66,6 +68,8 @@ export const useLogoutMutation = () => {
       clearAuth();
       // Invalidate all queries to refetch after logout
       queryClient.clear();
+      // refresh page
+      navigate.refresh();
     },
   });
 };
