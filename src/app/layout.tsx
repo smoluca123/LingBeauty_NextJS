@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { Suspense } from 'react';
 import ReactQueryProvider from '@/components/react-query-provider';
 import { AuthProvider } from '@/providers/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -9,14 +10,6 @@ const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
 });
-
-// const montExtraLight = localFont({
-//   src: './fonts/mont/Mont-ExtraLightDEMO.otf',
-// });
-
-// const montHeavy = localFont({
-//   src: './fonts/mont/Mont-HeavyDEMO.otf',
-// });
 
 export const metadata: Metadata = {
   title:
@@ -34,7 +27,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={` ${inter.variable} antialiased`}>
         <ReactQueryProvider>
-          <AuthProvider>{children}</AuthProvider>
+          {/* AuthProvider is a Client Component that reads uncached data —
+              must be inside Suspense to avoid blocking static prerendering */}
+          <Suspense>
+            <AuthProvider>{children}</AuthProvider>
+          </Suspense>
           <Toaster position="bottom-right" />
         </ReactQueryProvider>
       </body>
