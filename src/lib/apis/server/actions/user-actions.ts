@@ -3,7 +3,10 @@ import { env } from '@/lib/env.config';
 import { kyInstance } from '@/lib/kyInstance/ky';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IValidateTokenResponseType } from '@/lib/types/interfaces/apis/auth.interfaces';
-import { IUserDataWithAccessTokenType } from '@/lib/types/interfaces/apis/user.interfaces';
+import {
+  IUserDataType,
+  IUserDataWithAccessTokenType,
+} from '@/lib/types/interfaces/apis/user.interfaces';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 import ky from 'ky';
 import { cookies } from 'next/headers';
@@ -171,21 +174,20 @@ export const refreshAccessTokenApi = async (payload?: {
 export const updateMyInformationAPI = async (
   userData: UpdateUserInfomationValues,
 ) => {
-  try {
-    const data = await kyInstance
-      .patch(`user/me`, {
-        json: userData,
-      })
-      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
+  // Let HTTPError bubble up naturally — proxyRoute in the route handler
+  // will forward the exact BE response (status + body) to the client.
+  return kyInstance
+    .patch(`user/me`, { json: userData })
+    .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
+};
 
-    return data;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+// ============ Upload Avatar (Server Action) ============
+export const uploadAvatarServerApi = async (
+  file: File,
+): Promise<IApiResponseWrapperType<IUserDataType>> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return kyInstance
+    .post('user/upload/avatar', { body: formData })
+    .json<IApiResponseWrapperType<IUserDataType>>();
 };

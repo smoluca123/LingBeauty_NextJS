@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { PRICE_RANGES, PRODUCTS_PER_PAGE } from './constants';
 import { FilterSidebar, FilterState, FilterDrawer } from './filter';
@@ -14,11 +15,7 @@ import {
   IFilterCategoriesParams,
   IProductListingParams,
 } from '@/lib/apis/client/product.apis';
-import { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import {
-  IFilterCategoryDataType,
-  IProductDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 
 /** Context params that define what products to show (brand page, collection, hot, etc.) */
 export interface ProductListingContextParams {
@@ -31,8 +28,10 @@ export interface ProductListingContextParams {
 interface ProductListingSectionProps {
   /** Context params used to scope both product listing and filter categories */
   contextParams?: ProductListingContextParams;
-  /** SSR initial data for hybrid rendering — seeds React Query on first render */
-  initialData?: IApiPaginationResponseWrapperType<IProductDataType>;
+  /** Initial page from URL for SSR pagination (e.g. /products/2 → initialPage=2) */
+  initialPage?: number;
+  /** Base URL for URL-based pagination (e.g. '/products'). When set, pagination uses Link/router instead of state-only */
+  pageBaseUrl?: string;
   className?: string;
 }
 
@@ -52,8 +51,11 @@ interface ProductListingSectionProps {
  */
 export function ProductListingSection({
   contextParams = {},
+  initialPage = 1,
+  pageBaseUrl,
   className,
 }: ProductListingSectionProps) {
+  const router = useRouter();
   // Filter state
   const [filters, setFilters] = useState<FilterState>({
     searchQuery: '',
@@ -65,7 +67,7 @@ export function ProductListingSection({
   const [sortValue, setSortValue] = useState('all');
 
   // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
 
   // Mobile filter drawer state
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
@@ -179,12 +181,28 @@ export function ProductListingSection({
     setCurrentPage(1);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setCurrentPage(page);
+
+      // URL-based pagination: navigate to /products/2, /products/3, etc.
+      if (pageBaseUrl) {
+        const href = page === 1 ? pageBaseUrl : `${pageBaseUrl}/${page}`;
+        router.push(href, { scroll: true });
+      }
+    },
+    [pageBaseUrl, router],
+  );
 
   // Count active filters
   const activeFiltersCount = getActiveFiltersCount(filters);
+
+  // Build getPageHref for SEO-friendly Link pagination
+  const getPageHref = useMemo(() => {
+    if (!pageBaseUrl) return undefined;
+    return (page: number) =>
+      page === 1 ? pageBaseUrl : `${pageBaseUrl}/${page}`;
+  }, [pageBaseUrl]);
 
   return (
     <>
@@ -215,6 +233,7 @@ export function ProductListingSection({
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          getPageHref={getPageHref}
           onFilterClick={() => setFilterDrawerOpen(true)}
           activeFiltersCount={activeFiltersCount}
           isLoading={isLoading || isFetching}

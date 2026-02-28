@@ -1,10 +1,10 @@
 import {
   getProductsAPI,
-  IProductQueryParams,
+  type IProductQueryParams,
 } from '@/lib/apis/server/product-apis';
-import { NextResponse } from 'next/server';
+import { proxyRoute } from '@/lib/proxy-route';
 
-export async function GET(request: Request) {
+export const GET = (request: Request) => {
   const { searchParams } = new URL(request.url);
 
   const params: IProductQueryParams = {
@@ -33,6 +33,5 @@ export async function GET(request: Request) {
       (searchParams.get('order') as IProductQueryParams['order']) ?? undefined,
   };
 
-  const data = await getProductsAPI(params);
-  return NextResponse.json(data);
-}
+  return proxyRoute(() => getProductsAPI(params));
+};

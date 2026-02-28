@@ -1,12 +1,12 @@
 'use server';
 import { DEFAULT_CACHE_TIME } from '@/constants/cache';
 import { publicKyInstance } from '@/lib/kyInstance/publicKy';
-import {
+import type {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
-import {
+import type {
   IFilterCategoryDataType,
   IProductDataType,
   IProductStatsDataType,
@@ -34,42 +34,44 @@ export interface IFilterCategoriesQueryParams {
   maxPrice?: number;
 }
 
+/** Params for the product stats server API */
+export interface IProductStatsQueryParams {
+  brandId?: string;
+  categoryId?: string;
+  search?: string;
+  isFeatured?: boolean;
+}
+
+// Helper: build search params object, omitting undefined values
+const buildSearchParams = (
+  options: Record<string, string | number | boolean | undefined>,
+): Record<string, string | number | boolean> =>
+  Object.fromEntries(
+    Object.entries(options).filter(([, v]) => v !== undefined),
+  ) as Record<string, string | number | boolean>;
+
 export const getProductsAPI = async (
   options: IProductQueryParams = { page: 1, limit: 10 },
 ) => {
   'use cache';
   cacheLife(DEFAULT_CACHE_TIME);
   cacheTag('products');
-  try {
-    // Build search params, omitting undefined values
-    const searchParams: Record<string, string | number | boolean> = {};
-    if (options.page) searchParams.page = options.page;
-    if (options.limit) searchParams.limit = options.limit;
-    if (options.search) searchParams.search = options.search;
-    if (options.categoryId) searchParams.categoryId = options.categoryId;
-    if (options.brandId) searchParams.brandId = options.brandId;
-    if (options.isFeatured !== undefined)
-      searchParams.isFeatured = options.isFeatured;
-    if (options.minPrice !== undefined)
-      searchParams.minPrice = options.minPrice;
-    if (options.maxPrice !== undefined)
-      searchParams.maxPrice = options.maxPrice;
-    if (options.sortBy) searchParams.sortBy = options.sortBy;
-    if (options.order) searchParams.order = options.order;
-
-    const data = await publicKyInstance
-      .get('product', { searchParams })
-      .json<IApiPaginationResponseWrapperType<IProductDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  return publicKyInstance
+    .get('product', {
+      searchParams: buildSearchParams({
+        page: options.page,
+        limit: options.limit,
+        search: options.search,
+        categoryId: options.categoryId,
+        brandId: options.brandId,
+        isFeatured: options.isFeatured,
+        minPrice: options.minPrice,
+        maxPrice: options.maxPrice,
+        sortBy: options.sortBy,
+        order: options.order,
+      }),
+    })
+    .json<IApiPaginationResponseWrapperType<IProductDataType>>();
 };
 
 /**
@@ -82,40 +84,19 @@ export const getFilterCategoriesAPI = async (
   'use cache';
   cacheLife(DEFAULT_CACHE_TIME);
   cacheTag('filter-categories');
-  try {
-    const searchParams: Record<string, string | number | boolean> = {};
-    if (options.brandId) searchParams.brandId = options.brandId;
-    if (options.categoryId) searchParams.categoryId = options.categoryId;
-    if (options.search) searchParams.search = options.search;
-    if (options.isFeatured !== undefined)
-      searchParams.isFeatured = options.isFeatured;
-    if (options.minPrice !== undefined)
-      searchParams.minPrice = options.minPrice;
-    if (options.maxPrice !== undefined)
-      searchParams.maxPrice = options.maxPrice;
-
-    const data = await publicKyInstance
-      .get('product/public/filter-categories', { searchParams })
-      .json<IApiResponseWrapperType<IFilterCategoryDataType[]>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  return publicKyInstance
+    .get('product/public/filter-categories', {
+      searchParams: buildSearchParams({
+        brandId: options.brandId,
+        categoryId: options.categoryId,
+        search: options.search,
+        isFeatured: options.isFeatured,
+        minPrice: options.minPrice,
+        maxPrice: options.maxPrice,
+      }),
+    })
+    .json<IApiResponseWrapperType<IFilterCategoryDataType[]>>();
 };
-
-/** Params for the product stats server API */
-export interface IProductStatsQueryParams {
-  brandId?: string;
-  categoryId?: string;
-  search?: string;
-  isFeatured?: boolean;
-}
 
 /**
  * Fetch lightweight product stats (productCount + totalSold).
@@ -127,25 +108,14 @@ export const getProductStatsAPI = async (
   'use cache';
   cacheLife(DEFAULT_CACHE_TIME);
   cacheTag('product-stats');
-  try {
-    const searchParams: Record<string, string | number | boolean> = {};
-    if (options.brandId) searchParams.brandId = options.brandId;
-    if (options.categoryId) searchParams.categoryId = options.categoryId;
-    if (options.search) searchParams.search = options.search;
-    if (options.isFeatured !== undefined)
-      searchParams.isFeatured = options.isFeatured;
-
-    const data = await publicKyInstance
-      .get('product/public/stats', { searchParams })
-      .json<IApiResponseWrapperType<IProductStatsDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  return publicKyInstance
+    .get('product/public/stats', {
+      searchParams: buildSearchParams({
+        brandId: options.brandId,
+        categoryId: options.categoryId,
+        search: options.search,
+        isFeatured: options.isFeatured,
+      }),
+    })
+    .json<IApiResponseWrapperType<IProductStatsDataType>>();
 };

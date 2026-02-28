@@ -1,10 +1,10 @@
 import {
   getFilterCategoriesAPI,
-  IFilterCategoriesQueryParams,
+  type IFilterCategoriesQueryParams,
 } from '@/lib/apis/server/product-apis';
-import { NextResponse } from 'next/server';
+import { proxyRoute } from '@/lib/proxy-route';
 
-export async function GET(request: Request) {
+export const GET = (request: Request) => {
   const { searchParams } = new URL(request.url);
 
   const params: IFilterCategoriesQueryParams = {
@@ -22,6 +22,5 @@ export async function GET(request: Request) {
       : undefined,
   };
 
-  const data = await getFilterCategoriesAPI(params);
-  return NextResponse.json(data);
-}
+  return proxyRoute(() => getFilterCategoriesAPI(params));
+};

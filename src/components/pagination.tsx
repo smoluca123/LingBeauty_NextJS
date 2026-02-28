@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -7,6 +8,8 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  /** When provided, pagination renders SEO-friendly <Link> elements instead of buttons */
+  getPageHref?: (page: number) => string;
   className?: string;
 }
 
@@ -14,6 +17,7 @@ export function Pagination({
   currentPage,
   totalPages,
   onPageChange,
+  getPageHref,
   className,
 }: PaginationProps) {
   // Don't render pagination if there's only 1 page or less
@@ -58,25 +62,93 @@ export function Pagination({
 
   const pageNumbers = getPageNumbers();
 
+  const buttonBaseClass =
+    'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200';
+  const activeClass =
+    'border-primary-pink bg-primary-pink text-white shadow-md shadow-primary-pink/25';
+  const inactiveClass =
+    'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink';
+  const disabledClass = 'cursor-not-allowed border-gray-200 text-gray-300';
+
+  /** Render a page item as <Link> (SEO) or <button> (client-only) */
+  const renderPageItem = (page: number) => {
+    const isActive = currentPage === page;
+    const className = cn(
+      'flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-all duration-200',
+      isActive ? activeClass : inactiveClass,
+    );
+
+    if (getPageHref && !isActive) {
+      return (
+        <Link
+          key={page}
+          href={getPageHref(page)}
+          className={className}
+          aria-label={`Page ${page}`}
+          scroll
+        >
+          {page}
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        key={page}
+        onClick={() => onPageChange(page)}
+        className={className}
+        aria-label={`Page ${page}`}
+        aria-current={isActive ? 'page' : undefined}
+      >
+        {page}
+      </button>
+    );
+  };
+
+  /** Render prev/next as <Link> or <button> */
+  const renderNavButton = (
+    direction: 'prev' | 'next',
+    disabled: boolean,
+    targetPage: number,
+  ) => {
+    const Icon = direction === 'prev' ? ChevronLeft : ChevronRight;
+    const label = direction === 'prev' ? 'Previous page' : 'Next page';
+
+    if (getPageHref && !disabled) {
+      return (
+        <Link
+          href={getPageHref(targetPage)}
+          className={cn(buttonBaseClass, inactiveClass)}
+          aria-label={label}
+          scroll
+        >
+          <Icon className="h-4 w-4" />
+        </Link>
+      );
+    }
+
+    return (
+      <button
+        onClick={() => onPageChange(targetPage)}
+        disabled={disabled}
+        className={cn(
+          buttonBaseClass,
+          disabled ? disabledClass : inactiveClass,
+        )}
+        aria-label={label}
+      >
+        <Icon className="h-4 w-4" />
+      </button>
+    );
+  };
+
   return (
     <nav
       className={cn('flex items-center justify-center gap-1', className)}
       aria-label="Pagination"
     >
       {/* Previous button */}
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className={cn(
-          'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200',
-          currentPage === 1
-            ? 'cursor-not-allowed border-gray-200 text-gray-300'
-            : 'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink'
-        )}
-        aria-label="Previous page"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
+      {renderNavButton('prev', currentPage === 1, currentPage - 1)}
 
       {/* Page numbers */}
       <div className="flex items-center gap-1">
@@ -89,38 +161,13 @@ export function Pagination({
               <MoreHorizontal className="h-4 w-4" />
             </span>
           ) : (
-            <button
-              key={page}
-              onClick={() => onPageChange(page)}
-              className={cn(
-                'flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-all duration-200',
-                currentPage === page
-                  ? 'border-primary-pink bg-primary-pink text-white shadow-md shadow-primary-pink/25'
-                  : 'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink'
-              )}
-              aria-label={`Page ${page}`}
-              aria-current={currentPage === page ? 'page' : undefined}
-            >
-              {page}
-            </button>
-          )
+            renderPageItem(page)
+          ),
         )}
       </div>
 
       {/* Next button */}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className={cn(
-          'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200',
-          currentPage === totalPages
-            ? 'cursor-not-allowed border-gray-200 text-gray-300'
-            : 'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink'
-        )}
-        aria-label="Next page"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
+      {renderNavButton('next', currentPage === totalPages, currentPage + 1)}
     </nav>
   );
 }
