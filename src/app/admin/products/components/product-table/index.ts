@@ -1,4 +1,10 @@
 export { ProductFilters } from './product-filters';
 export { ProductTable } from './product-table';
 export { DeleteProductDialog } from './delete-product-dialog';
-export { formatPrice, getStockStatus } from './helpers';
+export { EditProductDialog } from './edit-product-dialog';
+export { AddProductDialog } from './add-product-dialog';
+export { UploadImageDialog } from './upload-image-dialog';
+export { AddVariantDialog } from './add-variant-dialog';
+export { CategoryMultiSelect } from './category-multi-select';
+export { formatPrice, getStockStatusFromDisplay, flattenCategories, generateSku } from './helpers';
+export type { ProductFormState, CategoryOption } from './product-form.types';

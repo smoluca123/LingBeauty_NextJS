@@ -1,5 +1,8 @@
+import { Suspense } from 'react';
 import { UsersContent } from './components';
 
 export default function AdminUsersPage() {
-  return <UsersContent />;
+  return <Suspense>
+    <UsersContent />
+  </Suspense>;
 }

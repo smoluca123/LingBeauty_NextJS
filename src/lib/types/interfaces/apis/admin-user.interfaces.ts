@@ -1,23 +1,10 @@
 // ============ Admin User Types ============
 
-export interface IAdminUserDataType {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  username: string;
-  avatar: string | null;
-  isActive: boolean;
-  isVerified: boolean;
-  isBanned: boolean;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
-  emailVerifiedAt: string | null;
-  phoneVerifiedAt: string | null;
-  roles: IAdminRoleDataType[];
-  createdAt: string;
-  updatedAt: string;
+import { IUserDataType } from "./user.interfaces";
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface IAdminUserDataType extends IUserDataType {
+  
 }
 
 export interface IAdminRoleDataType {
@@ -48,20 +35,3 @@ export interface IUserFilters {
   limit?: number;
 }
 
-// ============ Form Types ============
-
-export interface IUserFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  username: string;
-  roleIds: string[];
-  isActive: boolean;
-}
-
-export interface IRoleFormData {
-  name: string;
-  description: string;
-  permissionIds: string[];
-}

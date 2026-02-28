@@ -8,7 +8,6 @@ export interface IUserDataType {
   lastName: string;
   phone: string;
   username: string;
-  avatarMediaId: string | null;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;

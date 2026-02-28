@@ -1,2 +1,2 @@
 export { ProductsContent } from './products-content';
-export { AddProductDialog } from './add-product-dialog';
+export { AddProductDialog } from './product-table/add-product-dialog';

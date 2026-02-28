@@ -15,6 +15,7 @@ interface DeleteProductDialogProps {
   onOpenChange: (open: boolean) => void;
   product: IAdminProductDataType | null;
   onConfirm: () => void;
+  isPending?: boolean;
 }
 
 export function DeleteProductDialog({
@@ -22,6 +23,7 @@ export function DeleteProductDialog({
   onOpenChange,
   product,
   onConfirm,
+  isPending = false,
 }: DeleteProductDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -37,9 +39,10 @@ export function DeleteProductDialog({
           <AlertDialogCancel>Hủy</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
+            disabled={isPending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            Xóa
+            {isPending ? 'Đang xóa...' : 'Xóa'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

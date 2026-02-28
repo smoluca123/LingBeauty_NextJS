@@ -23,23 +23,32 @@ export function BanUserDialog({
   user,
   onConfirm,
 }: BanUserDialogProps) {
+  const isUnbanning = user?.isBanned === true;
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xác nhận cấm người dùng</AlertDialogTitle>
+          <AlertDialogTitle>
+            {isUnbanning ? 'Xác nhận bỏ cấm người dùng' : 'Xác nhận cấm người dùng'}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn cấm người dùng &#34;{user?.lastName}{' '}
-            {user?.firstName}&#34;? Người dùng sẽ không thể đăng nhập.
+            {isUnbanning
+              ? `Bạn có chắc chắn muốn bỏ cấm người dùng "${user?.lastName} ${user?.firstName}"? Người dùng sẽ có thể đăng nhập trở lại.`
+              : `Bạn có chắc chắn muốn cấm người dùng "${user?.lastName} ${user?.firstName}"? Người dùng sẽ không thể đăng nhập.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-orange-600 text-white hover:bg-orange-700"
+            className={
+              isUnbanning
+                ? 'bg-green-600 text-white hover:bg-green-700'
+                : 'bg-orange-600 text-white hover:bg-orange-700'
+            }
           >
-            Cấm
+            {isUnbanning ? 'Bỏ cấm' : 'Cấm'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

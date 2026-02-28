@@ -35,7 +35,7 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
       <TableCell>
         <div className="flex items-center gap-3">
           <Avatar>
-            <AvatarImage src={user.avatar || undefined} />
+            <AvatarImage src={user.avatarMedia?.url ?? undefined} />
             <AvatarFallback>
               {getInitials(user.firstName, user.lastName)}
             </AvatarFallback>
@@ -73,10 +73,10 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
       </TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">
-          {user.roles.length > 0 ? (
-            user.roles.map((role) => (
-              <Badge key={role.id} variant="outline">
-                {role.name}
+          {user.roleAssignments && user.roleAssignments.length > 0 ? (
+            user.roleAssignments.map((assignment) => (
+              <Badge key={assignment.role.id} variant="outline">
+                {assignment.role.name}
               </Badge>
             ))
           ) : (
@@ -133,7 +133,10 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
                 Cấm người dùng
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem className="text-green-600">
+              <DropdownMenuItem
+                onClick={() => onBan(user)}
+                className="text-green-600"
+              >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Bỏ cấm
               </DropdownMenuItem>

@@ -5,83 +5,160 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 
-interface CategoryFormData {
+export interface CategoryFormData {
   name: string;
-  slug: string;
+  description: string;
   isActive: boolean;
+  parentId: string | null;
 }
 
-interface EditCategoryDialogProps {
+interface CategoryFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Category đang được edit. Null = đang tạo mới */
   category: IAdminCategoryDataType | null;
   formData: CategoryFormData;
-  onFormChange: (data: Partial<CategoryFormData>) => void;
+  onFormChange: (updates: Partial<CategoryFormData>) => void;
   onSave: () => void;
-  parentId?: string | null;
+  /** Danh sách root categories để chọn làm cha */
+  rootCategories: IAdminCategoryDataType[];
+  isPending?: boolean;
 }
 
-export function EditCategoryDialog({
+const NO_PARENT_VALUE = '__none__';
+
+export function CategoryFormDialog({
   open,
   onOpenChange,
   category,
   formData,
   onFormChange,
   onSave,
-  parentId,
-}: EditCategoryDialogProps) {
+  rootCategories,
+  isPending = false,
+}: CategoryFormDialogProps) {
+  const isEditing = Boolean(category);
+
+  const title = isEditing
+    ? 'Chỉnh sửa danh mục'
+    : formData.parentId
+      ? 'Thêm danh mục con'
+      : 'Thêm danh mục';
+
+  const handleParentChange = (value: string) => {
+    onFormChange({ parentId: value === NO_PARENT_VALUE ? null : value });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {category ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
-          </DialogTitle>
+          <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Tên danh mục</Label>
+
+        <div className="space-y-4 py-2">
+          {/* Name */}
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-name">
+              Tên danh mục <span className="text-destructive">*</span>
+            </Label>
             <Input
-              id="name"
+              id="cat-name"
               value={formData.name}
               onChange={(e) => onFormChange({ name: e.target.value })}
               placeholder="Nhập tên danh mục"
             />
+            <p className="text-xs text-muted-foreground">Slug sẽ được tạo tự động từ tên.</p>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="slug">Slug</Label>
-            <Input
-              id="slug"
-              value={formData.slug}
-              onChange={(e) => onFormChange({ slug: e.target.value })}
-              placeholder="ten-danh-muc"
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <Label htmlFor="cat-desc">Mô tả</Label>
+            <Textarea
+              id="cat-desc"
+              value={formData.description}
+              onChange={(e) => onFormChange({ description: e.target.value })}
+              placeholder="Mô tả ngắn về danh mục (tùy chọn)"
+              rows={3}
             />
           </div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="isActive">Hiển thị</Label>
+
+          {/* Parent selector — chỉ hiện khi tạo mới, không hiện khi edit */}
+          {!isEditing && (
+            <div className="space-y-1.5">
+              <Label htmlFor="cat-parent">Danh mục cha</Label>
+              <Select
+                value={formData.parentId ?? NO_PARENT_VALUE}
+                onValueChange={handleParentChange}
+              >
+                <SelectTrigger id="cat-parent">
+                  <SelectValue placeholder="Chọn danh mục cha..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_PARENT_VALUE}>
+                    — Không có cha (danh mục gốc) —
+                  </SelectItem>
+                  {rootCategories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {formData.parentId
+                  ? 'Danh mục này sẽ là con của danh mục được chọn.'
+                  : 'Để trống để tạo danh mục gốc.'}
+              </p>
+            </div>
+          )}
+
+          {/* isActive toggle */}
+          <div className="flex items-center justify-between rounded-lg border p-3">
+            <div>
+              <Label htmlFor="cat-active" className="font-medium">
+                Hiển thị
+              </Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Danh mục sẽ hiển thị trên cửa hàng
+              </p>
+            </div>
             <Switch
-              id="isActive"
+              id="cat-active"
               checked={formData.isActive}
               onCheckedChange={(checked) => onFormChange({ isActive: checked })}
+              className="data-[state=checked]:bg-primary-pink"
             />
           </div>
-          {parentId && (
-            <p className="text-sm text-muted-foreground">
-              Danh mục con của: <span className="font-medium">Danh mục cha</span>
-            </p>
-          )}
         </div>
+
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isPending}>
             Hủy
           </Button>
-          <Button variant="primary-pink" onClick={onSave}>Lưu</Button>
+          <Button
+            variant="primary-pink"
+            onClick={onSave}
+            disabled={isPending || !formData.name.trim()}
+          >
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isEditing ? 'Lưu thay đổi' : 'Tạo danh mục'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Eye, ImagePlus, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -19,14 +19,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { IAdminProductDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
-import { formatPrice, getStockStatus } from './helpers';
+import { formatPrice } from './helpers';
 
 interface ProductTableProps {
   products: IAdminProductDataType[];
+  onEdit: (product: IAdminProductDataType) => void;
   onDelete: (product: IAdminProductDataType) => void;
+  onUploadImage: (product: IAdminProductDataType) => void;
+  onAddVariant: (product: IAdminProductDataType) => void;
 }
 
-export function ProductTable({ products, onDelete }: ProductTableProps) {
+export function ProductTable({ products, onEdit, onDelete, onUploadImage, onAddVariant }: ProductTableProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -44,22 +47,23 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
               <TableHead className="min-w-50">Sản phẩm</TableHead>
               <TableHead>SKU</TableHead>
               <TableHead className="text-center">Giá</TableHead>
-              <TableHead className="text-center">Tồn kho</TableHead>
               <TableHead className="text-center">Trạng thái</TableHead>
               <TableHead className="w-12.5"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {products.map((product) => {
-              const stockStatus = getStockStatus(product.stock);
-              const category = product.category;
+              const categoryNames = product.productCategories
+                ?.map((pc) => pc.category.name)
+                ?? product.categories?.map((c) => c.name)
+                ?? [];
 
               return (
                 <TableRow key={product.id}>
                   <TableCell>
                     <div className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-md bg-muted shrink-0">
                       <Image
-                        src={product.primaryImage || '/images/placeholder.png'}
+                        src={product.primaryImage?.media.url || '/images/placeholder.png'}
                         alt={product.name}
                         fill
                         className="object-cover"
@@ -69,9 +73,9 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                   <TableCell>
                     <div className="space-y-1">
                       <p className="font-medium">{product.name}</p>
-                      {category && (
+                      {categoryNames.length > 0 && (
                         <p className="text-sm text-muted-foreground">
-                          {category.name}
+                          {categoryNames.join(', ')}
                         </p>
                       )}
                     </div>
@@ -85,11 +89,8 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                     {formatPrice(product.basePrice)}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="font-medium">{product.stock}</span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant={stockStatus.variant}>
-                      {stockStatus.label}
+                    <Badge variant={product.isActive ? 'primary-pink' : 'secondary'}>
+                      {product.isActive ? 'Đang bán' : 'Ngừng bán'}
                     </Badge>
                   </TableCell>
                   <TableCell>
@@ -106,12 +107,18 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                             Xem chi tiết
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}/edit`}>
+                        <DropdownMenuItem onClick={() => onEdit(product)}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Chỉnh sửa
-                          </Link>
-                        </DropdownMenuItem>
+                          </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onUploadImage(product)}>
+                            <ImagePlus className="mr-2 h-4 w-4" />
+                            Tải ảnh lên
+                          </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onAddVariant(product)}>
+                            <Layers className="mr-2 h-4 w-4" />
+                            Thêm biến thể
+                          </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => onDelete(product)}

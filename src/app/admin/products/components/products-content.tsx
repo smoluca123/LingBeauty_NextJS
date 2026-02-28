@@ -1,83 +1,102 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { mockAdminProducts, mockAdminCategories } from '@/lib/mock-data/admin';
 import { IAdminProductDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
+import { IUpdateProductPayload } from '@/lib/apis/client/actions/admin-product.actions';
 import { TablePagination } from '@/app/admin/components';
-import { usePagination } from '@/app/admin/hooks';
-import { AddProductDialog } from './add-product-dialog';
+import { AddProductDialog } from './product-table/add-product-dialog';
 import {
   ProductFilters,
   ProductTable,
   DeleteProductDialog,
+  EditProductDialog,
+  UploadImageDialog,
+  AddVariantDialog,
 } from './product-table';
+import { useAdminProducts, useDeleteProduct, useUpdateProduct } from '../hooks';
+import { useAdminCategories } from '../../categories/hooks';
 
 export function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
-  const [stockFilter, setStockFilter] = useState('all');
-  const {
-    resetPage,
-    paginate,
-    getPaginationProps,
-  } = usePagination();
+  const [page, setPage] = useState(1);
+  const LIMIT = 10;
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [uploadImageDialogOpen, setUploadImageDialogOpen] = useState(false);
+  const [addVariantDialogOpen, setAddVariantDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<IAdminProductDataType | null>(null);
 
-  // Filter products
-  const filteredProducts = mockAdminProducts.filter((product) => {
-    const matchesSearch =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchQuery.toLowerCase());
+  const { data: categoriesData = [] } = useAdminCategories();
+  const deleteProductMutation = useDeleteProduct();
+  const updateProductMutation = useUpdateProduct();
 
-    const matchesCategory =
-      categoryFilter === 'all' ||
-      product.category.id === categoryFilter;
+  const queryParams = {
+    page,
+    limit: LIMIT,
+    search: searchQuery || undefined,
+    categoryId: categoryFilter !== 'all' ? categoryFilter : undefined,
+  };
 
-    const matchesStock =
-      stockFilter === 'all' ||
-      (stockFilter === 'in-stock' && product.stock >= 10) ||
-      (stockFilter === 'low-stock' && product.stock > 0 && product.stock < 10) ||
-      (stockFilter === 'out-of-stock' && product.stock === 0);
+  const { data, isLoading } = useAdminProducts(queryParams);
+  const products = data?.data.items ?? [];
+  const total = data?.data.totalCount ?? 0;
+  const totalPages = data?.data.totalPage ?? 0;
 
-    return matchesSearch && matchesCategory && matchesStock;
-  });
-
-  // Pagination
-  const paginatedProducts = useMemo(
-    () => paginate(filteredProducts),
-    [filteredProducts, paginate]
-  );
-
-  // Reset to page 1 when filters change
-  const handleSearchChange = (value: string) => {
+  const handleSearchChange = useCallback((value: string) => {
     setSearchQuery(value);
-    resetPage();
-  };
+    setPage(1);
+  }, []);
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = useCallback((value: string) => {
     setCategoryFilter(value);
-    resetPage();
-  };
+    setPage(1);
+  }, []);
 
-  const handleStockChange = (value: string) => {
-    setStockFilter(value);
-    resetPage();
+  const handleEdit = (product: IAdminProductDataType) => {
+    setSelectedProduct(product);
+    setEditDialogOpen(true);
   };
-
-  // Removed handlePageSizeChange since it's handled by the hook
 
   const handleDelete = (product: IAdminProductDataType) => {
     setSelectedProduct(product);
     setDeleteDialogOpen(true);
   };
 
+  const handleUploadImage = (product: IAdminProductDataType) => {
+    setSelectedProduct(product);
+    setUploadImageDialogOpen(true);
+  };
+
+  const handleAddVariant = (product: IAdminProductDataType) => {
+    setSelectedProduct(product);
+    setAddVariantDialogOpen(true);
+  };
+
   const confirmDelete = () => {
-    console.log('Deleting product:', selectedProduct?.id);
-    setDeleteDialogOpen(false);
+    if (!selectedProduct) return;
+    deleteProductMutation.mutate(selectedProduct.id, {
+      onSuccess: () => {
+        setDeleteDialogOpen(false);
+        setSelectedProduct(null);
+      },
+    });
+  };
+
+  const handleSaveEdit = (id: string, data: IUpdateProductPayload) => {
+    updateProductMutation.mutate(
+      { id, data },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false);
+          setSelectedProduct(null);
+        },
+      },
+    );
   };
 
   return (
@@ -105,26 +124,70 @@ export function ProductsContent() {
           onSearchChange={handleSearchChange}
           categoryFilter={categoryFilter}
           onCategoryChange={handleCategoryChange}
-          stockFilter={stockFilter}
-          onStockChange={handleStockChange}
-          categories={mockAdminCategories}
+          stockFilter="all"
+          onStockChange={() => {}}
+          categories={categoriesData}
         />
       </div>
 
-      {/* Product Table - takes remaining space and scrolls */}
+      {/* Product Table */}
       <div className="flex-1 min-h-0">
-        <ProductTable products={paginatedProducts} onDelete={handleDelete} />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full py-12">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <ProductTable
+            products={products}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onUploadImage={handleUploadImage}
+            onAddVariant={handleAddVariant}
+          />
+        )}
       </div>
 
       {/* Pagination */}
       <div className="shrink-0">
         <TablePagination
-          {...getPaginationProps(filteredProducts.length)}
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          totalItems={total}
+          pageSize={LIMIT}
+          onPageSizeChange={() => {}}
         />
       </div>
 
+      {/* Upload Image Dialog */}
+      <UploadImageDialog
+        key={selectedProduct?.id ? `upload-${selectedProduct.id}` : 'upload-no-product'}
+        open={uploadImageDialogOpen}
+        onOpenChange={setUploadImageDialogOpen}
+        product={selectedProduct}
+      />
+
+      {/* Add Variant Dialog */}
+      <AddVariantDialog
+        key={selectedProduct?.id ? `variant-${selectedProduct.id}` : 'variant-no-product'}
+        open={addVariantDialogOpen}
+        onOpenChange={setAddVariantDialogOpen}
+        product={selectedProduct}
+      />
+
       {/* Add Product Dialog */}
       <AddProductDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
+
+      {/* Edit Product Dialog — key resets component state when selected product changes */}
+      <EditProductDialog
+        key={selectedProduct?.id ?? 'no-product'}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        product={selectedProduct}
+        categories={categoriesData}
+        onSave={handleSaveEdit}
+        isPending={updateProductMutation.isPending}
+      />
 
       {/* Delete Dialog */}
       <DeleteProductDialog
@@ -132,6 +195,7 @@ export function ProductsContent() {
         onOpenChange={setDeleteDialogOpen}
         product={selectedProduct}
         onConfirm={confirmDelete}
+        isPending={deleteProductMutation.isPending}
       />
     </div>
   );

@@ -1,6 +1,5 @@
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -8,6 +7,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 
 interface DeleteCategoryDialogProps {
@@ -15,6 +16,7 @@ interface DeleteCategoryDialogProps {
   onOpenChange: (open: boolean) => void;
   category: IAdminCategoryDataType | null;
   onConfirm: () => void;
+  isPending?: boolean;
 }
 
 export function DeleteCategoryDialog({
@@ -22,6 +24,7 @@ export function DeleteCategoryDialog({
   onOpenChange,
   category,
   onConfirm,
+  isPending = false,
 }: DeleteCategoryDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -39,13 +42,15 @@ export function DeleteCategoryDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Hủy</AlertDialogCancel>
-          <AlertDialogAction
+          <AlertDialogCancel disabled={isPending}>Hủy</AlertDialogCancel>
+          <Button
+            variant="destructive"
             onClick={onConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isPending}
           >
-            Xóa
-          </AlertDialogAction>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending ? 'Đang xóa...' : 'Xóa'}
+          </Button>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

@@ -12,7 +12,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { IAdminUserDataType, IAdminRoleDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { IAdminUserDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { IUserRoleAssignmentDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { BasicInfoTab } from './basic-info-tab';
 import { RolesTab } from './roles-tab';
 import { StatusTab } from './status-tab';
@@ -31,7 +32,7 @@ export interface UserFormData {
   lastName: string;
   phone: string;
   username: string;
-  roles: IAdminRoleDataType[];
+  roles: IUserRoleAssignmentDataType[];
   isActive: boolean;
   isVerified: boolean;
   isBanned: boolean;
@@ -70,7 +71,7 @@ export function EditUserDialog({
         lastName: user.lastName,
         phone: user.phone,
         username: user.username,
-        roles: user.roles,
+        roles: user.roleAssignments ?? [],
         isActive: user.isActive,
         isVerified: user.isVerified,
         isBanned: user.isBanned,
@@ -82,7 +83,7 @@ export function EditUserDialog({
     console.log('📝 Form Data:', data);
     console.log('👤 User ID:', user?.id);
     console.log('📧 Email:', data.email);
-    console.log('👥 Roles:', data.roles.map(r => r.name));
+    console.log('👥 Roles:', data.roles.map(r => r.role.name));
     console.log('✅ Status:', {
       isActive: data.isActive,
       isVerified: data.isVerified,

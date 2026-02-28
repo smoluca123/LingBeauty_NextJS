@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { mockAdminUsers, mockAdminRoles } from '@/lib/mock-data/admin';
 import { IAdminUserDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { ICreateUserAdminPayload } from '@/lib/apis/client/actions/admin-user.actions';
 import { TablePagination } from '@/app/admin/components';
 import { usePagination } from '@/app/admin/hooks';
 import { UsersFilters } from './users-filters';
@@ -13,57 +13,57 @@ import { DeleteUserDialog } from './delete-user-dialog';
 import { BanUserDialog } from './ban-user-dialog';
 import { EditUserDialog, UserFormData } from './edit-user-dialog';
 import { AddUserDialog } from './add-user-dialog';
+import { useAdminUsers, useBanUserAdmin, useCreateUserAdmin, useUpdateUserAdmin } from '../hooks';
+
+// Map FE status filter → BE query params
+function resolveStatusParams(
+  statusFilter: string,
+): { isActive?: boolean; isBanned?: boolean } {
+  switch (statusFilter) {
+    case 'active':
+      return { isActive: true, isBanned: false };
+    case 'inactive':
+      return { isActive: false, isBanned: false };
+    case 'banned':
+      return { isBanned: true };
+    default:
+      return {};
+  }
+}
 
 export function UsersContent() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const {
-      resetPage,
-      paginate,
-      getPaginationProps,
-    } = usePagination();
+  const { currentPage, pageSize, resetPage, getPaginationProps } = usePagination();
+
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [banDialogOpen, setBanDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IAdminUserDataType | null>(null);
 
-  // Filter users
-  const filteredUsers = mockAdminUsers.filter((user) => {
-    const fullName = `${user.lastName} ${user.firstName}`.toLowerCase();
-    const matchesSearch =
-      fullName.includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.username.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesRole =
-      roleFilter === 'all' || user.roles.some((r) => r.id === roleFilter);
-
-    const matchesStatus =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && user.isActive && !user.isBanned) ||
-      (statusFilter === 'inactive' && !user.isActive) ||
-      (statusFilter === 'banned' && user.isBanned);
-
-    return matchesSearch && matchesRole && matchesStatus;
-  });
-
-  // Pagination
-  // Pagination
-  const paginatedUsers = useMemo(
-    () => paginate(filteredUsers),
-    [filteredUsers, paginate]
-  );
-
-  // Reset to page 1 when filters change
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    resetPage();
+  // Build query params from filters
+  const queryParams = {
+    page: currentPage,
+    limit: pageSize,
+    search: searchQuery || undefined,
+    ...resolveStatusParams(statusFilter),
   };
 
-  const handleRoleChange = (value: string) => {
-    setRoleFilter(value);
+  // Fetch users list
+  const { data: usersResponse, isLoading } = useAdminUsers(queryParams);
+
+  const users = (usersResponse?.data.items ?? []) as IAdminUserDataType[];
+  const totalUsers = usersResponse?.data.totalCount ?? 0;
+
+  // Mutations
+  const updateUserMutation = useUpdateUserAdmin();
+  const banUserMutation = useBanUserAdmin();
+  const createUserMutation = useCreateUserAdmin();
+
+  // --- Handlers ---
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
     resetPage();
   };
 
@@ -71,8 +71,6 @@ export function UsersContent() {
     setStatusFilter(value);
     resetPage();
   };
-
-  // Removed handlePageSizeChange since handled by hook
 
   const handleDelete = (user: IAdminUserDataType) => {
     setSelectedUser(user);
@@ -90,25 +88,55 @@ export function UsersContent() {
   };
 
   const handleSaveEdit = (data: UserFormData) => {
-    console.log('Saving edited user:', selectedUser?.id, data);
-    // Here you would call your API to save the user data
+    if (!selectedUser) return;
+    updateUserMutation.mutate(
+      {
+        id: selectedUser.id,
+        data: {
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          username: data.username,
+          isActive: data.isActive,
+          isVerified: data.isVerified,
+          isBanned: data.isBanned,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditDialogOpen(false);
+          setSelectedUser(null);
+        },
+      },
+    );
   };
 
   const confirmDelete = () => {
-    console.log('Deleting user:', selectedUser?.id);
+    // BE has no delete endpoint — no-op for now
     setDeleteDialogOpen(false);
     setSelectedUser(null);
   };
 
   const confirmBan = () => {
-    console.log('Banning user:', selectedUser?.id);
-    setBanDialogOpen(false);
-    setSelectedUser(null);
+    if (!selectedUser) return;
+    banUserMutation.mutate(
+      { id: selectedUser.id, isBanned: !selectedUser.isBanned },
+      {
+        onSuccess: () => {
+          setBanDialogOpen(false);
+          setSelectedUser(null);
+        },
+      },
+    );
   };
 
-  const handleAddUser = (data: UserFormData) => {
-    console.log('Creating new user:', data);
-    // TODO: API call to create user
+  const handleAddUser = (data: ICreateUserAdminPayload) => {
+    createUserMutation.mutate(data, {
+      onSuccess: () => {
+        setAddDialogOpen(false);
+      },
+    });
   };
 
   return (
@@ -135,28 +163,34 @@ export function UsersContent() {
         <UsersFilters
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          roleFilter={roleFilter}
-          onRoleChange={handleRoleChange}
+          roleFilter="all"
+          onRoleChange={() => {}}
           statusFilter={statusFilter}
           onStatusChange={handleStatusChange}
-          roles={mockAdminRoles}
+          roles={[]}
         />
       </div>
 
       {/* Table - takes remaining space and scrolls */}
       <div className="flex-1 min-h-0">
-        <UsersTable
-          users={paginatedUsers}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onBan={handleBan}
-        />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32 text-muted-foreground">
+            Đang tải dữ liệu...
+          </div>
+        ) : (
+          <UsersTable
+            users={users}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onBan={handleBan}
+          />
+        )}
       </div>
 
       {/* Pagination */}
       <div className="shrink-0">
         <TablePagination
-          {...getPaginationProps(filteredUsers.length)}
+          {...getPaginationProps(totalUsers)}
         />
       </div>
 
@@ -186,6 +220,7 @@ export function UsersContent() {
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
         onAdd={handleAddUser}
+        isPending={createUserMutation.isPending}
       />
     </div>
   );
