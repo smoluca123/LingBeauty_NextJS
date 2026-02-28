@@ -174,23 +174,11 @@ export const refreshAccessTokenApi = async (payload?: {
 export const updateMyInformationAPI = async (
   userData: UpdateUserInfomationValues,
 ) => {
-  try {
-    const data = await kyInstance
-      .patch(`user/me`, {
-        json: userData,
-      })
-      .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
-
-    return data;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  // Let HTTPError bubble up naturally — proxyRoute in the route handler
+  // will forward the exact BE response (status + body) to the client.
+  return kyInstance
+    .patch(`user/me`, { json: userData })
+    .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
 };
 
 // ============ Upload Avatar (Server Action) ============
@@ -199,18 +187,7 @@ export const uploadAvatarServerApi = async (
 ): Promise<IApiResponseWrapperType<IUserDataType>> => {
   const formData = new FormData();
   formData.append('file', file);
-
-  try {
-    const data = await kyInstance
-      .post('user/upload/avatar', { body: formData })
-      .json<IApiResponseWrapperType<IUserDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  return kyInstance
+    .post('user/upload/avatar', { body: formData })
+    .json<IApiResponseWrapperType<IUserDataType>>();
 };

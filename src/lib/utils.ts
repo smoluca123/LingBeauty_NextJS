@@ -1,5 +1,6 @@
 import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 import { clsx, type ClassValue } from 'clsx';
+import { HTTPError } from 'ky';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
@@ -57,7 +58,7 @@ export async function extractErrorMessage(
   error: any,
   fallback: string,
 ): Promise<string> {
-  if (error?.response) {
+  if (error instanceof HTTPError) {
     try {
       const errorData = await error.response.json();
       return errorData?.message || fallback;

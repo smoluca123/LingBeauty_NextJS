@@ -1,22 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import ky, { HTTPError } from 'ky';
 import { env } from '@/lib/env.config';
 import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import type { IAuthResponse } from '@/lib/types/interfaces/apis/auth.interfaces';
+import { HTTPError } from 'ky';
+import ky from 'ky';
+import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+
+// Helper: set access token cookies after successful auth
+const setAuthCookies = async (data: IApiResponseWrapperType<IAuthResponse>) => {
+  const cookieStore = await cookies();
+  const opts = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/',
+    maxAge: 60 * 60 * 24 * 7,
+  };
+  cookieStore.set('accessToken', data.data.accessToken, opts);
+  cookieStore.set('userId', data.data.user.id, opts);
+};
+
+// Helper: forward HTTPError from BE as JSON
+const forwardError = async (error: unknown): Promise<NextResponse> => {
+  if (error instanceof HTTPError) {
+    const errorData = await error.response.json().catch(() => ({}));
+    return NextResponse.json(
+      { message: errorData.message || 'Request failed' },
+      { status: error.response.status },
+    );
+  }
+  return NextResponse.json(
+    { message: 'Internal server error' },
+    { status: 500 },
+  );
+};
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, password } = body;
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { message: 'Email and password are required' },
-        { status: 400 }
-      );
-    }
-
+    const { email, password } = await request.json();
     const data = await ky
       .post(`${env.NEXT_PUBLIC_API_URL}auth/login`, {
         json: { email, password },
@@ -26,41 +47,12 @@ export async function POST(request: NextRequest) {
       })
       .json<IApiResponseWrapperType<IAuthResponse>>();
 
-    // Set HTTP-only cookies
-    const cookieStore = await cookies();
-
-    cookieStore.set('accessToken', data.data.accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
-    cookieStore.set('userId', data.data.user.id, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24 * 7,
-    });
-
+    await setAuthCookies(data);
     return NextResponse.json({
       message: data.message,
       data: { user: data.data.user },
     });
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      return NextResponse.json(
-        { message: errorData.message || 'Login failed' },
-        { status: error.response.status }
-      );
-    }
-    console.error('Login error:', error);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    return forwardError(error);
   }
 }

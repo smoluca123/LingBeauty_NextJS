@@ -2,11 +2,11 @@
 
 import { DEFAULT_CACHE_TIME } from '@/constants/cache';
 import { publicKyInstance } from '@/lib/kyInstance/publicKy';
-import {
+import type {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
-import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+import type { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 import { cacheLife, cacheTag } from 'next/cache';
 
 export const getBrandsAPI = async (
@@ -15,23 +15,9 @@ export const getBrandsAPI = async (
   'use cache';
   cacheLife(DEFAULT_CACHE_TIME);
   cacheTag('brands');
-  try {
-    const data = await publicKyInstance
-      .get('brand', {
-        searchParams: {
-          page: options.page,
-          limit: options.limit,
-        },
-      })
-      .json<IApiPaginationResponseWrapperType<IBrandDataType>>();
-    return data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.log(error);
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
-  }
+  return publicKyInstance
+    .get('brand', {
+      searchParams: { page: options.page, limit: options.limit },
+    })
+    .json<IApiPaginationResponseWrapperType<IBrandDataType>>();
 };
