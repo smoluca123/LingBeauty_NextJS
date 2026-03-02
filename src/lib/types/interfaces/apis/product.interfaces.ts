@@ -104,7 +104,7 @@ interface IProductBrandDataType {
   logoMedia: IMediaDataType;
 }
 
-interface IProductBadgeDataType {
+export interface IProductBadgeDataType {
   id: string;
   productId: string;
   name: string;

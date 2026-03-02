@@ -3,6 +3,8 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Layers, Palette, Tag, Package, DollarSign, Info } from 'lucide-react';
+import { toast } from 'sonner';
+import { useCreateVariant } from '../../hooks';
 
 import {
   Dialog,
@@ -40,9 +42,6 @@ interface AddVariantDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: IAdminProductDataType | null;
-  /** Called when form is valid — wired up later */
-  onSubmit?: (values: ProductVariantFormValues) => void;
-  isPending?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -51,17 +50,43 @@ export function AddVariantDialog({
   open,
   onOpenChange,
   product,
-  onSubmit,
-  isPending = false,
 }: AddVariantDialogProps) {
+  const createVariantMutation = useCreateVariant(product?.id ?? '');
+  const isPending = createVariantMutation.isPending;
+
   const form = useForm<ProductVariantFormValues>({
     resolver: zodResolver(productVariantSchema),
     defaultValues: productVariantDefaultValues,
   });
 
   const handleSubmit = form.handleSubmit((values) => {
-    // TODO: wire up API mutation
-    onSubmit?.(values);
+    createVariantMutation.mutate(
+      {
+        name: values.name,
+        sku: values.sku || undefined,
+        color: values.color || undefined,
+        size: values.size || undefined,
+        type: values.type || undefined,
+        price: values.price,
+        quantity: values.quantity,
+        lowStockThreshold: values.lowStockThreshold,
+        sortOrder: values.sortOrder,
+      },
+      {
+        onSuccess: () => {
+          toast.success(`Đã thêm biến thể "${values.name}" thành công!`);
+          form.reset();
+          onOpenChange(false);
+        },
+        onError: (error) => {
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : 'Không thể thêm biến thể. Vui lòng thử lại.',
+          );
+        },
+      },
+    );
   });
 
   const handleClose = () => {

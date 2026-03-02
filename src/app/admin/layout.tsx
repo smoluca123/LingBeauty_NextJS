@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AdminSidebar, AdminHeader, AdminGuard } from './components';
+import { AdminSidebar, AdminHeader } from './components';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 
 interface AdminLayoutProps {
@@ -10,7 +10,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   return (
-    <AdminGuard>
+
       <SidebarProvider className="h-screen w-full overflow-hidden">
         <AdminSidebar />
         <SidebarInset>
@@ -22,6 +22,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </AdminGuard>
+
   );
 }

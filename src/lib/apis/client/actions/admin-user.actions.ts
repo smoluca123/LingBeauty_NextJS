@@ -9,6 +9,7 @@ export interface IAdminUserQueryParams {
   page?: number;
   limit?: number;
   search?: string;
+  roleId?: string;
   isActive?: boolean;
   isBanned?: boolean;
   isVerified?: boolean;
@@ -24,6 +25,7 @@ export const getAllUsersAdminAPI = async (
     if (params.page) searchParams.page = String(params.page);
     if (params.limit) searchParams.limit = String(params.limit);
     if (params.search) searchParams.search = params.search;
+    if (params.roleId) searchParams.roleId = params.roleId;
     if (params.isActive !== undefined) searchParams.isActive = String(params.isActive);
     if (params.isBanned !== undefined) searchParams.isBanned = String(params.isBanned);
     if (params.isVerified !== undefined) searchParams.isVerified = String(params.isVerified);
@@ -145,3 +147,21 @@ export const getAllUserRolesAPI = async (): Promise<
     throw error;
   }
 };
+
+export const deleteUserAdminAPI = async (
+  id: string,
+): Promise<IApiResponseWrapperType<IUserDataType>> => {
+  try {
+    const response = await kyNextInstance
+      .patch(`admin/users/${id}`, { json: { isDeleted: true } })
+      .json<IApiResponseWrapperType<IUserDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to delete user');
+    }
+    throw error;
+  }
+};
+

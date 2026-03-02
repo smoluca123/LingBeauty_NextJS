@@ -18,6 +18,7 @@ export async function GET(
   const page = searchParams.get('page');
   const limit = searchParams.get('limit');
   const search = searchParams.get('search');
+  const roleId = searchParams.get('roleId');
   const isActive = searchParams.get('isActive');
   const isBanned = searchParams.get('isBanned');
   const isVerified = searchParams.get('isVerified');
@@ -34,6 +35,7 @@ export async function GET(
     page: page ? Number(page) : undefined,
     limit: limit ? Number(limit) : undefined,
     search: search || undefined,
+    roleId: roleId || undefined,
     isActive: isActive !== null ? isActive === 'true' : undefined,
     isBanned: isBanned !== null ? isBanned === 'true' : undefined,
     isVerified: isVerified !== null ? isVerified === 'true' : undefined,

@@ -6,6 +6,7 @@ import {
   updateUserAdminAPI,
   banUserAdminAPI,
   createUserAdminAPI,
+  deleteUserAdminAPI,
   getAllUserRolesAPI,
   IAdminUserQueryParams,
   IUpdateUserAdminPayload,
@@ -61,3 +62,14 @@ export function useBanUserAdmin() {
     },
   });
 }
+
+export function useDeleteUserAdmin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteUserAdminAPI(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+    },
+  });
+}
+

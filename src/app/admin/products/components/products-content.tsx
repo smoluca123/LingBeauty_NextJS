@@ -14,6 +14,8 @@ import {
   EditProductDialog,
   UploadImageDialog,
   AddVariantDialog,
+  ManageVariantsDialog,
+  ManageBadgesDialog,
 } from './product-table';
 import { useAdminProducts, useDeleteProduct, useUpdateProduct } from '../hooks';
 import { useAdminCategories } from '../../categories/hooks';
@@ -29,6 +31,8 @@ export function ProductsContent() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [uploadImageDialogOpen, setUploadImageDialogOpen] = useState(false);
   const [addVariantDialogOpen, setAddVariantDialogOpen] = useState(false);
+  const [manageVariantsDialogOpen, setManageVariantsDialogOpen] = useState(false);
+  const [manageBadgesDialogOpen, setManageBadgesDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<IAdminProductDataType | null>(null);
 
   const { data: categoriesData = [] } = useAdminCategories();
@@ -75,6 +79,16 @@ export function ProductsContent() {
   const handleAddVariant = (product: IAdminProductDataType) => {
     setSelectedProduct(product);
     setAddVariantDialogOpen(true);
+  };
+
+  const handleManageVariants = (product: IAdminProductDataType) => {
+    setSelectedProduct(product);
+    setManageVariantsDialogOpen(true);
+  };
+
+  const handleManageBadges = (product: IAdminProductDataType) => {
+    setSelectedProduct(product);
+    setManageBadgesDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -143,6 +157,8 @@ export function ProductsContent() {
             onDelete={handleDelete}
             onUploadImage={handleUploadImage}
             onAddVariant={handleAddVariant}
+            onManageVariants={handleManageVariants}
+            onManageBadges={handleManageBadges}
           />
         )}
       </div>
@@ -172,6 +188,22 @@ export function ProductsContent() {
         key={selectedProduct?.id ? `variant-${selectedProduct.id}` : 'variant-no-product'}
         open={addVariantDialogOpen}
         onOpenChange={setAddVariantDialogOpen}
+        product={selectedProduct}
+      />
+
+      {/* Manage Variants Dialog */}
+      <ManageVariantsDialog
+        key={selectedProduct?.id ? `manage-${selectedProduct.id}` : 'manage-no-product'}
+        open={manageVariantsDialogOpen}
+        onOpenChange={setManageVariantsDialogOpen}
+        product={selectedProduct}
+      />
+
+      {/* Manage Badges Dialog */}
+      <ManageBadgesDialog
+        key={selectedProduct?.id ? `badges-${selectedProduct.id}` : 'badges-no-product'}
+        open={manageBadgesDialogOpen}
+        onOpenChange={setManageBadgesDialogOpen}
         product={selectedProduct}
       />
 

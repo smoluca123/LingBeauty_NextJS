@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { IAdminRoleDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { IUserRoleDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 
 interface UsersFiltersProps {
   searchQuery: string;
@@ -16,7 +16,7 @@ interface UsersFiltersProps {
   onRoleChange: (value: string) => void;
   statusFilter: string;
   onStatusChange: (value: string) => void;
-  roles: IAdminRoleDataType[];
+  roles: IUserRoleDataType[];
 }
 
 export function UsersFilters({

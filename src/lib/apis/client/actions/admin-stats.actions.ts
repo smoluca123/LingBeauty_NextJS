@@ -3,6 +3,10 @@
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import {
+  IAggregatedStats,
+  IAggregatedStatsParams,
+  IDailyStats,
+  IDateRangeParams,
   IOrderStatusBreakdown,
   IOverviewStats,
   IRevenueChart,
@@ -95,3 +99,69 @@ export const getTopProductsClientAPI = async (
     throw error;
   }
 };
+
+// ── Daily stats ───────────────────────────────────────────────────────────────
+
+export const getDailyStatsClientAPI = async (
+  params: IDateRangeParams = {},
+): Promise<IApiResponseWrapperType<IDailyStats[]>> => {
+  try {
+    const searchParams: Record<string, string> = {};
+    if (params.startDate) searchParams.startDate = params.startDate;
+    if (params.endDate) searchParams.endDate = params.endDate;
+
+    return await kyNextInstance
+      .get('stats/daily', { searchParams })
+      .json<IApiResponseWrapperType<IDailyStats[]>>();
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch daily stats');
+    }
+    throw error;
+  }
+};
+
+// ── Aggregated stats ──────────────────────────────────────────────────────────
+
+export const getAggregatedStatsClientAPI = async (
+  params: IAggregatedStatsParams = {},
+): Promise<IApiResponseWrapperType<IAggregatedStats[]>> => {
+  try {
+    const searchParams: Record<string, string> = {};
+    if (params.period) searchParams.period = params.period;
+    if (params.startDate) searchParams.startDate = params.startDate;
+    if (params.endDate) searchParams.endDate = params.endDate;
+
+    return await kyNextInstance
+      .get('stats/aggregated', { searchParams })
+      .json<IApiResponseWrapperType<IAggregatedStats[]>>();
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(
+        errorData.message || 'Failed to fetch aggregated stats',
+      );
+    }
+    throw error;
+  }
+};
+
+// ── Sync daily stats ──────────────────────────────────────────────────────────
+
+export const syncDailyStatsClientAPI = async (): Promise<
+  IApiResponseWrapperType<{ message: string }>
+> => {
+  try {
+    return await kyNextInstance
+      .post('stats/sync')
+      .json<IApiResponseWrapperType<{ message: string }>>();
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to sync daily stats');
+    }
+    throw error;
+  }
+};
+

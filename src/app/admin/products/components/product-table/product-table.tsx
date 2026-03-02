@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MoreHorizontal, Pencil, Trash2, Eye, ImagePlus, Layers } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Eye, ImagePlus, Layers, Settings2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -27,9 +27,11 @@ interface ProductTableProps {
   onDelete: (product: IAdminProductDataType) => void;
   onUploadImage: (product: IAdminProductDataType) => void;
   onAddVariant: (product: IAdminProductDataType) => void;
+  onManageVariants: (product: IAdminProductDataType) => void;
+  onManageBadges: (product: IAdminProductDataType) => void;
 }
 
-export function ProductTable({ products, onEdit, onDelete, onUploadImage, onAddVariant }: ProductTableProps) {
+export function ProductTable({ products, onEdit, onDelete, onUploadImage, onAddVariant, onManageVariants, onManageBadges }: ProductTableProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -119,6 +121,17 @@ export function ProductTable({ products, onEdit, onDelete, onUploadImage, onAddV
                             <Layers className="mr-2 h-4 w-4" />
                             Thêm biến thể
                           </DropdownMenuItem>
+                        {/* Only show manage option when product already has variants */}
+                        {(product as { variants?: unknown[] }).variants?.length ? (
+                          <DropdownMenuItem onClick={() => onManageVariants(product)}>
+                            <Settings2 className="mr-2 h-4 w-4" />
+                            Quản lý biến thể
+                          </DropdownMenuItem>
+                        ) : null}
+                        <DropdownMenuItem onClick={() => onManageBadges(product)}>
+                          <Tag className="mr-2 h-4 w-4" />
+                          Quản lý nhãn
+                        </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => onDelete(product)}
