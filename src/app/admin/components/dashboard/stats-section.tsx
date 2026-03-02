@@ -1,33 +1,81 @@
+'use client';
+
 import { DollarSign, ShoppingCart, Package, Users } from 'lucide-react';
 import { StatCard } from '../stat-card';
+import { useOverviewStatsQuery } from '@/hooks/querys/stats.query';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function StatCardSkeleton() {
+  return (
+    <div className="rounded-xl border bg-card p-4 md:p-6 space-y-3">
+      <Skeleton className="h-4 w-24" />
+      <Skeleton className="h-8 w-32" />
+      <Skeleton className="h-3 w-40" />
+    </div>
+  );
+}
+
+function formatCurrency(value: string | number): string {
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '0₫';
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+    maximumFractionDigits: 0,
+  }).format(num);
+}
 
 export function StatsSection() {
+  const { data, isLoading, isError } = useOverviewStatsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <StatCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError || !data?.data) {
+    return (
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <StatCardSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  const stats = data.data;
+
   return (
     <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Tổng doanh thu"
-        value="328.000.000₫"
-        description="+12.5% so với tháng trước"
+        value={formatCurrency(stats.totalRevenue)}
+        description={`Hôm nay: ${formatCurrency(stats.revenueToday)}`}
         icon={DollarSign}
         trend="up"
       />
       <StatCard
         title="Đơn hàng"
-        value="909"
-        description="+8.2% so với tháng trước"
+        value={stats.totalOrders.toLocaleString('vi-VN')}
+        description={`${stats.pendingOrders} đơn đang chờ xử lý`}
         icon={ShoppingCart}
-        trend="up"
+        trend={stats.pendingOrders > 0 ? 'up' : undefined}
       />
       <StatCard
         title="Sản phẩm"
-        value="156"
-        description="12 sản phẩm sắp hết hàng"
+        value={stats.totalProducts.toLocaleString('vi-VN')}
+        description={`${stats.totalReviews} đánh giá`}
         icon={Package}
       />
       <StatCard
         title="Người dùng"
-        value="2,345"
-        description="+156 người dùng mới"
+        value={stats.totalUsers.toLocaleString('vi-VN')}
+        description={`+${stats.newUsersToday} hôm nay · +${stats.newUsersThisMonth} tháng này`}
         icon={Users}
         trend="up"
       />
