@@ -9,6 +9,7 @@ import { IUserDataType, IUserRoleDataType } from '@/lib/types/interfaces/apis/us
 
 export interface IAdminUserQueryParams extends IApiPaginationParams {
   search?: string;
+  roleId?: string;
   isActive?: boolean;
   isBanned?: boolean;
   isVerified?: boolean;
@@ -24,6 +25,7 @@ export const getAllUsersAdminAPI = async (
     if (options.page) searchParams.page = options.page;
     if (options.limit) searchParams.limit = options.limit;
     if (options.search) searchParams.search = options.search;
+    if (options.roleId) searchParams.roleId = options.roleId;
     if (options.isActive !== undefined) searchParams.isActive = options.isActive;
     if (options.isBanned !== undefined) searchParams.isBanned = options.isBanned;
     if (options.isVerified !== undefined) searchParams.isVerified = options.isVerified;

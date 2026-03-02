@@ -54,3 +54,50 @@ export interface ITopProduct {
   avgRating: string | null;
   reviewCount: number;
 }
+
+// ── Daily stats snapshot ─────────────────────────────────────────────────────
+
+export interface IDailyStats {
+  date: string;
+  newUsers: number;
+  totalUsers: number;
+  totalOrders: number;
+  confirmedOrders: number;
+  cancelledOrders: number;
+  deliveredOrders: number;
+  revenue: string;
+  totalProducts: number;
+  newProducts: number;
+  totalItemsSold: number;
+  newReviews: number;
+  approvedReviews: number;
+}
+
+// ── Aggregated period stats ──────────────────────────────────────────────────
+
+export interface IAggregatedStats {
+  periodLabel: string;
+  startDate: string;
+  endDate: string;
+  newUsers: number;
+  totalOrders: number;
+  confirmedOrders: number;
+  cancelledOrders: number;
+  deliveredOrders: number;
+  revenue: string;
+  newProducts: number;
+  totalItemsSold: number;
+  newReviews: number;
+  approvedReviews: number;
+}
+
+// ── Params interfaces ────────────────────────────────────────────────────────
+
+export interface IDateRangeParams {
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface IAggregatedStatsParams extends IDateRangeParams {
+  period?: StatsPeriod;
+}

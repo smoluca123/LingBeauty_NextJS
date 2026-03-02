@@ -2,8 +2,10 @@
 
 import { useState } from 'react';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { IAdminUserDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { IUserRoleDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { ICreateUserAdminPayload } from '@/lib/apis/client/actions/admin-user.actions';
 import { TablePagination } from '@/app/admin/components';
 import { usePagination } from '@/app/admin/hooks';
@@ -13,7 +15,14 @@ import { DeleteUserDialog } from './delete-user-dialog';
 import { BanUserDialog } from './ban-user-dialog';
 import { EditUserDialog, UserFormData } from './edit-user-dialog';
 import { AddUserDialog } from './add-user-dialog';
-import { useAdminUsers, useBanUserAdmin, useCreateUserAdmin, useUpdateUserAdmin } from '../hooks';
+import {
+  useAdminUsers,
+  useAdminUserRoles,
+  useBanUserAdmin,
+  useCreateUserAdmin,
+  useUpdateUserAdmin,
+  useDeleteUserAdmin,
+} from '../hooks';
 
 // Map FE status filter → BE query params
 function resolveStatusParams(
@@ -34,6 +43,7 @@ function resolveStatusParams(
 export function UsersContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const { currentPage, pageSize, resetPage, getPaginationProps } = usePagination();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -42,11 +52,16 @@ export function UsersContent() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<IAdminUserDataType | null>(null);
 
+  // Fetch roles for filter dropdown
+  const { data: rolesResponse } = useAdminUserRoles();
+  const roles = (rolesResponse?.data ?? []) as IUserRoleDataType[];
+
   // Build query params from filters
   const queryParams = {
     page: currentPage,
     limit: pageSize,
     search: searchQuery || undefined,
+    roleId: roleFilter !== 'all' ? roleFilter : undefined,
     ...resolveStatusParams(statusFilter),
   };
 
@@ -60,6 +75,7 @@ export function UsersContent() {
   const updateUserMutation = useUpdateUserAdmin();
   const banUserMutation = useBanUserAdmin();
   const createUserMutation = useCreateUserAdmin();
+  const deleteUserMutation = useDeleteUserAdmin();
 
   // --- Handlers ---
   const handleSearchChange = (value: string) => {
@@ -69,6 +85,11 @@ export function UsersContent() {
 
   const handleStatusChange = (value: string) => {
     setStatusFilter(value);
+    resetPage();
+  };
+
+  const handleRoleChange = (value: string) => {
+    setRoleFilter(value);
     resetPage();
   };
 
@@ -113,9 +134,21 @@ export function UsersContent() {
   };
 
   const confirmDelete = () => {
-    // BE has no delete endpoint — no-op for now
-    setDeleteDialogOpen(false);
-    setSelectedUser(null);
+    if (!selectedUser) return;
+    deleteUserMutation.mutate(selectedUser.id, {
+      onSuccess: () => {
+        toast.success('Đã xóa người dùng thành công!');
+        setDeleteDialogOpen(false);
+        setSelectedUser(null);
+      },
+      onError: (error) => {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Không thể xóa người dùng. Vui lòng thử lại.',
+        );
+      },
+    });
   };
 
   const confirmBan = () => {
@@ -163,11 +196,11 @@ export function UsersContent() {
         <UsersFilters
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          roleFilter="all"
-          onRoleChange={() => {}}
+          roleFilter={roleFilter}
+          onRoleChange={handleRoleChange}
           statusFilter={statusFilter}
           onStatusChange={handleStatusChange}
-          roles={[]}
+          roles={roles}
         />
       </div>
 
@@ -200,6 +233,7 @@ export function UsersContent() {
         onOpenChange={setDeleteDialogOpen}
         user={selectedUser}
         onConfirm={confirmDelete}
+        isPending={deleteUserMutation.isPending}
       />
 
       <BanUserDialog
