@@ -40,7 +40,7 @@ export function ProductCard2({ product, className }: ProductCardProps) {
 
     const variantImage = variant.images[0];
     const imageIndex = allImages.findIndex(
-      (img) => img.media.url === variantImage.media.url
+      (img) => img.media.url === variantImage.media.url,
     );
 
     if (imageIndex !== -1) {
@@ -62,7 +62,7 @@ export function ProductCard2({ product, className }: ProductCardProps) {
     <article
       className={cn(
         'flex h-full flex-col rounded-2xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group/product',
-        className
+        className,
       )}
     >
       <ProductHeader discountPercent={discountPercent} />

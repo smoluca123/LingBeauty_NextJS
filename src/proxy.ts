@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Routes that require authentication
+// Routes that require authentication (user)
 const protectedRoutes = ['/profile', '/orders', '/checkout', '/settings'];
+
+// Routes that require authentication (admin panel)
+const adminRoutes = ['/admin'];
 
 // Routes that should redirect to home if already authenticated
 const authRoutes = ['/login', '/register'];
@@ -13,11 +16,19 @@ export function proxy(request: NextRequest) {
 
   // Check if current path is a protected route
   const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
+    pathname.startsWith(route),
   );
 
   // Check if current path is an auth route
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+
+  // Redirect to login if accessing admin without auth
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  if (isAdminRoute && !accessToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
 
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !accessToken) {

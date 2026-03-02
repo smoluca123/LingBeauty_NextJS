@@ -29,9 +29,10 @@ export function useProductImages(product: IProductDataType) {
       }
     }
 
-    // Sort by sortOrder to maintain intended display order
-    return Array.from(uniqueImagesMap.values()).sort(
-      (a, b) => a.sortOrder - b.sortOrder
-    );
+    // Sort: primary image always first, then by sortOrder ascending
+    return Array.from(uniqueImagesMap.values()).sort((a, b) => {
+      if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+      return a.sortOrder - b.sortOrder;
+    });
   }, [product]);
 }

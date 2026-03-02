@@ -44,7 +44,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
 
   // Initialize cart items with lazy initialization to avoid cascading renders
   const [cartItems, setCartItems] = useState<CartItemType[]>(
-    () => initialCartItems
+    () => initialCartItems,
   );
 
   // Map cart items with product data
@@ -83,14 +83,14 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   const handleUpdateQuantity = (
     productId: string,
     variantId: string | null,
-    newQuantity: number
+    newQuantity: number,
   ) => {
     setCartItems((prev) =>
       prev.map((item) =>
         item.productId === productId && item.variantId === variantId
           ? { ...item, quantity: newQuantity }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
@@ -98,8 +98,8 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
     setCartItems((prev) =>
       prev.filter(
         (item) =>
-          !(item.productId === productId && item.variantId === variantId)
-      )
+          !(item.productId === productId && item.variantId === variantId),
+      ),
     );
   };
 
@@ -151,7 +151,7 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
                       handleUpdateQuantity(
                         item.productId,
                         item.variantId,
-                        newQty
+                        newQty,
                       )
                     }
                     onRemove={() =>
