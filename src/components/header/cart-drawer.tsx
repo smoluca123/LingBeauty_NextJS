@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useMemo } from 'react';
 import {
   Drawer,
   DrawerClose,
@@ -11,12 +10,17 @@ import {
   DrawerTitle,
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
-import { useGetProductsQuery } from '@/hooks/querys/product.query';
-import { CartItem as CartItemType } from '@/lib/types/interfaces/cart.interfaces';
 import { CartItem } from '@/components/cart/cart-item';
 import { CartSummary } from '@/components/cart/cart-summary';
 import { EmptyCart } from '@/components/cart/empty-cart';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
+import { useGetCartQuery } from '@/hooks/querys/cart.query';
+import {
+  useClearCartMutation,
+  useRemoveCartItemMutation,
+  useUpdateCartItemMutation,
+} from '@/hooks/mutations/cart.mutation';
+import { useIsAuthenticated } from '@/hooks/use-auth';
 
 interface CartDrawerProps {
   open: boolean;
@@ -24,150 +28,117 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
-  const { data, isLoading } = useGetProductsQuery();
+  const isAuthenticated = useIsAuthenticated();
+  const { data, isLoading } = useGetCartQuery();
 
-  // Get all products from paginated data
-  const allProducts = useMemo(() => {
-    if (!data?.pages) return [];
-    return data.pages.flatMap((page) => page.data.items || []);
-  }, [data]);
+  const updateCartItemMutation = useUpdateCartItemMutation();
+  const removeCartItemMutation = useRemoveCartItemMutation();
+  const clearCartMutation = useClearCartMutation();
 
-  // Auto-generate initial cart items from first 3 products for demo
-  const initialCartItems = useMemo(() => {
-    if (allProducts.length === 0) return [];
-    return allProducts.slice(0, 3).map((product, index) => ({
-      productId: product.id,
-      variantId: product.variants?.[0]?.id || null,
-      quantity: index + 1, // 1, 2, 3
-    }));
-  }, [allProducts]);
+  const cart = data?.data;
+  const items = cart?.items ?? [];
+  const hasItems = items.length > 0;
 
-  // Initialize cart items with lazy initialization to avoid cascading renders
-  const [cartItems, setCartItems] = useState<CartItemType[]>(
-    () => initialCartItems,
-  );
-
-  // Map cart items with product data
-  const cartItemsWithProducts = useMemo(() => {
-    return cartItems
-      .map((cartItem) => {
-        const product = allProducts.find((p) => p.id === cartItem.productId);
-        if (!product) return null;
-
-        const variant = cartItem.variantId
-          ? product.variants?.find((v) => v.id === cartItem.variantId)
-          : undefined;
-
-        return {
-          ...cartItem,
-          product,
-          variant,
-        };
-      })
-      .filter(Boolean);
-  }, [cartItems, allProducts]);
-
-  // Calculate totals
-  const subtotal = useMemo(() => {
-    return cartItemsWithProducts.reduce((sum, item) => {
-      if (!item) return sum;
-      const price = item.variant
-        ? Number(item.variant.price)
-        : Number(item.product.basePrice);
-      return sum + price * item.quantity;
-    }, 0);
-  }, [cartItemsWithProducts]);
-
-  const shipping = subtotal >= 500000 ? 0 : 30000; // Free shipping over 500k VND
-
-  const handleUpdateQuantity = (
-    productId: string,
-    variantId: string | null,
-    newQuantity: number,
-  ) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.productId === productId && item.variantId === variantId
-          ? { ...item, quantity: newQuantity }
-          : item,
-      ),
-    );
+  const handleUpdateQuantity = (itemId: string, newQuantity: number) => {
+    updateCartItemMutation.mutate({
+      itemId,
+      payload: { quantity: newQuantity },
+    });
   };
 
-  const handleRemoveItem = (productId: string, variantId: string | null) => {
-    setCartItems((prev) =>
-      prev.filter(
-        (item) =>
-          !(item.productId === productId && item.variantId === variantId),
-      ),
-    );
+  const handleRemoveItem = (itemId: string) => {
+    removeCartItemMutation.mutate(itemId);
   };
 
-  // Reset cart to initial demo data
-  const handleResetCart = () => {
-    setCartItems(initialCartItems);
+  const handleClearCart = () => {
+    clearCartMutation.mutate();
   };
 
   const handleCheckout = () => {
-    console.log('Proceeding to checkout with items:', cartItemsWithProducts);
-    console.log('Total amount:', subtotal + shipping);
-    // TODO: Implement checkout logic
+    // TODO: Implement checkout flow
+    console.log('Proceeding to checkout');
   };
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange} direction="right">
-      <DrawerContent className="h-full w-full sm:w-[400px] lg:max-w-md flex flex-col">
+      <DrawerContent className="h-full w-full sm:w-[420px] lg:max-w-md flex flex-col">
         <DrawerHeader className="border-b">
-          <DrawerTitle>Giỏ hàng</DrawerTitle>
-          <DrawerDescription>
-            {cartItems.length > 0
-              ? `${cartItems.length} sản phẩm trong giỏ hàng`
-              : 'Giỏ hàng của bạn'}
-          </DrawerDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DrawerTitle>Giỏ hàng</DrawerTitle>
+              <DrawerDescription>
+                {hasItems
+                  ? `${cart!.summary.itemCount} sản phẩm • ${cart!.summary.totalQuantity} món`
+                  : 'Giỏ hàng của bạn'}
+              </DrawerDescription>
+            </div>
+
+            {/* Clear cart button */}
+            {hasItems && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearCart}
+                disabled={clearCartMutation.isPending}
+                className="text-muted-foreground hover:text-destructive text-xs gap-1"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Xóa tất cả
+              </Button>
+            )}
+          </div>
         </DrawerHeader>
 
         {/* Cart Items */}
         <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
+          {!isAuthenticated ? (
+            // Not logged in
+            <div className="flex flex-col items-center justify-center h-full py-12 px-6 text-center">
+              <p className="text-sm text-muted-foreground mb-4">
+                Vui lòng đăng nhập để xem giỏ hàng của bạn.
+              </p>
+              <Button
+                onClick={() => onOpenChange(false)}
+                className="bg-primary-pink hover:bg-primary-pink/90 text-white rounded-xl"
+              >
+                Đóng
+              </Button>
+            </div>
+          ) : isLoading ? (
+            // Loading state
             <div className="flex items-center justify-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary-pink" />
             </div>
-          ) : cartItems.length === 0 ? (
-            <EmptyCart
-              onClose={() => onOpenChange(false)}
-              onResetCart={handleResetCart}
-            />
+          ) : !hasItems ? (
+            // Empty cart
+            <EmptyCart onClose={() => onOpenChange(false)} />
           ) : (
+            // Cart items list
             <div className="p-4 space-y-3">
-              {cartItemsWithProducts.map((item) => {
-                if (!item) return null;
-                return (
-                  <CartItem
-                    key={`${item.productId}-${item.variantId || 'default'}`}
-                    product={item.product}
-                    variant={item.variant}
-                    quantity={item.quantity}
-                    onUpdateQuantity={(newQty) =>
-                      handleUpdateQuantity(
-                        item.productId,
-                        item.variantId,
-                        newQty,
-                      )
-                    }
-                    onRemove={() =>
-                      handleRemoveItem(item.productId, item.variantId)
-                    }
-                  />
-                );
-              })}
+              {items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onUpdateQuantity={handleUpdateQuantity}
+                  onRemove={handleRemoveItem}
+                  isUpdating={
+                    updateCartItemMutation.isPending &&
+                    updateCartItemMutation.variables?.itemId === item.id
+                  }
+                  isRemoving={
+                    removeCartItemMutation.isPending &&
+                    removeCartItemMutation.variables === item.id
+                  }
+                />
+              ))}
             </div>
           )}
         </div>
 
-        {/* Footer with Summary and Actions */}
-        {cartItems.length > 0 && !isLoading && (
+        {/* Footer: Summary + Actions */}
+        {hasItems && !isLoading && cart && (
           <DrawerFooter className="border-t pt-4 gap-3">
-            <CartSummary subtotal={subtotal} shipping={shipping} />
+            <CartSummary summary={cart.summary} />
 
             <Button
               onClick={handleCheckout}
