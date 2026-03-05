@@ -4,7 +4,7 @@ import { PRODUCTS_PER_PAGE } from '@/components/product-listing/constants';
 import { ProductsBanner } from '@/app/(main)/products/components/products-banner';
 import { ProductsInfo } from '@/app/(main)/products/components/products-info';
 import { AllProducts } from '@/app/(main)/products/components/all-products';
-import { getQueryClient } from '@/lib/query-client/query-client';
+import { queryClient } from '@/lib/query-client/query-client';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
 import { formatCount } from '@/lib/utils';
 import { connection } from 'next/server';
@@ -21,8 +21,6 @@ interface ProductsShieldProps {
  */
 export async function ProductsShield({ page }: ProductsShieldProps) {
   await connection();
-
-  const queryClient = getQueryClient();
 
   const initialParams = { page, limit: PRODUCTS_PER_PAGE };
 

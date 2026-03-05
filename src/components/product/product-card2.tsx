@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef } from 'react';
+import Link from 'next/link';
 import { Package } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import {
@@ -20,6 +20,7 @@ import { ProductPrice } from '@/components/product/product-price';
 import { ProductHeader } from '@/components/product/product-header';
 import { RatingStars } from '@/components/product/rating-stars';
 import { useProductImages } from '@/hooks/use-product-images';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
 
 type ProductCardProps = {
   product: IProductDataType;
@@ -103,12 +104,16 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         onVariantClick={handleVariantClick}
       />
 
-      <Button
-        variant="outline"
-        className="mt-4 rounded-full border-primary-pink text-primary-pink hover:bg-primary-pink/10"
+      {/* Add to cart button */}
+      <AddToCartButton product={product} />
+
+      {/* View detail link */}
+      <Link
+        href={`/products/${product.slug}`}
+        className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
       >
         Xem chi tiết
-      </Button>
+      </Link>
     </article>
   );
 }

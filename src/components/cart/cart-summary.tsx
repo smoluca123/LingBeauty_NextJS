@@ -1,19 +1,21 @@
 'use client';
 
 import { formatCurrency } from '@/lib/utils';
+import type { ICartSummaryType } from '@/lib/types/interfaces/cart.interfaces';
+
+/** Free shipping threshold in VND */
+const FREE_SHIPPING_THRESHOLD = 500_000;
+/** Flat shipping fee in VND */
+const SHIPPING_FEE = 30_000;
 
 interface CartSummaryProps {
-  subtotal: number;
-  shipping: number;
-  discount?: number;
+  summary: ICartSummaryType;
 }
 
-export function CartSummary({
-  subtotal,
-  shipping,
-  discount = 0,
-}: CartSummaryProps) {
-  const total = subtotal + shipping - discount;
+export function CartSummary({ summary }: CartSummaryProps) {
+  const subtotal = Number(summary.subtotal);
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  const total = subtotal + shipping;
 
   return (
     <div className="space-y-3 p-4 rounded-xl border bg-muted/30">
@@ -21,7 +23,9 @@ export function CartSummary({
 
       <div className="space-y-2 text-sm">
         <div className="flex items-center justify-between">
-          <span className="text-muted-foreground">Tạm tính</span>
+          <span className="text-muted-foreground">
+            Tạm tính ({summary.totalQuantity} sản phẩm)
+          </span>
           <span className="font-medium">{formatCurrency(subtotal)}</span>
         </div>
 
@@ -35,13 +39,6 @@ export function CartSummary({
             )}
           </span>
         </div>
-
-        {discount > 0 && (
-          <div className="flex items-center justify-between text-green-600">
-            <span>Giảm giá</span>
-            <span className="font-medium">-{formatCurrency(discount)}</span>
-          </div>
-        )}
       </div>
 
       <div className="pt-3 border-t">
@@ -53,9 +50,17 @@ export function CartSummary({
         </div>
       </div>
 
-      {shipping === 0 && (
-        <p className="text-xs text-muted-foreground text-center pt-2">
+      {shipping === 0 ? (
+        <p className="text-xs text-green-600 text-center pt-1">
           🎉 Bạn được miễn phí vận chuyển!
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground text-center pt-1">
+          Mua thêm{' '}
+          <span className="font-medium text-primary-pink">
+            {formatCurrency(FREE_SHIPPING_THRESHOLD - subtotal)}
+          </span>{' '}
+          để được miễn phí vận chuyển
         </p>
       )}
     </div>

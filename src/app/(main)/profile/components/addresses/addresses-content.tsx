@@ -13,13 +13,12 @@ import { AddressCardSkeleton } from './address-card-skeleton';
 import { AddressFormDialog } from './components';
 import { Pagination } from '@/components/pagination';
 import { DEFAULT_LIMIT, DEFAULT_PAGE } from '@/constants/api';
-import { getQueryClient } from '@/lib/query-client/query-client';
+import { queryClient } from '@/lib/query-client/query-client';
 
 // ============ Main Component ============
 export function AddressesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const queryClient = getQueryClient();
 
   // Derive page and limit directly from URL search params
   // Ensures state stays in sync with URL (browser back/forward)
