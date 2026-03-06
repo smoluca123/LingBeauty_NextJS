@@ -37,15 +37,15 @@ export function ProductCard2({ product, className }: ProductCardProps) {
   const allImages = useProductImages(product);
 
   const handleVariantClick = (variant: IProductVariantDataType) => {
-    if (!variant.images || variant.images.length === 0) return;
-
-    const variantImage = variant.images[0];
-    const imageIndex = allImages.findIndex(
-      (img) => img.media.url === variantImage.media.url,
-    );
-
-    if (imageIndex !== -1) {
-      carouselRef.current?.scrollTo(imageIndex);
+    // Sync carousel image
+    if (variant.images && variant.images.length > 0) {
+      const variantImage = variant.images[0];
+      const imageIndex = allImages.findIndex(
+        (img) => img.media.url === variantImage.media.url,
+      );
+      if (imageIndex !== -1) {
+        carouselRef.current?.scrollTo(imageIndex);
+      }
     }
   };
 
@@ -80,7 +80,7 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {brand.name}
         </p>
-        <h3 className="text-base font-semibold text-foreground line-clamp-3">
+        <h3 className="text-base font-semibold text-foreground line-clamp-2">
           {name}
         </h3>
       </div>
@@ -104,7 +104,7 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         onVariantClick={handleVariantClick}
       />
 
-      {/* Add to cart button */}
+      {/* Add to cart — direct mode when a variant is selected */}
       <AddToCartButton product={product} />
 
       {/* View detail link */}

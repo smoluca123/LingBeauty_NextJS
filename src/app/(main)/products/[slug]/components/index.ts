@@ -1,0 +1,9 @@
+export { ProductDetailShield } from './product-detail-shield';
+export { ProductDetailGallery } from './product-detail-gallery';
+export { ProductDetailInfo } from './product-detail-info';
+export { ProductDetailTabs } from './product-detail-tabs';
+export { ProductDetailDescriptionTab } from './product-detail-description-tab';
+export { ProductDetailReviewTab } from './product-detail-review-tab';
+export { ProductDetailCommentsTab } from './product-detail-comments-tab';
+export { ProductDetailSkeleton } from './product-detail-skeleton';
+export { ProductSectionCarousel } from './product-section-carousel';

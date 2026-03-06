@@ -102,6 +102,19 @@ export const getFilterCategoriesAPI = async (
  * Fetch lightweight product stats (productCount + totalSold).
  * Uses aggregate queries on the backend — much cheaper than fetching all products.
  */
+/**
+ * Fetch a single product by slug (Server Component only).
+ * Uses publicKyInstance with Bearer token — no user auth required.
+ */
+export const getProductBySlugAPI = async (slug: string) => {
+  'use cache';
+  cacheLife(DEFAULT_CACHE_TIME);
+  cacheTag(`product-${slug}`);
+  return publicKyInstance
+    .get(`product/slug/${slug}`)
+    .json<IApiResponseWrapperType<IProductDataType>>();
+};
+
 export const getProductStatsAPI = async (
   options: IProductStatsQueryParams = {},
 ) => {
@@ -118,4 +131,58 @@ export const getProductStatsAPI = async (
       }),
     })
     .json<IApiResponseWrapperType<IProductStatsDataType>>();
+};
+
+/**
+ * Fetch products from the same brand (Server Component).
+ * Excludes the current product by filtering client-side after fetch.
+ */
+export const getProductsByBrandAPI = async (
+  brandId: string,
+  excludeSlug?: string,
+  limit = 8,
+) => {
+  'use cache';
+  cacheLife(DEFAULT_CACHE_TIME);
+  cacheTag(`products-brand-${brandId}`);
+  const response = await publicKyInstance
+    .get('product', {
+      searchParams: buildSearchParams({ brandId, limit }),
+    })
+    .json<IApiPaginationResponseWrapperType<IProductDataType>>();
+
+  // Exclude current product from the list
+  if (excludeSlug && response?.data?.items) {
+    response.data.items = response.data.items.filter(
+      (p: IProductDataType) => p.slug !== excludeSlug,
+    );
+  }
+  return response;
+};
+
+/**
+ * Fetch other/related products (Server Component).
+ * Excludes current product and optionally filters by categoryId.
+ */
+export const getRelatedProductsAPI = async (
+  categoryId: string,
+  excludeSlug?: string,
+  limit = 8,
+) => {
+  'use cache';
+  cacheLife(DEFAULT_CACHE_TIME);
+  cacheTag(`products-category-${categoryId}`);
+  const response = await publicKyInstance
+    .get('product', {
+      searchParams: buildSearchParams({ categoryId, limit }),
+    })
+    .json<IApiPaginationResponseWrapperType<IProductDataType>>();
+
+  // Exclude current product from the list
+  if (excludeSlug && response?.data?.items) {
+    response.data.items = response.data.items.filter(
+      (p: IProductDataType) => p.slug !== excludeSlug,
+    );
+  }
+  return response;
 };
