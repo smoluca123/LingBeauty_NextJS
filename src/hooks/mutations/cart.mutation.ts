@@ -28,8 +28,9 @@ export const useAddToCartMutation = () => {
       await invalidateCartQueries();
       toast.success(data.message || 'Đã thêm vào giỏ hàng');
     },
-    onError: (error: Error) => {
-      toast.error(error.message || 'Thêm vào giỏ hàng thất bại');
+    onError: (error: string) => {
+      console.log(error);
+      toast.error(error || 'Thêm vào giỏ hàng thất bại');
     },
   });
 };

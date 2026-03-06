@@ -15,12 +15,15 @@ export interface IProductDataType {
   updatedAt: string;
   name: string;
   slug: string;
-  shortDesc: string;
+  description?: string;
+  shortDesc?: string;
   sku: string;
   basePrice: string;
-  comparePrice: string;
+  comparePrice?: string;
   isActive: boolean;
   isFeatured: boolean;
+  metaTitle?: string;
+  metaDesc?: string;
   brand: IProductBrandDataType;
   primaryImage?: IProductImageDataType;
   productCategories: IProductCategoryDataType[];
