@@ -33,15 +33,18 @@ export interface IProductDataType {
   stats?: IProductDetailStatsDataType;
 }
 
+export type VariantDisplayType = 'COLOR' | 'IMAGE';
+
 export interface IProductVariantDataType {
   id: string;
   sku: string;
   name: string;
-  color: string;
-  size: null;
-  type: string;
+  color: string | null;
+  size: string | null;
+  type: string | null;
   price: string;
   sortOrder: number;
+  displayType: VariantDisplayType;
   inventory: IProductInventoryDataType;
   images: IProductImageDataType[];
 }

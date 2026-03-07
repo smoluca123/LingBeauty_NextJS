@@ -35,7 +35,7 @@ export function ProductVariantSelector({
             title={variant.name}
             onClick={() => onVariantClick(variant)}
           >
-            {variant.size ? (
+            {variant.displayType === 'IMAGE' ? (
               <Image
                 src={
                   variant.images[0]?.media.url || primaryImage?.media.url || ''
@@ -45,7 +45,7 @@ export function ProductVariantSelector({
                 className="object-cover"
                 sizes="24px"
               />
-            ) : variant.color ? (
+            ) : variant.displayType === 'COLOR' && variant.color ? (
               <div
                 className="h-full w-full"
                 style={{ backgroundColor: variant.color }}
