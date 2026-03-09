@@ -21,6 +21,10 @@ import { ProductHeader } from '@/components/product/product-header';
 import { RatingStars } from '@/components/product/rating-stars';
 import { useProductImages } from '@/hooks/use-product-images';
 import { AddToCartButton } from '@/components/cart/add-to-cart-button';
+import {
+  getIsLowStock,
+  getIsOutOfStock,
+} from '@/lib/utils/product-stock.utils';
 
 type ProductCardProps = {
   product: IProductDataType;
@@ -35,6 +39,10 @@ export function ProductCard2({ product, className }: ProductCardProps) {
 
   const carouselRef = useRef<ProductImageCarouselRef>(null);
   const allImages = useProductImages(product);
+
+  // ─── Stock status (shared utility — displayStatus is the source of truth) ─────
+  const isOutOfStock = getIsOutOfStock(product);
+  const isLowStock = getIsLowStock(product);
 
   const handleVariantClick = (variant: IProductVariantDataType) => {
     // Sync carousel image
@@ -63,17 +71,34 @@ export function ProductCard2({ product, className }: ProductCardProps) {
     <article
       className={cn(
         'flex h-full flex-col rounded-2xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group/product',
+        isOutOfStock && 'opacity-75',
         className,
       )}
     >
       <ProductHeader discountPercent={discountPercent} />
 
-      <ProductImageCarousel
-        ref={carouselRef}
-        images={allImages}
-        productName={name}
-      />
-
+      {/* Image with out-of-stock overlay */}
+      <div className="relative">
+        <ProductImageCarousel
+          ref={carouselRef}
+          images={allImages}
+          productName={name}
+        />
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40 pointer-events-none">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-destructive shadow">
+              Hết hàng
+            </span>
+          </div>
+        )}
+        {isLowStock && (
+          <div className="absolute top-2 right-2 pointer-events-none">
+            <span className="rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+              Sắp hết
+            </span>
+          </div>
+        )}
+      </div>
       <ProductBadges product={product} />
 
       <div className="mt-3 space-y-1 flex-1">

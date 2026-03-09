@@ -15,6 +15,7 @@ export interface IAdminProductDataType {
   primaryImage: string;
   stock: number;
   lowStockThreshold: number;
+  minStockQuantity: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,18 +37,18 @@ export interface IAdminCategoryDataType {
   sortOrder: number;
 }
 
+/** Mirrors InventoryResponseDto from BE — used in admin inventory management pages */
 export interface IAdminInventoryDataType {
   id: string;
   productId: string;
-  productName: string;
-  productSku: string;
-  productImage: string;
+  variantId: string | null;
   quantity: number;
-  reserved: number;
-  available: number;
+  displayStatus: 'IN_STOCK' | 'OUT_OF_STOCK';
   lowStockThreshold: number;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
-  lastUpdated: string;
+  /** Backorder floor. Orders blocked when quantity drops to/below this. Default: -10 */
+  minStockQuantity: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ============ Filter Types ============
@@ -76,4 +77,5 @@ export interface IProductFormData {
   isFeatured: boolean;
   stock: number;
   lowStockThreshold: number;
+  minStockQuantity: number;
 }
