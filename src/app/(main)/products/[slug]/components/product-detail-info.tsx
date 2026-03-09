@@ -28,6 +28,7 @@ interface ProductDetailInfoProps {
 
 export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
   const variants = product.variants ?? [];
+  const hasVariants = variants.length > 0;
 
   // Default to first in-stock variant
   const defaultVariant =
@@ -56,12 +57,37 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
         )
       : null;
 
-  const maxStock = selectedVariant?.inventory?.quantity ?? 0;
-  const isOutOfStock =
-    selectedVariant?.inventory?.displayStatus === 'OUT_OF_STOCK' ||
-    (variants.length > 0 &&
-      variants.every((v) => v.inventory?.displayStatus === 'OUT_OF_STOCK'));
-  const isLowStock = selectedVariant?.inventory?.displayStatus === 'LOW_STOCK';
+  // ─── Inventory resolution ─────────────────────────────────────────────────
+  // For products WITH variants: use selectedVariant.inventory
+  // For products WITHOUT variants: use product.inventory (product-level stock)
+  const activeInventory = hasVariants
+    ? selectedVariant?.inventory
+    : product.inventory;
+
+  const maxStock = activeInventory?.quantity ?? 0;
+
+  // isOutOfStock: OUT_OF_STOCK status OR quantity is zero
+  const isOutOfStock = hasVariants
+    ? // Variant products: selected variant out-of-stock OR all variants out-of-stock
+      selectedVariant?.inventory?.displayStatus === 'OUT_OF_STOCK' ||
+      selectedVariant?.inventory?.quantity === 0 ||
+      variants.every(
+        (v) =>
+          v.inventory?.displayStatus === 'OUT_OF_STOCK' ||
+          v.inventory?.quantity === 0,
+      )
+    : // No-variant product: use product-level inventory
+      (product.inventory?.displayStatus === 'OUT_OF_STOCK' ||
+        product.inventory?.quantity === 0) ??
+        false;
+
+  // isLowStock: quantity > 0 AND quantity <= lowStockThreshold
+  // (LOW_STOCK is NOT a DB enum value — derived from runtime values)
+  const isLowStock =
+    !isOutOfStock &&
+    maxStock > 0 &&
+    activeInventory?.lowStockThreshold !== undefined &&
+    maxStock <= activeInventory.lowStockThreshold;
 
   const avgRating = product.stats?.avgRating
     ? Number(product.stats.avgRating)
@@ -94,12 +120,25 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
     setQuantity((prev) => Math.min(maxStock, prev + 1));
 
   const handleAddToCart = () => {
-    if (!selectedVariant || isOutOfStock) return;
-    addToCartMutation.mutate({
-      productId: product.id,
-      variantId: selectedVariant.id,
-      quantity,
-    });
+    if (isOutOfStock) return;
+
+    if (hasVariants) {
+      // Variant product: require a selected variant
+      if (!selectedVariant) return;
+      addToCartMutation.mutate({
+        productId: product.id,
+        variantId: selectedVariant.id,
+        quantity,
+      });
+    } else {
+      // No-variant product: add product directly without variantId
+      // TODO: update cart mutation to support no-variant adds when BE is ready
+      addToCartMutation.mutate({
+        productId: product.id,
+        variantId: '',
+        quantity,
+      });
+    }
   };
 
   return (
@@ -167,6 +206,25 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
         <p className="text-sm leading-relaxed text-muted-foreground">
           {product.shortDesc}
         </p>
+      )}
+
+      {/* Stock status for no-variant products */}
+      {!hasVariants && (
+        <div className="flex items-center gap-2">
+          {isOutOfStock ? (
+            <span className="inline-flex items-center rounded-full bg-destructive/10 px-3 py-1 text-xs font-semibold text-destructive">
+              Hết hàng
+            </span>
+          ) : isLowStock ? (
+            <span className="inline-flex items-center rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600">
+              Sắp hết — còn {maxStock} sản phẩm
+            </span>
+          ) : (
+            <span className="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-600">
+              Còn hàng
+            </span>
+          )}
+        </div>
       )}
 
       {/* Variant selector */}

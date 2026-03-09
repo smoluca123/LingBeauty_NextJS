@@ -1,40 +1,35 @@
 'use client';
 import { env } from '@/lib/env.config';
-import { useAuthStore } from '@/stores/auth.store';
-import ky, {
-  type KyRequest,
-  type KyResponse,
-  type NormalizedOptions,
-} from 'ky';
+import ky from 'ky';
 
 // Refresh token state management
-let refreshPromise: Promise<boolean> | null = null;
+// let refreshPromise: Promise<boolean> | null = null;
 
-async function refreshToken(): Promise<boolean> {
-  try {
-    const response = await fetch('/api/auth/refresh', { method: 'POST' });
-    return response.ok;
-  } catch {
-    return false;
-  }
-}
+// async function refreshToken(): Promise<boolean> {
+//   try {
+//     const response = await fetch('/api/auth/refresh', { method: 'POST' });
+//     return response.ok;
+//   } catch {
+//     return false;
+//   }
+// }
 
-async function handleTokenRefresh(): Promise<boolean> {
-  // If already refreshing, wait for the existing promise
-  if (refreshPromise) {
-    return refreshPromise;
-  }
+// async function handleTokenRefresh(): Promise<boolean> {
+//   // If already refreshing, wait for the existing promise
+//   if (refreshPromise) {
+//     return refreshPromise;
+//   }
 
-  refreshPromise = (async () => {
-    try {
-      return await refreshToken();
-    } finally {
-      refreshPromise = null;
-    }
-  })();
+//   refreshPromise = (async () => {
+//     try {
+//       return await refreshToken();
+//     } finally {
+//       refreshPromise = null;
+//     }
+//   })();
 
-  return refreshPromise;
-}
+//   return refreshPromise;
+// }
 
 export const kyClientInstance = ky.create({
   prefixUrl: env.NEXT_PUBLIC_API_URL,
@@ -49,26 +44,23 @@ export const kyClientInstance = ky.create({
   },
   hooks: {
     afterResponse: [
-      async (
-        request: KyRequest,
-        options: NormalizedOptions,
-        response: KyResponse,
-      ): Promise<KyResponse> => {
-        // Handle 401 Unauthorized
-        if (response.status === 401) {
-          const refreshed = await handleTokenRefresh();
-
-          if (refreshed) {
-            // Retry the original request
-            return ky(request, options);
-          }
-
-          // Refresh failed, clear auth state
-          useAuthStore.getState().clearAuth();
-        }
-
-        return response;
-      },
+      // async (
+      //   request: KyRequest,
+      //   options: NormalizedOptions,
+      //   response: KyResponse,
+      // ): Promise<KyResponse> => {
+      //   // Handle 401 Unauthorized
+      //   if (response.status === 401) {
+      //     const refreshed = await handleTokenRefresh();
+      //     if (refreshed) {
+      //       // Retry the original request
+      //       return ky(request, options);
+      //     }
+      //     // Refresh failed, clear auth state
+      //     useAuthStore.getState().clearAuth();
+      //   }
+      //   return response;
+      // },
     ],
   },
 });

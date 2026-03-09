@@ -211,7 +211,9 @@ export function AddToCartDialog({
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold">Số lượng</p>
                 {selectedVariant &&
-                  selectedVariant.inventory?.displayStatus === 'LOW_STOCK' && (
+                  maxStock > 0 &&
+                  selectedVariant.inventory?.lowStockThreshold !== undefined &&
+                  maxStock <= selectedVariant.inventory.lowStockThreshold && (
                     <p className="text-xs text-amber-500">
                       Còn {maxStock} sản phẩm
                     </p>

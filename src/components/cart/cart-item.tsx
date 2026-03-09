@@ -23,7 +23,8 @@ export function CartItem({
   isUpdating = false,
   isRemoving = false,
 }: CartItemProps) {
-  const price = Number(item.variant.price);
+  // Price: use variant price if available, otherwise product basePrice
+  const price = item.variant ? Number(item.variant.price) : Number(item.product.basePrice);
   const lineTotal = Number(item.lineTotal);
   const imageUrl = item.product.thumbnailImage?.media?.url;
 
@@ -31,7 +32,6 @@ export function CartItem({
   const [inputValue, setInputValue] = useState(item.quantity.toString());
 
   // Track the previous quantity to sync input when quantity changes from external source
-  // (e.g. mutation success). This avoids a cascading render caused by setState in useEffect.
   const [prevQuantity, setPrevQuantity] = useState(item.quantity);
   if (prevQuantity !== item.quantity) {
     setPrevQuantity(item.quantity);
@@ -50,12 +50,10 @@ export function CartItem({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Allow empty string while typing
     if (value === '') {
       setInputValue('');
       return;
     }
-    // Only allow positive integers
     if (/^\d+$/.test(value)) {
       setInputValue(value);
     }
@@ -64,7 +62,6 @@ export function CartItem({
   const handleInputBlur = () => {
     const numValue = parseInt(inputValue, 10);
     if (isNaN(numValue) || numValue < 1) {
-      // Reset to current quantity if invalid
       setInputValue(item.quantity.toString());
     } else if (numValue !== item.quantity) {
       onUpdateQuantity(item.id, numValue);
@@ -76,6 +73,15 @@ export function CartItem({
       e.currentTarget.blur();
     }
   };
+
+  // ── Stock logic: always use item.stockInfo (never item.variant) ──────────────
+  const { stockQuantity, minStockQuantity, stockStatus } = item.stockInfo;
+
+  // canAddMore: adding one more must not push projected stock below the backorder floor
+  const canAddMore = stockQuantity - (item.quantity + 1) >= minStockQuantity;
+
+  // How many more units can still be ordered (may be > stockQuantity when in backorder)
+  const remainingOrderable = stockQuantity - minStockQuantity - item.quantity;
 
   const isDisabled = isUpdating || isRemoving;
 
@@ -104,36 +110,47 @@ export function CartItem({
             <h4 className="font-semibold text-sm line-clamp-2">
               {item.product.name}
             </h4>
-            <p className="text-xs text-muted-foreground mt-1">
-              {item.variant.color && (
-                <>
-                  Màu: <span className="font-medium">{item.variant.color}</span>
-                </>
-              )}
-              {item.variant.color && item.variant.size && ' • '}
-              {item.variant.size && (
-                <>
-                  Size: <span className="font-medium">{item.variant.size}</span>
-                </>
-              )}
-              {item.variant.type &&
-                !item.variant.color &&
-                !item.variant.size && (
-                  <span className="font-medium">{item.variant.type}</span>
-                )}
-            </p>
 
-            {/* Stock warning */}
-            {item.variant.stockStatus === 'OUT_OF_STOCK' && (
+            {/* Variant display fields — only shown when variant exists */}
+            {item.variant && (
+              <p className="text-xs text-muted-foreground mt-1">
+                {item.variant.color && (
+                  <>
+                    Màu: <span className="font-medium">{item.variant.color}</span>
+                  </>
+                )}
+                {item.variant.color && item.variant.size && ' • '}
+                {item.variant.size && (
+                  <>
+                    Size: <span className="font-medium">{item.variant.size}</span>
+                  </>
+                )}
+                {item.variant.type &&
+                  !item.variant.color &&
+                  !item.variant.size && (
+                    <span className="font-medium">{item.variant.type}</span>
+                  )}
+              </p>
+            )}
+
+            {/* Stock warnings — sourced from stockInfo */}
+            {stockStatus === 'OUT_OF_STOCK' && remainingOrderable <= 0 && (
               <p className="text-xs text-destructive mt-1 font-medium">
                 Hết hàng
               </p>
             )}
-            {item.variant.stockStatus === 'LOW_STOCK' && (
+            {stockStatus === 'OUT_OF_STOCK' && remainingOrderable > 0 && (
               <p className="text-xs text-amber-500 mt-1">
-                Còn {item.variant.stockQuantity} sản phẩm
+                Đang đặt trước · còn {remainingOrderable} suất
               </p>
             )}
+            {stockStatus !== 'OUT_OF_STOCK' &&
+              stockQuantity > 0 &&
+              stockQuantity <= 10 && (
+                <p className="text-xs text-amber-500 mt-1">
+                  Còn {stockQuantity} sản phẩm
+                </p>
+              )}
           </div>
 
           {/* Remove Button */}
@@ -178,9 +195,7 @@ export function CartItem({
               variant="ghost"
               size="icon"
               onClick={handleIncrement}
-              disabled={
-                isDisabled || item.quantity >= item.variant.stockQuantity
-              }
+              disabled={isDisabled || !canAddMore}
               className="h-8 w-8 rounded-lg hover:bg-primary-pink/10"
               aria-label="Tăng số lượng"
             >

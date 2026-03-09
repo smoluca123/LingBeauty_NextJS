@@ -8,6 +8,7 @@ import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation';
 import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog';
 import { useIsAuthenticated } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { getIsOutOfStock } from '@/lib/utils/product-stock.utils';
 
 interface AddToCartButtonProps {
   product: IProductDataType;
@@ -30,10 +31,9 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
   const hasMultipleVariants = variants.length > 1;
   const singleVariant = variants.length === 1 ? variants[0] : null;
 
-  // Overall stock status from first available variant
-  const isOutOfStock = variants.every(
-    (v) => v.inventory?.displayStatus === 'OUT_OF_STOCK',
-  );
+  // Out-of-stock resolution: trust displayStatus managed by server.
+  // Use shared utility to stay in sync with product-card and other consumers.
+  const isOutOfStock = getIsOutOfStock(product);
 
   const handleClick = (e: React.MouseEvent) => {
     // Prevent card click / link navigation
@@ -53,14 +53,21 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
       return;
     }
 
-    // Single-variant or no-variant product — add directly
     if (singleVariant) {
+      // Single-variant product
       addToCartMutation.mutate({
         productId: product.id,
         variantId: singleVariant.id,
         quantity: 1,
       });
+      return;
     }
+
+    // No-variant product — omit variantId so BE auto-resolves the first variant
+    addToCartMutation.mutate({
+      productId: product.id,
+      quantity: 1,
+    });
   };
 
   return (

@@ -1,5 +1,9 @@
 import { IMediaDataType } from '@/lib/types/interfaces/apis/image.interfaces';
 
+/** Mirrors the Prisma enum — enum only has IN_STOCK / OUT_OF_STOCK.
+ *  Low-stock is NOT a DB status; it is derived by comparing quantity <= lowStockThreshold. */
+export type ProductInventoryDisplayStatus = 'IN_STOCK' | 'OUT_OF_STOCK';
+
 export interface IProductDetailStatsDataType {
   totalSold: number;
   totalRevenue?: string;
@@ -31,6 +35,8 @@ export interface IProductDataType {
   variants: IProductVariantDataType[];
   badges: IProductBadgeDataType[];
   stats?: IProductDetailStatsDataType;
+  /** Product-level inventory (only present for products WITHOUT variants) */
+  inventory?: IProductInventoryDataType | null;
 }
 
 export type VariantDisplayType = 'COLOR' | 'IMAGE';
@@ -60,10 +66,18 @@ export interface IProductImageDataType {
   media: IMediaDataType;
 }
 
-interface IProductInventoryDataType {
+export interface IProductInventoryDataType {
+  /** Present in full inventory responses; absent in embedded variant/product snapshots */
+  id?: string;
+  productId?: string;
+  variantId?: string | null;
   quantity: number;
-  displayStatus: string;
+  displayStatus: ProductInventoryDisplayStatus;
   lowStockThreshold: number;
+  /** Backorder floor: minimum stock allowed. Negative = backorder units permitted. Default: -10 */
+  minStockQuantity: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface IProductCategoryDataType {
