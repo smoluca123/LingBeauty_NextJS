@@ -54,6 +54,7 @@ const INITIAL_FORM_DATA: IProductFormData = {
   isFeatured: false,
   stock: 0,
   lowStockThreshold: 10,
+  minStockQuantity: -10,
 };
 
 // ============ Component ============
