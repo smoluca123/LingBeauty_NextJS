@@ -1,133 +1,158 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { TablePagination } from '@/app/admin/components';
-import { usePagination } from '@/app/admin/hooks';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import {
+  useInventoryOverviewQuery,
+  useAllProductsQuery,
+  useAllVariantsQuery,
+  useLowStockProductsQuery,
+  useLowStockVariantsQuery,
+  useOutOfStockProductsQuery,
+  useOutOfStockVariantsQuery,
+} from '@/hooks/querys/admin-inventory.query';
+import type { IInventoryOverview } from '@/lib/types/interfaces/apis/admin-inventory.interfaces';
 import { InventoryStats } from './inventory-stats';
-import { InventoryFilters } from './inventory-filters';
-import { InventoryTable, getInventoryData, InventoryItem } from './inventory-table';
-import { AdjustInventoryDialog } from './adjust-inventory-dialog';
-import { AddProductDialog } from './add-product-dialog';
+import { InventoryTabTriggers } from './inventory-tab-triggers';
+import { InventoryTabLayout } from './inventory-tab-layout';
+
+// ============ Types ============
+
+type TabKey =
+  | 'all-products'
+  | 'all-variants'
+  | 'low-stock-products'
+  | 'low-stock-variants'
+  | 'out-of-stock-products'
+  | 'out-of-stock-variants';
+
+// ============ Tab Configuration ============
+
+interface TabConfig {
+  value: TabKey;
+  useQuery: (page: number, limit: number, search?: string, status?: string) => {
+    data: unknown;
+    isLoading: boolean;
+  };
+  serverSearch?: boolean;
+  showStatusFilter?: boolean;
+  searchPlaceholder?: string;
+  searchAriaLabel?: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  paginationAriaLabel?: string;
+}
+
+const TAB_CONFIGS: TabConfig[] = [
+  {
+    value: 'all-products',
+    useQuery: useAllProductsQuery,
+    serverSearch: true,
+    showStatusFilter: true,
+    searchPlaceholder: 'Tìm theo tên sản phẩm, SKU…',
+    searchAriaLabel: 'Tìm kiếm kho hàng sản phẩm',
+    emptyTitle: 'Không có sản phẩm nào',
+    emptyDescription: 'Chưa có dữ liệu kho hàng.',
+    paginationAriaLabel: 'Phân trang kho hàng sản phẩm',
+  },
+  {
+    value: 'all-variants',
+    useQuery: useAllVariantsQuery,
+    serverSearch: true,
+    showStatusFilter: true,
+    searchPlaceholder: 'Tìm theo tên sản phẩm, biến thể, SKU…',
+    searchAriaLabel: 'Tìm kiếm kho hàng biến thể',
+    emptyTitle: 'Không có biến thể nào',
+    emptyDescription: 'Chưa có dữ liệu kho hàng biến thể.',
+    paginationAriaLabel: 'Phân trang kho hàng biến thể',
+  },
+  {
+    value: 'low-stock-products',
+    useQuery: useLowStockProductsQuery,
+    emptyTitle: 'Không có sản phẩm nào sắp hết',
+    emptyDescription: 'Tất cả sản phẩm đơn giản đang có đủ tồn kho.',
+    searchPlaceholder: 'Tìm sản phẩm sắp hết theo tên, SKU…',
+  },
+  {
+    value: 'low-stock-variants',
+    useQuery: useLowStockVariantsQuery,
+    emptyTitle: 'Không có biến thể nào sắp hết',
+    emptyDescription: 'Tất cả biến thể đang có đủ tồn kho.',
+    searchPlaceholder: 'Tìm biến thể sắp hết theo tên, SKU…',
+  },
+  {
+    value: 'out-of-stock-products',
+    useQuery: useOutOfStockProductsQuery,
+    emptyTitle: 'Không có sản phẩm nào hết hàng',
+    emptyDescription: 'Tất cả sản phẩm đơn giản đang còn hàng.',
+    searchPlaceholder: 'Tìm sản phẩm hết hàng theo tên, SKU…',
+  },
+  {
+    value: 'out-of-stock-variants',
+    useQuery: useOutOfStockVariantsQuery,
+    emptyTitle: 'Không có biến thể nào hết hàng',
+    emptyDescription: 'Tất cả biến thể đang còn hàng.',
+    searchPlaceholder: 'Tìm biến thể hết hàng theo tên, SKU…',
+  },
+];
+
+// ============ Component ============
 
 export function InventoryContent() {
-  const [inventory] = useState(getInventoryData());
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const {
-      resetPage,
-      paginate,
-      getPaginationProps,
-    } = usePagination();
-  const [adjustDialogOpen, setAdjustDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
-  const [addProductDialogOpen, setAddProductDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabKey>('all-products');
 
-  // Stats
-  const totalProducts = inventory.length;
-  const lowStockCount = inventory.filter((i) => i.status === 'low_stock').length;
-  const outOfStockCount = inventory.filter((i) => i.status === 'out_of_stock').length;
-
-  // Filter
-  const filteredInventory = inventory.filter((item) => {
-    const matchesSearch =
-      item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.productSku.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  // Pagination
-  // Pagination
-  const paginatedInventory = useMemo(
-    () => paginate(filteredInventory),
-    [filteredInventory, paginate]
-  );
-
-  // Reset to page 1 when filters change
-  const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    resetPage();
-  };
-
-  const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    resetPage();
-  };
-
-  // Removed handlePageSizeChange since handled by hook
-
-  const handleAdjust = (item: InventoryItem) => {
-    setSelectedItem(item);
-    setAdjustDialogOpen(true);
-  };
+  // Overview for stats + badges
+  const { data: overviewData, isLoading: overviewLoading } = useInventoryOverviewQuery();
+  const overview = (overviewData as { data?: IInventoryOverview } | undefined)?.data;
 
   return (
-    <div className="flex flex-col h-full gap-6">
+    <div className="flex flex-col h-full gap-4 md:gap-6">
       {/* Header */}
-      <div className="shrink-0 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Kho hàng</h1>
-          <p className="text-muted-foreground">
-            Quản lý tồn kho và theo dõi số lượng sản phẩm
-          </p>
-        </div>
-        <Button
-          onClick={() => setAddProductDialogOpen(true)}
-          variant="primary-pink"
-          className="shrink-0"
+      <div className="shrink-0">
+        <h1 className="text-xl md:text-2xl font-bold">Kho hàng</h1>
+        <p className="text-sm md:text-base text-muted-foreground">
+          Quản lý tồn kho và theo dõi số lượng sản phẩm
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="shrink-0">
+        {overviewLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground py-4">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span className="text-sm">Đang tải thống kê...</span>
+          </div>
+        ) : (
+          <InventoryStats overview={overview} />
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex-1 min-h-0 flex flex-col">
+        <Tabs
+          value={activeTab}
+          onValueChange={(v) => setActiveTab(v as TabKey)}
+          className="flex flex-col h-full gap-3"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Thêm sản phẩm
-        </Button>
+          <InventoryTabTriggers overview={overview} />
+
+          {TAB_CONFIGS.map((config) => (
+            <TabsContent key={config.value} value={config.value} className="flex-1 min-h-0 mt-0">
+              <InventoryTabLayout
+                useQuery={config.useQuery}
+                serverSearch={config.serverSearch}
+                showStatusFilter={config.showStatusFilter}
+                searchPlaceholder={config.searchPlaceholder}
+                searchAriaLabel={config.searchAriaLabel}
+                emptyTitle={config.emptyTitle}
+                emptyDescription={config.emptyDescription}
+                paginationAriaLabel={config.paginationAriaLabel}
+              />
+            </TabsContent>
+          ))}
+        </Tabs>
       </div>
-
-      {/* Stats & Alert */}
-      <div className="shrink-0">
-        <InventoryStats
-          totalProducts={totalProducts}
-          lowStockCount={lowStockCount}
-          outOfStockCount={outOfStockCount}
-        />
-      </div>
-
-      {/* Filters */}
-      <div className="shrink-0">
-        <InventoryFilters
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          statusFilter={statusFilter}
-          onStatusChange={handleStatusChange}
-        />
-      </div>
-
-      {/* Table - takes remaining space and scrolls */}
-      <div className="flex-1 min-h-0">
-        <InventoryTable inventory={paginatedInventory} onAdjust={handleAdjust} />
-      </div>
-
-      {/* Pagination */}
-      <div className="shrink-0">
-        <TablePagination
-          {...getPaginationProps(filteredInventory.length)}
-        />
-      </div>
-
-      {/* Adjust Dialog */}
-      <AdjustInventoryDialog
-        open={adjustDialogOpen}
-        onOpenChange={setAdjustDialogOpen}
-        item={selectedItem}
-      />
-
-      {/* Add Product Dialog */}
-      <AddProductDialog
-        open={addProductDialogOpen}
-        onOpenChange={setAddProductDialogOpen}
-      />
     </div>
   );
 }

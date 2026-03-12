@@ -1,7 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Mail, Phone, XCircle } from 'lucide-react';
 import { UserFormData } from './edit-user-dialog';
 
 // ============ Types ============
@@ -69,6 +69,60 @@ export function StatusTab({ form }: StatusTabProps) {
         )}
       />
 
+      {/* Email Verified Status */}
+      <FormField
+        control={form.control}
+        name="isEmailVerified"
+        render={({ field }) => (
+          <FormItem className="flex items-start justify-between space-x-4 rounded-lg border p-4">
+            <div className="flex items-start space-x-3">
+              <Mail className="h-5 w-5 text-indigo-500 mt-0.5" />
+              <div className="space-y-1">
+                <FormLabel className="text-base font-medium">
+                  Xác thực email
+                </FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Đánh dấu email của người dùng đã được xác thực
+                </p>
+              </div>
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
+      {/* Phone Verified Status */}
+      <FormField
+        control={form.control}
+        name="isPhoneVerified"
+        render={({ field }) => (
+          <FormItem className="flex items-start justify-between space-x-4 rounded-lg border p-4">
+            <div className="flex items-start space-x-3">
+              <Phone className="h-5 w-5 text-teal-500 mt-0.5" />
+              <div className="space-y-1">
+                <FormLabel className="text-base font-medium">
+                  Xác thực số điện thoại
+                </FormLabel>
+                <p className="text-sm text-muted-foreground">
+                  Đánh dấu số điện thoại của người dùng đã được xác thực
+                </p>
+              </div>
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+
       {/* Banned Status */}
       <FormField
         control={form.control}
@@ -110,6 +164,18 @@ export function StatusTab({ form }: StatusTabProps) {
             <span className="text-muted-foreground">Xác thực:</span>
             <span className={watchedValues.isVerified ? 'text-blue-600 font-medium' : 'text-muted-foreground'}>
               {watchedValues.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Email:</span>
+            <span className={watchedValues.isEmailVerified ? 'text-indigo-600 font-medium' : 'text-muted-foreground'}>
+              {watchedValues.isEmailVerified ? 'Đã xác thực' : 'Chưa xác thực'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Số điện thoại:</span>
+            <span className={watchedValues.isPhoneVerified ? 'text-teal-600 font-medium' : 'text-muted-foreground'}>
+              {watchedValues.isPhoneVerified ? 'Đã xác thực' : 'Chưa xác thực'}
             </span>
           </div>
           <div className="flex items-center justify-between">

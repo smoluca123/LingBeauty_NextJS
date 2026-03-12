@@ -11,15 +11,17 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { BasicInfoTab } from './edit-user-dialog/basic-info-tab';
-import { RolesTab } from './edit-user-dialog/roles-tab';
-import { UserFormData } from './edit-user-dialog/edit-user-dialog';
+import { BasicInfoTab } from '../edit-user-dialog/basic-info-tab';
+import { RolesTab } from '../edit-user-dialog/roles-tab';
+import { SettingsTab } from './settings-tab';
+import { UserFormData } from '../edit-user-dialog/edit-user-dialog';
 
 // ============ Types ============
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (data: UserFormData) => void;
+  availableRoles?: import('@/lib/types/interfaces/apis/admin-user.interfaces').IAdminRoleDataType[];
 }
 
 // ============ Component ============
@@ -27,6 +29,7 @@ export function AddUserDialog({
   open,
   onOpenChange,
   onAdd,
+  availableRoles = [],
 }: AddUserDialogProps) {
   const form = useForm<UserFormData>({
     defaultValues: {
@@ -37,7 +40,12 @@ export function AddUserDialog({
       username: '',
       password: '',
       confirmPassword: '',
-      roles: [],
+      roleIds: [],
+      isActive: true,
+      isVerified: false,
+      isBanned: false,
+      isEmailVerified: false,
+      isPhoneVerified: false,
     },
   });
 
@@ -51,14 +59,7 @@ export function AddUserDialog({
       return;
     }
 
-    console.log('📝 Creating new user:', data);
-    console.log('📧 Email:', data.email);
-    console.log('👤 Username:', data.username);
-    console.log('👥 Roles:', data.roles.map((r) => r.name));
-
     onAdd(data);
-    form.reset();
-    onOpenChange(false);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -100,15 +101,23 @@ export function AddUserDialog({
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
                 <TabsTrigger value="roles">Vai trò</TabsTrigger>
+                <TabsTrigger value="settings">Cài đặt</TabsTrigger>
               </TabsList>
 
               <div className="flex-1 overflow-y-auto mt-4">
+                {/* Tab: Basic Info */}
                 <TabsContent value="basic" className="mt-0">
                   <BasicInfoTab form={form} isCreatingNew={true} />
                 </TabsContent>
 
+                {/* Tab: Roles */}
                 <TabsContent value="roles" className="mt-0">
-                  <RolesTab form={form} />
+                  <RolesTab form={form} availableRoles={availableRoles} />
+                </TabsContent>
+
+                {/* Tab: Settings */}
+                <TabsContent value="settings" className="mt-0">
+                  <SettingsTab form={form} />
                 </TabsContent>
               </div>
             </Tabs>

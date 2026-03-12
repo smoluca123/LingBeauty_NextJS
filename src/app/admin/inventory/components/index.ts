@@ -1,6 +1,11 @@
 export { InventoryContent } from './inventory-content';
 export { InventoryStats } from './inventory-stats';
-export { InventoryFilters } from './inventory-filters';
-export { InventoryTable, getInventoryData } from './inventory-table';
+export { InventoryTable } from './inventory-table';
+export type { InventoryRow } from './inventory-table';
+export { InventoryTabLayout } from './inventory-tab-layout';
+export { InventoryTabTriggers } from './inventory-tab-triggers';
+export { InventorySearchFilters } from './inventory-search-filters';
+export { InventoryEmptyState } from './inventory-empty-state';
+export { InventoryLoading } from './inventory-loading';
 export { AdjustInventoryDialog } from './adjust-inventory-dialog';
-export { AddProductDialog } from './add-product-dialog';
+export { BulkAdjustDialog } from './bulk-adjust-dialog';

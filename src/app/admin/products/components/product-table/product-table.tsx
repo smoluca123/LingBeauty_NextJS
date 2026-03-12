@@ -1,6 +1,9 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MoreHorizontal, Pencil, Trash2, Eye } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, Eye, Images, Sliders, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,15 +21,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { IAdminProductDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
+import {
+  IAdminProductDataType,
+  getTotalStock,
+  getPrimaryImageUrl,
+  getFirstCategory,
+} from '@/lib/types/interfaces/apis/admin-product.interfaces';
+import { ProductImagesDialog } from '../product-images-dialog';
+import { ProductVariantsDialog } from '../product-variants-dialog';
+import { ProductBadgesDialog } from '../product-badges-dialog';
+import { EditProductDialog } from '../edit-product-dialog';
 import { formatPrice, getStockStatus } from './helpers';
+
+// ============ Types ============
 
 interface ProductTableProps {
   products: IAdminProductDataType[];
   onDelete: (product: IAdminProductDataType) => void;
 }
 
+// ============ Component ============
+
 export function ProductTable({ products, onDelete }: ProductTableProps) {
+  const [imagesProduct, setImagesProduct] =
+    useState<IAdminProductDataType | null>(null);
+  const [variantProduct, setVariantProduct] =
+    useState<IAdminProductDataType | null>(null);
+  const [editProduct, setEditProduct] =
+    useState<IAdminProductDataType | null>(null);
+  const [badgeProduct, setBadgeProduct] =
+    useState<IAdminProductDataType | null>(null);
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -36,8 +61,9 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
   }
 
   return (
-    <div className="rounded-lg border bg-card max-h-[50vh] overflow-auto">
-      <Table className="min-w-max">
+    <>
+      <div className="rounded-lg border bg-card max-h-full overflow-auto">
+        <Table className="min-w-max">
           <TableHeader>
             <TableRow>
               <TableHead className="w-20">Ảnh</TableHead>
@@ -51,15 +77,16 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
           </TableHeader>
           <TableBody>
             {products.map((product) => {
-              const stockStatus = getStockStatus(product.stock);
-              const category = product.category;
+              const stock = getTotalStock(product);
+              const stockStatus = getStockStatus(stock);
+              const category = getFirstCategory(product);
 
               return (
                 <TableRow key={product.id}>
                   <TableCell>
                     <div className="relative h-10 w-10 md:h-12 md:w-12 overflow-hidden rounded-md bg-muted shrink-0">
                       <Image
-                        src={product.primaryImage || '/images/placeholder.png'}
+                        src={getPrimaryImageUrl(product)}
                         alt={product.name}
                         fill
                         className="object-cover"
@@ -85,7 +112,7 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                     {formatPrice(product.basePrice)}
                   </TableCell>
                   <TableCell className="text-center">
-                    <span className="font-medium">{product.stock}</span>
+                    <span className="font-medium">{stock}</span>
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant={stockStatus.variant}>
@@ -101,16 +128,34 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}`}>
+                          <Link href={`/products/${product.slug}`} target='_blank'>
                             <Eye className="mr-2 h-4 w-4" />
                             Xem chi tiết
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link href={`/admin/products/${product.id}/edit`}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Chỉnh sửa
-                          </Link>
+                        <DropdownMenuItem
+                          onClick={() => setEditProduct(product)}
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Chỉnh sửa
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setImagesProduct(product)}
+                        >
+                          <Images className="mr-2 h-4 w-4" />
+                          Quản lý ảnh
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setVariantProduct(product)}
+                        >
+                          <Sliders className="mr-2 h-4 w-4" />
+                          Chỉnh sửa biến thể
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setBadgeProduct(product)}
+                        >
+                          <Tag className="mr-2 h-4 w-4" />
+                          Quản lý badge
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -128,6 +173,53 @@ export function ProductTable({ products, onDelete }: ProductTableProps) {
             })}
           </TableBody>
         </Table>
-    </div>
+      </div>
+
+      {/* Product Images Dialog */}
+      {imagesProduct && (
+        <ProductImagesDialog
+          productId={imagesProduct.id}
+          productName={imagesProduct.name}
+          open={!!imagesProduct}
+          onOpenChange={(open: boolean) => {
+            if (!open) setImagesProduct(null);
+          }}
+        />
+      )}
+
+      {/* Product Variants Dialog */}
+      {variantProduct && (
+        <ProductVariantsDialog
+          productId={variantProduct.id}
+          productName={variantProduct.name}
+          open={!!variantProduct}
+          onOpenChange={(open) => {
+            if (!open) setVariantProduct(null);
+          }}
+        />
+      )}
+
+      {/* Edit Product Dialog */}
+      {editProduct && (
+        <EditProductDialog
+          product={editProduct}
+          open={!!editProduct}
+          onOpenChange={(open) => {
+            if (!open) setEditProduct(null);
+          }}
+        />
+      )}
+      {/* Product Badges Dialog */}
+      {badgeProduct && (
+        <ProductBadgesDialog
+          productId={badgeProduct.id}
+          productName={badgeProduct.name}
+          open={!!badgeProduct}
+          onOpenChange={(open) => {
+            if (!open) setBadgeProduct(null);
+          }}
+        />
+      )}
+    </>
   );
 }
