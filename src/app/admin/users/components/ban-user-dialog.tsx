@@ -23,23 +23,33 @@ export function BanUserDialog({
   user,
   onConfirm,
 }: BanUserDialogProps) {
+  const isBanning = !user?.isBanned;
+  const fullName = `${user?.lastName ?? ''} ${user?.firstName ?? ''}`.trim();
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Xác nhận cấm người dùng</AlertDialogTitle>
+          <AlertDialogTitle>
+            {isBanning ? 'Xác nhận cấm người dùng' : 'Xác nhận bỏ cấm người dùng'}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Bạn có chắc chắn muốn cấm người dùng &#34;{user?.lastName}{' '}
-            {user?.firstName}&#34;? Người dùng sẽ không thể đăng nhập.
+            {isBanning
+              ? `Bạn có chắc chắn muốn cấm người dùng "${fullName}"? Người dùng sẽ không thể đăng nhập.`
+              : `Bạn có chắc chắn muốn bỏ cấm người dùng "${fullName}"? Người dùng sẽ có thể đăng nhập trở lại.`}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Hủy</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
-            className="bg-orange-600 text-white hover:bg-orange-700"
+            className={
+              isBanning
+                ? 'bg-orange-600 text-white hover:bg-orange-700'
+                : 'bg-green-600 text-white hover:bg-green-700'
+            }
           >
-            Cấm
+            {isBanning ? 'Cấm' : 'Bỏ cấm'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

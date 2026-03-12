@@ -1,5 +1,15 @@
 // ============ Admin User Types ============
 
+/** Join table: roleAssignments[].role = the actual role object */
+export interface IAdminRoleAssignmentDataType {
+  id: string;
+  userId: string;
+  roleId: string;
+  role: Pick<IAdminRoleDataType, 'id' | 'name' | 'createdAt' | 'updatedAt'>;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IAdminUserDataType {
   id: string;
   email: string;
@@ -8,6 +18,11 @@ export interface IAdminUserDataType {
   phone: string;
   username: string;
   avatar: string | null;
+  /**
+   * BE trả về `roleAssignments` (join table), mỗi item có `.role` lồng trong.
+   * Dùng helper `getUserRoles(user)` để lấy danh sách vai trò phẳng.
+   */
+  roleAssignments: IAdminRoleAssignmentDataType[];
   isActive: boolean;
   isVerified: boolean;
   isBanned: boolean;
@@ -15,10 +30,16 @@ export interface IAdminUserDataType {
   isPhoneVerified: boolean;
   emailVerifiedAt: string | null;
   phoneVerifiedAt: string | null;
-  roles: IAdminRoleDataType[];
   createdAt: string;
   updatedAt: string;
 }
+
+/** Helper: trích xuất mảng roles phẳng từ roleAssignments của user */
+export const getUserRoles = (
+  user: IAdminUserDataType,
+): Pick<IAdminRoleDataType, 'id' | 'name' | 'createdAt' | 'updatedAt'>[] =>
+  (user.roleAssignments ?? []).map((ra) => ra.role);
+
 
 export interface IAdminRoleDataType {
   id: string;
@@ -39,11 +60,22 @@ export interface IAdminPermissionDataType {
 
 // ============ Filter Types ============
 
+export type UserSortBy =
+  | 'createdAt'
+  | 'updatedAt'
+  | 'email'
+  | 'firstName'
+  | 'lastName';
+
+export type UserSortOrder = 'asc' | 'desc';
+
 export interface IUserFilters {
   search?: string;
-  roleId?: string;
-  status?: 'all' | 'active' | 'inactive' | 'banned';
-  verified?: 'all' | 'verified' | 'unverified';
+  isActive?: boolean;
+  isBanned?: boolean;
+  isVerified?: boolean;
+  sortBy?: UserSortBy;
+  order?: UserSortOrder;
   page?: number;
   limit?: number;
 }

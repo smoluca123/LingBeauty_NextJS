@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,27 +18,34 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { TableCell, TableRow } from '@/components/ui/table';
-import { IAdminUserDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { Checkbox } from '@/components/ui/checkbox';
+import { IAdminUserDataType, getUserRoles } from '@/lib/types/interfaces/apis/admin-user.interfaces';
 import { getInitials, formatDate } from './helpers';
+import UserAvatar from '@/components/user-avatar';
 
 interface UserRowProps {
   user: IAdminUserDataType;
+  isSelected: boolean;
+  onToggleSelect: (userId: string) => void;
   onEdit: (user: IAdminUserDataType) => void;
   onDelete: (user: IAdminUserDataType) => void;
   onBan: (user: IAdminUserDataType) => void;
 }
 
-export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
+export function UserRow({ user, isSelected, onToggleSelect, onEdit, onDelete, onBan }: UserRowProps) {
+  const roles = getUserRoles(user);
   return (
-    <TableRow>
+    <TableRow data-selected={isSelected} className={isSelected ? 'bg-muted/40' : ''}>
+      <TableCell>
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggleSelect(user.id)}
+          aria-label={`Chọn ${user.firstName} ${user.lastName}`}
+        />
+      </TableCell>
       <TableCell>
         <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage src={user.avatar || undefined} />
-            <AvatarFallback>
-              {getInitials(user.firstName, user.lastName)}
-            </AvatarFallback>
-          </Avatar>
+         <UserAvatar fallbackName={getInitials(user.firstName, user.lastName)} avatarUrl={user.avatar || undefined}  />
           <div>
             <Link
               href={`/admin/users/${user.id}`}
@@ -73,8 +79,8 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
       </TableCell>
       <TableCell>
         <div className="flex flex-wrap gap-1">
-          {user.roles.length > 0 ? (
-            user.roles.map((role) => (
+          {roles.length > 0 ? (
+            roles.map((role) => (
               <Badge key={role.id} variant="outline">
                 {role.name}
               </Badge>
@@ -87,8 +93,8 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
         </div>
       </TableCell>
       <TableCell className="text-center">
-        {user.isVerified ? (
-          <Badge className='bg-green-500!' >Đã xác thực</Badge>
+        {user.isEmailVerified ? (
+          <Badge className="bg-green-500!">Đã xác thực</Badge>
         ) : (
           <Badge variant="secondary">Chưa xác thực</Badge>
         )}
@@ -133,7 +139,10 @@ export function UserRow({ user, onEdit, onDelete, onBan }: UserRowProps) {
                 Cấm người dùng
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem className="text-green-600">
+              <DropdownMenuItem
+                onClick={() => onBan(user)}
+                className="text-green-600"
+              >
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Bỏ cấm
               </DropdownMenuItem>

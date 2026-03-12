@@ -7,7 +7,10 @@ import {
   FolderTree,
   Warehouse,
   Users,
+  Store,
+  Tag,
 } from 'lucide-react';
+
 import {
   Sidebar,
   SidebarContent,
@@ -19,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
 
@@ -47,6 +51,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { icon: Package, label: 'Tất cả sản phẩm', href: '/admin/products' },
       { icon: FolderTree, label: 'Danh mục', href: '/admin/categories' },
+      { icon: Tag, label: 'Thương hiệu', href: '/admin/brands' },
       { icon: Warehouse, label: 'Kho hàng', href: '/admin/inventory' },
     ],
   },
@@ -84,6 +89,24 @@ export function AdminSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+      <SidebarMenu className="px-2 py-1">
+        <SidebarMenuItem>
+          <SidebarMenuButton
+            asChild
+            tooltip="Về trang chủ"
+            className="bg-primary-pink text-white hover:bg-primary-pink/90 hover:text-white"
+          >
+            <Link
+              href="/"
+              onClick={() => isMobile && setOpenMobile(false)}
+            >
+              <Store />
+              <span>Về trang chủ</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+      <SidebarSeparator />
       <SidebarContent>
         {NAV_SECTIONS.map((section) => (
           <SidebarGroup key={section.title}>
@@ -124,6 +147,7 @@ export function AdminSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+
       <SidebarRail />
     </Sidebar>
   );
