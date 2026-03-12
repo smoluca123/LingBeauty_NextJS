@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface UsePaginationOptions {
@@ -26,18 +26,21 @@ interface PaginationProps {
 }
 
 /**
- * Reusable pagination hook with optional URL synchronization
- * 
+ * Reusable pagination hook with optional URL synchronization.
+ *
+ * All `useCallback` wrappers have been removed — the React Compiler
+ * handles memoization natively.
+ *
  * @example
  * // Basic usage (state only)
  * const { paginate, getPaginationProps } = usePagination();
  * const paginatedItems = paginate(items);
- * 
+ *
  * @example
  * // With URL sync
- * const { paginate, getPaginationProps } = usePagination({ 
+ * const { paginate, getPaginationProps } = usePagination({
  *   syncWithUrl: true,
- *   initialPageSize: 20 
+ *   initialPageSize: 20,
  * });
  */
 export function usePagination(options?: UsePaginationOptions) {
@@ -55,89 +58,62 @@ export function usePagination(options?: UsePaginationOptions) {
 
   // Compute initial values from URL if syncWithUrl is enabled
   const computedInitialPage = (() => {
-    if (syncWithUrl && searchParams) {
-      const urlPage = searchParams.get(pageParam);
-      return urlPage ? parseInt(urlPage, 10) : initialPage;
-    }
-    return initialPage;
+    if (!syncWithUrl || !searchParams) return initialPage;
+    const urlPage = searchParams.get(pageParam);
+    return urlPage ? parseInt(urlPage, 10) : initialPage;
   })();
 
   const computedInitialPageSize = (() => {
-    if (syncWithUrl && searchParams) {
-      const urlPageSize = searchParams.get(pageSizeParam);
-      return urlPageSize ? parseInt(urlPageSize, 10) : initialPageSize;
-    }
-    return initialPageSize;
+    if (!syncWithUrl || !searchParams) return initialPageSize;
+    const urlPageSize = searchParams.get(pageSizeParam);
+    return urlPageSize ? parseInt(urlPageSize, 10) : initialPageSize;
   })();
 
   const [currentPage, setCurrentPage] = useState(computedInitialPage);
   const [pageSize, setPageSize] = useState(computedInitialPageSize);
 
   // Update URL when pagination changes
-  const updateUrl = useCallback(
-    (page: number, size: number) => {
-      if (!syncWithUrl || !searchParams) return;
+  const updateUrl = (page: number, size: number) => {
+    if (!syncWithUrl || !searchParams) return;
 
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(pageParam, page.toString());
-      params.set(pageSizeParam, size.toString());
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(pageParam, page.toString());
+    params.set(pageSizeParam, size.toString());
 
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [syncWithUrl, searchParams, pageParam, pageSizeParam, router, pathname]
-  );
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
-  const onPageChange = useCallback(
-    (page: number) => {
-      setCurrentPage(page);
-      if (syncWithUrl) {
-        updateUrl(page, pageSize);
-      }
-    },
-    [pageSize, syncWithUrl, updateUrl]
-  );
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+    if (syncWithUrl) updateUrl(page, pageSize);
+  };
 
-  const onPageSizeChange = useCallback(
-    (size: number) => {
-      setPageSize(size);
-      setCurrentPage(1); // Reset to first page when page size changes
-      if (syncWithUrl) {
-        updateUrl(1, size);
-      }
-    },
-    [syncWithUrl, updateUrl]
-  );
+  const onPageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+    if (syncWithUrl) updateUrl(1, size);
+  };
 
-  const resetPage = useCallback(() => {
+  const resetPage = () => {
     onPageChange(1);
-  }, [onPageChange]);
+  };
 
-  /**
-   * Paginate an array of items based on current page and page size
-   */
-  const paginate = useCallback(
-    <T,>(items: T[]) => {
-      const start = (currentPage - 1) * pageSize;
-      const end = start + pageSize;
-      return items.slice(start, end);
-    },
-    [currentPage, pageSize]
-  );
+  /** Paginate an array of items based on current page and page size */
+  const paginate = <T,>(items: T[]) => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return items.slice(start, end);
+  };
 
-  /**
-   * Get all props needed for the TablePagination component
-   */
-  const getPaginationProps = useCallback(
-    (totalItems: number): PaginationProps => ({
-      currentPage,
-      pageSize,
-      totalItems,
-      totalPages: Math.max(1, Math.ceil(totalItems / pageSize)),
-      onPageChange,
-      onPageSizeChange,
-    }),
-    [currentPage, pageSize, onPageChange, onPageSizeChange]
-  );
+  /** Get all props needed for the TablePagination component */
+  const getPaginationProps = (totalItems: number): PaginationProps => ({
+    currentPage,
+    pageSize,
+    totalItems,
+    totalPages: Math.max(1, Math.ceil(totalItems / pageSize)),
+    onPageChange,
+    onPageSizeChange,
+  });
 
   return {
     currentPage,

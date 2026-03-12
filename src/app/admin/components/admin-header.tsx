@@ -39,6 +39,7 @@ function generateBreadcrumbs(pathname: string): BreadcrumbData[] {
     admin: 'Admin',
     products: 'Sản phẩm',
     categories: 'Danh mục',
+    brands: 'Thương hiệu',
     inventory: 'Kho hàng',
     users: 'Người dùng',
     new: 'Thêm mới',

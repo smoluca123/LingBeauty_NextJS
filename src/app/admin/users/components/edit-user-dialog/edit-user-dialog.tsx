@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { IAdminUserDataType, IAdminRoleDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces';
+import { IAdminUserDataType, IAdminRoleDataType, getUserRoles } from '@/lib/types/interfaces/apis/admin-user.interfaces';
 import { BasicInfoTab } from './basic-info-tab';
 import { RolesTab } from './roles-tab';
 import { StatusTab } from './status-tab';
@@ -23,6 +23,7 @@ interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (data: UserFormData) => void;
+  availableRoles?: IAdminRoleDataType[];
 }
 
 export interface UserFormData {
@@ -31,10 +32,12 @@ export interface UserFormData {
   lastName: string;
   phone: string;
   username: string;
-  roles: IAdminRoleDataType[];
+  roleIds: string[];
   isActive: boolean;
   isVerified: boolean;
   isBanned: boolean;
+  isEmailVerified: boolean;
+  isPhoneVerified: boolean;
   // Optional fields for creating new users
   password?: string;
   confirmPassword?: string;
@@ -46,6 +49,7 @@ export function EditUserDialog({
   open,
   onOpenChange,
   onSave,
+  availableRoles = [],
 }: EditUserDialogProps) {
   const form = useForm<UserFormData>({
     defaultValues: {
@@ -54,10 +58,12 @@ export function EditUserDialog({
       lastName: '',
       phone: '',
       username: '',
-      roles: [],
+      roleIds: [],
       isActive: true,
       isVerified: false,
       isBanned: false,
+      isEmailVerified: false,
+      isPhoneVerified: false,
     },
   });
 
@@ -70,25 +76,18 @@ export function EditUserDialog({
         lastName: user.lastName,
         phone: user.phone,
         username: user.username,
-        roles: user.roles,
+        roleIds: getUserRoles(user).map((r) => r.id),
         isActive: user.isActive,
         isVerified: user.isVerified,
         isBanned: user.isBanned,
+        isEmailVerified: user.isEmailVerified,
+        isPhoneVerified: user.isPhoneVerified,
       });
     }
   }, [user, open, form]);
 
   const handleSubmit = (data: UserFormData) => {
-    console.log('📝 Form Data:', data);
-    console.log('👤 User ID:', user?.id);
-    console.log('📧 Email:', data.email);
-    console.log('👥 Roles:', data.roles.map(r => r.name));
-    console.log('✅ Status:', {
-      isActive: data.isActive,
-      isVerified: data.isVerified,
-      isBanned: data.isBanned,
-    });
-    
+    console.log(data)
     onSave(data);
     onOpenChange(false);
   };
@@ -137,7 +136,7 @@ export function EditUserDialog({
                 </TabsContent>
 
                 <TabsContent value="roles" className="mt-0">
-                  <RolesTab form={form} />
+                  <RolesTab form={form} availableRoles={availableRoles} />
                 </TabsContent>
 
                 <TabsContent value="status" className="mt-0">
@@ -160,3 +159,5 @@ export function EditUserDialog({
     </Dialog>
   );
 }
+
+
