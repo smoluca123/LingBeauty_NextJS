@@ -1,12 +1,5 @@
 import { IMediaDataType } from '@/lib/types/interfaces/apis/image.interfaces';
-
-export interface IReviewUserDataType {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email?: string;
-  avatarMedia?: IMediaDataType;
-}
+import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 
 export interface IReviewImageDataType {
   id: string;
@@ -15,6 +8,17 @@ export interface IReviewImageDataType {
   alt: string | null;
   createdAt: Date;
   media: IMediaDataType;
+}
+
+export interface IReviewReplyDataType {
+  id: string;
+  reviewId: string;
+  userId: string;
+  content: string;
+  isAdmin: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  user: IUserDataType;
 }
 
 export interface IReviewDataType {
@@ -29,8 +33,23 @@ export interface IReviewDataType {
   helpfulCount: number;
   createdAt: Date;
   updatedAt: Date;
-  user: IReviewUserDataType;
+  user: IUserDataType;
   reviewImages: IReviewImageDataType[];
+  replies?: IReviewReplyDataType[];
+}
+
+export interface IReviewSummaryDataType {
+  productId: string;
+  averageRating: number;
+  totalReviews: number;
+  approvedReviews: number;
+  ratingDistribution: {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+  };
 }
 
 export interface IGetReviewsParams {
@@ -42,4 +61,16 @@ export interface IGetReviewsParams {
   order?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+}
+
+export interface ICreateReviewDataType {
+  productId: string;
+  rating: number;
+  title?: string;
+  comment?: string;
+  mediaIds?: string[];
+}
+
+export interface ICreateReviewReplyDataType {
+  content: string;
 }

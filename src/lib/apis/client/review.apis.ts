@@ -1,0 +1,194 @@
+import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import type {
+  IApiPaginationResponseWrapperType,
+  IApiResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces';
+import type {
+  IReviewDataType,
+  IReviewSummaryDataType,
+  IReviewReplyDataType,
+  IGetReviewsParams,
+  ICreateReviewDataType,
+  ICreateReviewReplyDataType,
+} from '@/lib/types/interfaces/apis/review.interfaces';
+import { HTTPError } from 'ky';
+
+/**
+ * Fetch public reviews for a product (client-side)
+ * Calls Next.js API route -> Backend API
+ */
+export const getPublicProductReviewsAPI = async (
+  productId: string,
+  params: Omit<IGetReviewsParams, 'productId'> = {},
+) => {
+  try {
+    const searchParams: Record<string, string | number> = {
+      page: params.page ?? 1,
+      limit: params.limit ?? 10,
+    };
+    if (params.rating) searchParams.rating = params.rating;
+    if (params.sortBy) searchParams.sortBy = params.sortBy;
+    if (params.order) searchParams.order = params.order;
+
+    const response = await kyNextInstance
+      .get(`review/public/product/${productId}`, { searchParams })
+      .json<IApiPaginationResponseWrapperType<IReviewDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch reviews');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Fetch review summary for a product (client-side)
+ * Calls Next.js API route -> Backend API
+ */
+export const getProductReviewSummaryAPI = async (productId: string) => {
+  try {
+    const response = await kyNextInstance
+      .get(`review/public/product/${productId}/summary`)
+      .json<IApiResponseWrapperType<IReviewSummaryDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch review summary');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Fetch a single public review by ID (client-side)
+ * Calls Next.js API route -> Backend API
+ */
+export const getPublicReviewByIdAPI = async (reviewId: string) => {
+  try {
+    const response = await kyNextInstance
+      .get(`review/public/${reviewId}`)
+      .json<IApiResponseWrapperType<IReviewDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch review');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Create a new review
+ * Calls Next.js API route (/api/review) which uses server action
+ */
+export const createReviewAPI = async (data: ICreateReviewDataType) => {
+  try {
+    const response = await kyNextInstance
+      .post('review', { json: data })
+      .json<IApiResponseWrapperType<IReviewDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to create review');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Mark a review as helpful
+ * Calls Next.js API route (/api/review/:reviewId/helpful) which uses server action
+ */
+export const markHelpfulAPI = async (reviewId: string) => {
+  try {
+    const response = await kyNextInstance
+      .post(`review/${reviewId}/helpful`)
+      .json<
+        IApiResponseWrapperType<{
+          reviewId: string;
+          helpfulCount: number;
+          hasMarked: boolean;
+          isHelpful: boolean;
+        }>
+      >();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to mark helpful');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Unmark helpful from a review
+ * Calls Next.js API route (/api/review/:reviewId/helpful) which uses server action
+ */
+export const unmarkHelpfulAPI = async (reviewId: string) => {
+  try {
+    const response = await kyNextInstance
+      .delete(`review/${reviewId}/helpful`)
+      .json<
+        IApiResponseWrapperType<{
+          reviewId: string;
+          helpfulCount: number;
+          hasMarked: boolean;
+          isHelpful: boolean | null;
+        }>
+      >();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to unmark helpful');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Create a reply to a review
+ * Calls Next.js API route (/api/review/:reviewId/reply) which uses server action
+ */
+export const createReviewReplyAPI = async (
+  reviewId: string,
+  data: ICreateReviewReplyDataType,
+) => {
+  try {
+    const response = await kyNextInstance
+      .post(`review/${reviewId}/reply`, { json: data })
+      .json<IApiResponseWrapperType<IReviewReplyDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to create reply');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Fetch replies for a review
+ * Calls Next.js API route -> Backend API
+ */
+export const getReviewRepliesAPI = async (reviewId: string) => {
+  try {
+    const response = await kyNextInstance
+      .get(`review/${reviewId}/replies`)
+      .json<IApiResponseWrapperType<IReviewReplyDataType[]>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch replies');
+    }
+    throw error;
+  }
+};

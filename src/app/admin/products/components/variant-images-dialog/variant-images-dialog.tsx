@@ -44,7 +44,11 @@ interface VariantImageCardProps {
   onDelete: (imageId: string) => void;
 }
 
-function VariantImageCard({ image, isDeleting, onDelete }: VariantImageCardProps) {
+function VariantImageCard({
+  image,
+  isDeleting,
+  onDelete,
+}: VariantImageCardProps) {
   return (
     <TooltipProvider delayDuration={300}>
       <div className="group relative aspect-square rounded-xl overflow-hidden border border-border bg-muted shadow-sm transition-shadow hover:shadow-md">
@@ -127,7 +131,7 @@ export function VariantImagesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[680px] max-w-[90vw] max-h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="w-170 max-w-[90vw] max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader className="pb-4 border-b border-primary-pink/20">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-linear-to-br from-primary-pink/20 to-primary-pink/5 text-primary-pink">
@@ -159,7 +163,9 @@ export function VariantImagesDialog({
             {uploadMutation.isPending ? (
               <Loader2 className="h-8 w-8 animate-spin text-primary-pink" />
             ) : (
-              <div className={`p-3 rounded-full ${isDragActive ? 'bg-primary-pink/20' : 'bg-muted'} transition-colors`}>
+              <div
+                className={`p-3 rounded-full ${isDragActive ? 'bg-primary-pink/20' : 'bg-muted'} transition-colors`}
+              >
                 <UploadCloud
                   className={`h-6 w-6 ${isDragActive ? 'text-primary-pink' : 'text-muted-foreground'}`}
                 />

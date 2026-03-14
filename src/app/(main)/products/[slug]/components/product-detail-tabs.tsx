@@ -63,7 +63,12 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
         {activeTab === 'description' && (
           <ProductDetailDescriptionTab product={product} />
         )}
-        {activeTab === 'reviews' && <ProductDetailReviewTab />}
+        {activeTab === 'reviews' && (
+          <ProductDetailReviewTab
+            productId={product.id}
+            productName={product.name}
+          />
+        )}
         {activeTab === 'comments' && <ProductDetailCommentsTab />}
       </div>
     </div>

@@ -62,7 +62,10 @@ const BADGE_TYPES: { value: ProductBadgeType; label: string }[] = [
 
 // ============ Helper ============
 
-const VARIANT_BADGE_MAP: Record<ProductBadgeVariant, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const VARIANT_BADGE_MAP: Record<
+  ProductBadgeVariant,
+  'default' | 'secondary' | 'destructive' | 'outline'
+> = {
   PRIMARY: 'default',
   INFO: 'secondary',
   NEUTRAL: 'outline',
@@ -124,7 +127,13 @@ interface BadgeRowProps {
   onDelete: (badgeId: string) => void;
 }
 
-function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowProps) {
+function BadgeRow({
+  badge,
+  isUpdating,
+  isDeleting,
+  onSave,
+  onDelete,
+}: BadgeRowProps) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<BadgeFormState>(toBadgeFormState(badge));
   const isLoading = isUpdating || isDeleting;
@@ -157,7 +166,9 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
         {editing ? (
           <Input
             value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, name: e.target.value }))
+            }
             className="h-7 text-xs px-2"
             disabled={isLoading}
             placeholder="Tên badge"
@@ -172,7 +183,9 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
         {editing ? (
           <Select
             value={form.type}
-            onValueChange={(v) => setForm((prev) => ({ ...prev, type: v as ProductBadgeType }))}
+            onValueChange={(v) =>
+              setForm((prev) => ({ ...prev, type: v as ProductBadgeType }))
+            }
             disabled={isLoading}
           >
             <SelectTrigger className="h-7 text-xs">
@@ -187,7 +200,9 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
             </SelectContent>
           </Select>
         ) : (
-          <span className="text-muted-foreground">{getTypeLabel(badge.type)}</span>
+          <span className="text-muted-foreground">
+            {getTypeLabel(badge.type)}
+          </span>
         )}
       </TableCell>
 
@@ -196,7 +211,12 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
         {editing ? (
           <Select
             value={form.variant}
-            onValueChange={(v) => setForm((prev) => ({ ...prev, variant: v as ProductBadgeVariant }))}
+            onValueChange={(v) =>
+              setForm((prev) => ({
+                ...prev,
+                variant: v as ProductBadgeVariant,
+              }))
+            }
             disabled={isLoading}
           >
             <SelectTrigger className="h-7 text-xs">
@@ -224,7 +244,9 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
             value={form.sortOrder}
             type="number"
             min={0}
-            onChange={(e) => setForm((prev) => ({ ...prev, sortOrder: e.target.value }))}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, sortOrder: e.target.value }))
+            }
             className="h-7 text-xs px-2 w-16 text-center"
             disabled={isLoading}
           />
@@ -238,11 +260,16 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
         {editing ? (
           <Switch
             checked={form.isActive}
-            onCheckedChange={(checked) => setForm((prev) => ({ ...prev, isActive: checked }))}
+            onCheckedChange={(checked) =>
+              setForm((prev) => ({ ...prev, isActive: checked }))
+            }
             disabled={isLoading}
           />
         ) : (
-          <Badge variant={badge.isActive ? 'default' : 'secondary'} className="text-xs">
+          <Badge
+            variant={badge.isActive ? 'default' : 'secondary'}
+            className="text-xs"
+          >
             {badge.isActive ? 'Hiện' : 'Ẩn'}
           </Badge>
         )}
@@ -261,7 +288,11 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
                 disabled={isLoading || !form.name.trim()}
                 title="Lưu"
               >
-                {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                {isUpdating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Check className="h-3.5 w-3.5" />
+                )}
               </Button>
               <Button
                 size="icon"
@@ -294,7 +325,11 @@ function BadgeRow({ badge, isUpdating, isDeleting, onSave, onDelete }: BadgeRowP
                 disabled={isLoading}
                 title="Xóa"
               >
-                {isDeleting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                {isDeleting ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
               </Button>
             </>
           )}
@@ -332,7 +367,9 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
       <TableCell>
         <Input
           value={form.name}
-          onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, name: e.target.value }))
+          }
           className="h-7 text-xs px-2"
           placeholder="Tên badge *"
           disabled={isSaving}
@@ -343,7 +380,9 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
       <TableCell>
         <Select
           value={form.type}
-          onValueChange={(v) => setForm((prev) => ({ ...prev, type: v as ProductBadgeType }))}
+          onValueChange={(v) =>
+            setForm((prev) => ({ ...prev, type: v as ProductBadgeType }))
+          }
           disabled={isSaving}
         >
           <SelectTrigger className="h-7 text-xs">
@@ -363,7 +402,9 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
       <TableCell>
         <Select
           value={form.variant}
-          onValueChange={(v) => setForm((prev) => ({ ...prev, variant: v as ProductBadgeVariant }))}
+          onValueChange={(v) =>
+            setForm((prev) => ({ ...prev, variant: v as ProductBadgeVariant }))
+          }
           disabled={isSaving}
         >
           <SelectTrigger className="h-7 text-xs">
@@ -385,7 +426,9 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
           value={form.sortOrder}
           type="number"
           min={0}
-          onChange={(e) => setForm((prev) => ({ ...prev, sortOrder: e.target.value }))}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, sortOrder: e.target.value }))
+          }
           className="h-7 text-xs px-2 w-16 text-center"
           disabled={isSaving}
         />
@@ -396,7 +439,9 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
         <div className="flex items-center gap-1.5 justify-center">
           <Switch
             checked={form.isActive}
-            onCheckedChange={(checked) => setForm((prev) => ({ ...prev, isActive: checked }))}
+            onCheckedChange={(checked) =>
+              setForm((prev) => ({ ...prev, isActive: checked }))
+            }
             disabled={isSaving}
           />
           <Label className="text-xs">{form.isActive ? 'Hiện' : 'Ẩn'}</Label>
@@ -414,7 +459,11 @@ function AddBadgeRow({ isSaving, onSave, onCancel }: AddBadgeRowProps) {
             disabled={isSaving || !form.name.trim()}
             title="Lưu"
           >
-            {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+            {isSaving ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Check className="h-3.5 w-3.5" />
+            )}
           </Button>
           <Button
             size="icon"
@@ -442,7 +491,9 @@ export function ProductBadgesDialog({
 }: ProductBadgesDialogProps) {
   const [isAdding, setIsAdding] = useState(false);
 
-  const { data: badgesData, isLoading } = useProductBadgesQuery(open ? productId : null);
+  const { data: badgesData, isLoading } = useProductBadgesQuery(
+    open ? productId : null,
+  );
   const addMutation = useAddProductBadgeMutation(productId);
   const updateMutation = useUpdateProductBadgeMutation(productId);
   const deleteMutation = useDeleteProductBadgeMutation(productId);
@@ -453,7 +504,10 @@ export function ProductBadgesDialog({
     addMutation.mutate(data, { onSuccess: () => setIsAdding(false) });
   };
 
-  const handleSaveUpdate = (badgeId: string, data: IUpdateProductBadgePayload) => {
+  const handleSaveUpdate = (
+    badgeId: string,
+    data: IUpdateProductBadgePayload,
+  ) => {
     updateMutation.mutate({ badgeId, data });
   };
 
@@ -462,7 +516,9 @@ export function ProductBadgesDialog({
   };
 
   const anyPending =
-    addMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -503,11 +559,13 @@ export function ProductBadgesDialog({
             <Table className="min-w-max text-sm">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[150px]">Tên</TableHead>
-                  <TableHead className="min-w-[120px]">Loại</TableHead>
-                  <TableHead className="min-w-[120px]">Kiểu</TableHead>
+                  <TableHead className="min-w-37.5">Tên</TableHead>
+                  <TableHead className="min-w-30">Loại</TableHead>
+                  <TableHead className="min-w-30">Kiểu</TableHead>
                   <TableHead className="text-center min-w-20">Thứ tự</TableHead>
-                  <TableHead className="text-center min-w-20">Trạng thái</TableHead>
+                  <TableHead className="text-center min-w-20">
+                    Trạng thái
+                  </TableHead>
                   <TableHead className="w-20" />
                 </TableRow>
               </TableHeader>
@@ -525,7 +583,10 @@ export function ProductBadgesDialog({
                   ))
                 ) : badges.length === 0 && !isAdding ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground text-sm"
+                    >
                       Chưa có badge nào. Bấm &quot;Thêm badge&quot; để tạo.
                     </TableCell>
                   </TableRow>
