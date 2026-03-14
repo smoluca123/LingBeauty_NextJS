@@ -1,63 +1,82 @@
-import { Star, PenLine } from 'lucide-react';
+'use client';
 
-// Placeholder UI for reviews tab (data will be implemented later)
-export function ProductDetailReviewTab() {
-  // Placeholder rating summaries
-  const ratingDistribution = [5, 4, 3, 2, 1];
+import { useState } from 'react';
+import { PenLine } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ReviewSummary } from '@/components/review/review-summary';
+import { ReviewList } from '@/components/review/review-list';
+import { ReviewFormDialog } from '@/components/review/review-form-dialog';
+import {
+  useGetPublicProductReviewsQuery,
+  useGetProductReviewSummaryQuery,
+} from '@/hooks/querys/review.query';
+import { useAuthStore } from '@/stores/auth.store';
+
+interface ProductDetailReviewTabProps {
+  productId: string;
+  productName: string;
+}
+
+export function ProductDetailReviewTab({
+  productId,
+  productName,
+}: ProductDetailReviewTabProps) {
+  const [page, setPage] = useState(1);
+  const [isWriteDialogOpen, setIsWriteDialogOpen] = useState(false);
+  const { isAuthenticated } = useAuthStore();
+
+  const { data: reviewsData, isLoading: isReviewsLoading } =
+    useGetPublicProductReviewsQuery(productId, { page, limit: 10 });
+
+  const { data: summaryData, isLoading: isSummaryLoading } =
+    useGetProductReviewSummaryQuery(productId);
+
+  const reviews = reviewsData?.data?.items || [];
+  const totalCount = reviewsData?.data?.totalCount || 0;
+  const summary = summaryData?.data || null;
 
   return (
     <div className="space-y-8">
       {/* Summary stats */}
-      <div className="flex flex-col gap-6 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center">
-        {/* Average rating circle */}
-        <div className="flex flex-col items-center gap-1.5 min-w-fit">
-          <p className="text-6xl font-bold text-foreground">—</p>
-          <div className="flex gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className="h-5 w-5 fill-amber-200 text-amber-200"
-              />
-            ))}
-          </div>
-          <p className="text-xs text-muted-foreground">Chưa có đánh giá</p>
-        </div>
-
-        {/* Distribution bars */}
-        <div className="flex-1 space-y-2">
-          {ratingDistribution.map((star) => (
-            <div key={star} className="flex items-center gap-2 text-sm">
-              <span className="w-4 text-right text-muted-foreground">
-                {star}
-              </span>
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-              <div className="h-2 flex-1 rounded-full bg-muted">
-                <div className="h-2 w-0 rounded-full bg-amber-400 transition-all" />
-              </div>
-              <span className="w-6 text-right text-xs text-muted-foreground">
-                0
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <ReviewSummary summary={summary} isLoading={isSummaryLoading} />
 
       {/* Write review CTA */}
-      <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed bg-muted/30 py-10 text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-pink/10">
-          <PenLine className="h-6 w-6 text-primary-pink" />
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-medium">Đánh giá từ khách hàng</h3>
+          <p className="text-sm text-muted-foreground">
+            {totalCount > 0 ? `${totalCount} đánh giá` : 'Chưa có đánh giá nào'}
+          </p>
         </div>
-        <p className="text-sm font-medium text-foreground">
-          Chia sẻ trải nghiệm của bạn
-        </p>
-        <p className="max-w-xs text-xs text-muted-foreground">
-          Hãy là người đầu tiên đánh giá sản phẩm này và giúp những khách hàng
-          khác đưa ra lựa chọn tốt hơn.
-        </p>
-        <button className="mt-2 rounded-full border border-primary-pink px-6 py-2 text-sm font-semibold text-primary-pink transition-colors hover:bg-primary-pink/10">
+        <Button
+          onClick={() => setIsWriteDialogOpen(true)}
+          className="bg-primary-pink hover:bg-primary-pink/90"
+        >
+          <PenLine className="h-4 w-4 mr-2" />
           Viết đánh giá
-        </button>
+        </Button>
       </div>
+
+      {/* Reviews List */}
+      <ReviewList
+        reviews={reviews}
+        productId={productId}
+        totalCount={totalCount}
+        currentPage={page}
+        pageSize={10}
+        isLoading={isReviewsLoading}
+        onPageChange={setPage}
+        onWriteReview={() => setIsWriteDialogOpen(true)}
+        isAuthenticated={isAuthenticated}
+      />
+
+      {/* Write Review Dialog */}
+      <ReviewFormDialog
+        productId={productId}
+        productName={productName}
+        isOpen={isWriteDialogOpen}
+        onClose={() => setIsWriteDialogOpen(false)}
+      />
     </div>
   );
 }
