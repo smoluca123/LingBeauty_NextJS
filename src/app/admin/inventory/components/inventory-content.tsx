@@ -13,6 +13,8 @@ import {
   useOutOfStockVariantsQuery,
 } from '@/hooks/querys/admin-inventory.query';
 import type { IInventoryOverview } from '@/lib/types/interfaces/apis/admin-inventory.interfaces';
+import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
+import type { InventoryRow } from './inventory-table';
 import { InventoryStats } from './inventory-stats';
 import { InventoryTabTriggers } from './inventory-tab-triggers';
 import { InventoryTabLayout } from './inventory-tab-layout';
@@ -97,14 +99,45 @@ const TAB_CONFIGS: TabConfig[] = [
   },
 ];
 
+// ============ Helpers ============
+
+/**
+ * Extract totalCount from a paginated query result.
+ * Each tab API returns: { data: { items, totalCount, currentPage, pageSize } }
+ */
+function extractTotalCount(data: unknown): number | undefined {
+  const paginated = data as IApiPaginationResponseWrapperType<InventoryRow> | undefined;
+  return paginated?.data?.totalCount;
+}
+
 // ============ Component ============
 
 export function InventoryContent() {
   const [activeTab, setActiveTab] = useState<TabKey>('all-products');
 
-  // Overview for stats + badges
+  // ── Overview for stats cards only ────────────────────────────────────────
   const { data: overviewData, isLoading: overviewLoading } = useInventoryOverviewQuery();
   const overview = (overviewData as { data?: IInventoryOverview } | undefined)?.data;
+
+  // ── Per-tab count queries (page=1, limit=1) ───────────────────────────────
+  // These lightweight queries fetch exactly 1 row each just to get totalCount.
+  // TanStack Query caches by key, so when the user navigates to a tab the
+  // full-page query (page=1, limit=20+) uses a different key and fetches independently.
+  const { data: allProductsData } = useAllProductsQuery(1, 1);
+  const { data: allVariantsData } = useAllVariantsQuery(1, 1);
+  const { data: lowStockProductsData } = useLowStockProductsQuery(1, 1);
+  const { data: lowStockVariantsData } = useLowStockVariantsQuery(1, 1);
+  const { data: outOfStockProductsData } = useOutOfStockProductsQuery(1, 1);
+  const { data: outOfStockVariantsData } = useOutOfStockVariantsQuery(1, 1);
+
+  const tabCounts = {
+    allProducts: extractTotalCount(allProductsData),
+    allVariants: extractTotalCount(allVariantsData),
+    lowStockProducts: extractTotalCount(lowStockProductsData),
+    lowStockVariants: extractTotalCount(lowStockVariantsData),
+    outOfStockProducts: extractTotalCount(outOfStockProductsData),
+    outOfStockVariants: extractTotalCount(outOfStockVariantsData),
+  };
 
   return (
     <div className="flex flex-col h-full gap-4 md:gap-6">
@@ -135,7 +168,7 @@ export function InventoryContent() {
           onValueChange={(v) => setActiveTab(v as TabKey)}
           className="flex flex-col h-full gap-3"
         >
-          <InventoryTabTriggers overview={overview} />
+          <InventoryTabTriggers counts={tabCounts} />
 
           {TAB_CONFIGS.map((config) => (
             <TabsContent key={config.value} value={config.value} className="flex-1 min-h-0 mt-0">
