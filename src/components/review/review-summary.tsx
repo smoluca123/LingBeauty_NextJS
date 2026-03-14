@@ -68,8 +68,7 @@ export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
     );
   }
 
-  const { averageRating, totalReviews, approvedReviews, ratingDistribution } =
-    summary;
+  const { averageRating, approvedReviews, ratingDistribution } = summary;
   const maxCount = Math.max(...Object.values(ratingDistribution));
 
   return (
