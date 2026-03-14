@@ -83,7 +83,7 @@ export async function ProductDetailShield({ slug }: ProductDetailShieldProps) {
           </>
         )}
         <ChevronRight className="h-3 w-3" />
-        <span className="line-clamp-1 max-w-[180px] font-medium text-foreground">
+        <span className="line-clamp-1 max-w-45 font-medium text-foreground">
           {product.name}
         </span>
       </nav>

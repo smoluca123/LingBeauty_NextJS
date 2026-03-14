@@ -77,9 +77,9 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
           v.inventory?.quantity === 0,
       )
     : // No-variant product: use product-level inventory
-      (product.inventory?.displayStatus === 'OUT_OF_STOCK' ||
+      ((product.inventory?.displayStatus === 'OUT_OF_STOCK' ||
         product.inventory?.quantity === 0) ??
-        false;
+      false);
 
   // isLowStock: quantity > 0 AND quantity <= lowStockThreshold
   // (LOW_STOCK is NOT a DB enum value — derived from runtime values)
@@ -131,11 +131,9 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
         quantity,
       });
     } else {
-      // No-variant product: add product directly without variantId
-      // TODO: update cart mutation to support no-variant adds when BE is ready
+      // No-variant product: omit variantId so BE auto-resolves product-level inventory
       addToCartMutation.mutate({
         productId: product.id,
-        variantId: '',
         quantity,
       });
     }
@@ -337,21 +335,23 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
 
       {/* Action buttons */}
       <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+        {/* Detail page uses its own button to leverage the already-selected variant state */}
         <Button
           onClick={handleAddToCart}
           disabled={
             isOutOfStock ||
-            !selectedVariant ||
-            !isAuthenticated ||
-            addToCartMutation.isPending
+            (hasVariants && !selectedVariant) ||
+            addToCartMutation.isPending ||
+            !isAuthenticated
           }
           className={cn(
             'flex-1 rounded-full py-6 text-base font-semibold text-white transition-all',
             isOutOfStock
-              ? 'bg-muted text-muted-foreground'
+              ? 'bg-muted text-muted-foreground cursor-not-allowed hover:bg-muted'
               : 'bg-primary-pink hover:bg-primary-pink/90 hover:shadow-md',
           )}
           size="lg"
+          aria-label={isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
         >
           {addToCartMutation.isPending ? (
             <>
@@ -360,11 +360,6 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
             </>
           ) : isOutOfStock ? (
             'Hết hàng'
-          ) : !isAuthenticated ? (
-            <>
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              Đăng nhập để thêm giỏ
-            </>
           ) : (
             <>
               <ShoppingCart className="mr-2 h-5 w-5" />

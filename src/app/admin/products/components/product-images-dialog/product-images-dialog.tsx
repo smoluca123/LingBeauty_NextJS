@@ -90,7 +90,7 @@ function SortableImageCard({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    zIndex: isDragging ? 50 : 'auto' as const,
+    zIndex: isDragging ? 50 : ('auto' as const),
   };
 
   return (
@@ -105,7 +105,9 @@ function SortableImageCard({
           isDragging
             ? 'shadow-xl ring-2 ring-primary-pink/50'
             : 'hover:shadow-md',
-          image.isPrimary ? 'border-primary-pink ring-1 ring-primary-pink/30' : 'border-border',
+          image.isPrimary
+            ? 'border-primary-pink ring-1 ring-primary-pink/30'
+            : 'border-border',
         ].join(' ')}
       >
         <Image
@@ -206,10 +208,15 @@ export function ProductImagesDialog({
   const updateImageMutation = useUpdateProductImageMutation(productId);
   const deleteMutation = useDeleteProductImageMutation(productId);
 
-  const serverImages = useMemo(() => (imagesData?.data ?? []) as IAdminProductImage[], [imagesData?.data]);
+  const serverImages = useMemo(
+    () => (imagesData?.data ?? []) as IAdminProductImage[],
+    [imagesData?.data],
+  );
 
   // ── Local state for optimistic reorder ──
-  const [localImages, setLocalImages] = useState<IAdminProductImage[] | null>(null);
+  const [localImages, setLocalImages] = useState<IAdminProductImage[] | null>(
+    null,
+  );
   const [isReordering, setIsReordering] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
 
@@ -220,10 +227,19 @@ export function ProductImagesDialog({
 
   // Sync localImages from server when not in the middle of reordering
   useEffect(() => {
-    if (!isReordering && !uploadMutation.isPending && !deleteMutation.isPending) {
+    if (
+      !isReordering &&
+      !uploadMutation.isPending &&
+      !deleteMutation.isPending
+    ) {
       setLocalImages(null);
     }
-  }, [serverImages, isReordering, uploadMutation.isPending, deleteMutation.isPending]);
+  }, [
+    serverImages,
+    isReordering,
+    uploadMutation.isPending,
+    deleteMutation.isPending,
+  ]);
 
   // ── DnD sensors ──
   const sensors = useSensors(
@@ -257,7 +273,9 @@ export function ProductImagesDialog({
       if (succeeded > 0 && failed === 0) {
         toast.success(`Đã upload ${succeeded} ảnh thành công!`);
       } else if (succeeded > 0 && failed > 0) {
-        toast.warning(`Upload ${succeeded}/${acceptedFiles.length} ảnh. ${failed} ảnh thất bại.`);
+        toast.warning(
+          `Upload ${succeeded}/${acceptedFiles.length} ảnh. ${failed} ảnh thất bại.`,
+        );
       }
       // If all failed, the mutation's onError already shows toast
 
@@ -266,66 +284,75 @@ export function ProductImagesDialog({
   });
 
   // ── Handlers ──
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
 
-    const currentImages = localImages ?? serverImages;
-    const oldIndex = currentImages.findIndex((img) => img.id === active.id);
-    const newIndex = currentImages.findIndex((img) => img.id === over.id);
+      const currentImages = localImages ?? serverImages;
+      const oldIndex = currentImages.findIndex((img) => img.id === active.id);
+      const newIndex = currentImages.findIndex((img) => img.id === over.id);
 
-    if (oldIndex === -1 || newIndex === -1) return;
+      if (oldIndex === -1 || newIndex === -1) return;
 
-    // Save previous state for rollback
-    prevLocalImagesRef.current = currentImages;
+      // Save previous state for rollback
+      prevLocalImagesRef.current = currentImages;
 
-    // Optimistic: reorder locally and update sortOrder values
-    const reordered = arrayMove(currentImages, oldIndex, newIndex).map(
-      (img, index) => ({ ...img, sortOrder: index }),
-    );
-    setLocalImages(reordered);
-    setIsReordering(true);
-
-    // Find images whose sortOrder actually changed
-    const changedImages = reordered.filter((newImg) => {
-      const oldImg = currentImages.find((o) => o.id === newImg.id);
-      return oldImg && oldImg.sortOrder !== newImg.sortOrder;
-    });
-
-    try {
-      // Call PATCH /product/{id}/images/{imageId} for each changed image
-      await Promise.all(
-        changedImages.map((img) =>
-          updateImageMutation.mutateAsync({
-            imageId: img.id,
-            data: { sortOrder: img.sortOrder },
-          }),
-        ),
+      // Optimistic: reorder locally and update sortOrder values
+      const reordered = arrayMove(currentImages, oldIndex, newIndex).map(
+        (img, index) => ({ ...img, sortOrder: index }),
       );
-      toast.success('Đã lưu thứ tự ảnh!');
-    } catch {
-      // Rollback on error
-      setLocalImages(prevLocalImagesRef.current);
-      toast.error('Lưu thứ tự ảnh thất bại.');
-    } finally {
-      setIsReordering(false);
-    }
-  }, [localImages, serverImages, updateImageMutation]);
+      setLocalImages(reordered);
+      setIsReordering(true);
 
-  const handleSetPrimary = useCallback((imageId: string) => {
-    updateImageMutation.mutate(
-      { imageId, data: { isPrimary: true } },
-      {
-        onSuccess: () => {
-          toast.success('Đã đặt làm ảnh chính!');
+      // Find images whose sortOrder actually changed
+      const changedImages = reordered.filter((newImg) => {
+        const oldImg = currentImages.find((o) => o.id === newImg.id);
+        return oldImg && oldImg.sortOrder !== newImg.sortOrder;
+      });
+
+      try {
+        // Call PATCH /product/{id}/images/{imageId} for each changed image
+        await Promise.all(
+          changedImages.map((img) =>
+            updateImageMutation.mutateAsync({
+              imageId: img.id,
+              data: { sortOrder: img.sortOrder },
+            }),
+          ),
+        );
+        toast.success('Đã lưu thứ tự ảnh!');
+      } catch {
+        // Rollback on error
+        setLocalImages(prevLocalImagesRef.current);
+        toast.error('Lưu thứ tự ảnh thất bại.');
+      } finally {
+        setIsReordering(false);
+      }
+    },
+    [localImages, serverImages, updateImageMutation],
+  );
+
+  const handleSetPrimary = useCallback(
+    (imageId: string) => {
+      updateImageMutation.mutate(
+        { imageId, data: { isPrimary: true } },
+        {
+          onSuccess: () => {
+            toast.success('Đã đặt làm ảnh chính!');
+          },
         },
-      },
-    );
-  }, [updateImageMutation]);
+      );
+    },
+    [updateImageMutation],
+  );
 
-  const handleDelete = useCallback((imageId: string) => {
-    deleteMutation.mutate(imageId);
-  }, [deleteMutation]);
+  const handleDelete = useCallback(
+    (imageId: string) => {
+      deleteMutation.mutate(imageId);
+    },
+    [deleteMutation],
+  );
 
   const anyPending =
     uploadMutation.isPending ||
@@ -336,7 +363,7 @@ export function ProductImagesDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[720px] max-w-[90vw] max-h-[85vh] flex flex-col overflow-hidden">
+      <DialogContent className="w-180 max-w-[90vw] max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader className="pb-4 border-b border-primary-pink/20">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-linear-to-br from-primary-pink/20 to-primary-pink/5 text-primary-pink">
@@ -361,11 +388,13 @@ export function ProductImagesDialog({
               isDragActive
                 ? 'border-primary-pink bg-primary-pink/10 text-primary-pink scale-[1.02]'
                 : 'border-border hover:border-primary-pink/60 hover:bg-muted/60',
-              (uploadMutation.isPending || uploadingCount > 0) ? 'opacity-60 pointer-events-none' : '',
+              uploadMutation.isPending || uploadingCount > 0
+                ? 'opacity-60 pointer-events-none'
+                : '',
             ].join(' ')}
           >
             <input {...getInputProps()} />
-            {(uploadMutation.isPending || uploadingCount > 0) ? (
+            {uploadMutation.isPending || uploadingCount > 0 ? (
               <Loader2 className="h-8 w-8 animate-spin text-primary-pink" />
             ) : (
               <div
@@ -454,7 +483,10 @@ export function ProductImagesDialog({
                   {/* Upload skeleton placeholders */}
                   {uploadingCount > 0 &&
                     [...Array(uploadingCount)].map((_, i) => (
-                      <Skeleton key={`upload-${i}`} className="aspect-square rounded-xl" />
+                      <Skeleton
+                        key={`upload-${i}`}
+                        className="aspect-square rounded-xl"
+                      />
                     ))}
                 </div>
               </SortableContext>

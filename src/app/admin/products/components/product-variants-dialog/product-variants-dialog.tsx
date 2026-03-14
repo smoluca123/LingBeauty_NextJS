@@ -44,24 +44,29 @@ export function ProductVariantsDialog({
   open,
   onOpenChange,
 }: ProductVariantsDialogProps) {
-  const [imageVariant, setImageVariant] = useState<IAdminProductVariant | null>(null);
+  const [imageVariant, setImageVariant] = useState<IAdminProductVariant | null>(
+    null,
+  );
   const [isAdding, setIsAdding] = useState(false);
 
-  const { data: variantsData, isLoading } = useProductVariantsQuery(open ? productId : null);
+  const { data: variantsData, isLoading } = useProductVariantsQuery(
+    open ? productId : null,
+  );
   const addMutation = useAddProductVariantMutation(productId);
   const updateMutation = useUpdateProductVariantMutation(productId);
   const deleteMutation = useDeleteProductVariantMutation(productId);
 
   const variants = variantsData?.data ?? [];
 
-  const handleSaveUpdate = (variantId: string, data: IUpdateProductVariantPayload) => {
+  const handleSaveUpdate = (
+    variantId: string,
+    data: IUpdateProductVariantPayload,
+  ) => {
     updateMutation.mutate({ variantId, data });
-
   };
 
   const handleAdd = (data: ICreateProductVariantPayload) => {
     addMutation.mutate(data, { onSuccess: () => setIsAdding(false) });
-
   };
 
   const handleDelete = (variantId: string) => {
@@ -69,7 +74,9 @@ export function ProductVariantsDialog({
   };
 
   const anyPending =
-    addMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
+    addMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -110,15 +117,19 @@ export function ProductVariantsDialog({
             <Table className="min-w-max text-sm">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[130px]">Tên</TableHead>
-                  <TableHead className="min-w-[100px]">SKU</TableHead>
-                  <TableHead className="min-w-[140px]">Màu</TableHead>
-                  <TableHead className="min-w-[70px]">Size</TableHead>
+                  <TableHead className="min-w-32.5">Tên</TableHead>
+                  <TableHead className="min-w-25">SKU</TableHead>
+                  <TableHead className="min-w-35">Màu</TableHead>
+                  <TableHead className="min-w-17.5">Size</TableHead>
                   <TableHead className="min-w-20">Loại</TableHead>
-                  <TableHead className="min-w-[110px]">Display Type</TableHead>
-                  <TableHead className="min-w-[110px]">Giá</TableHead>
-                  <TableHead className="text-center min-w-20">Số lượng</TableHead>
-                  <TableHead className="text-center min-w-[100px]">Ngưỡng hết</TableHead>
+                  <TableHead className="min-w-27.5">Display Type</TableHead>
+                  <TableHead className="min-w-27.5">Giá</TableHead>
+                  <TableHead className="text-center min-w-20">
+                    Số lượng
+                  </TableHead>
+                  <TableHead className="text-center min-w-25">
+                    Ngưỡng hết
+                  </TableHead>
                   <TableHead className="w-24" />
                 </TableRow>
               </TableHeader>
@@ -135,8 +146,12 @@ export function ProductVariantsDialog({
                   ))
                 ) : variants.length === 0 && !isAdding ? (
                   <TableRow>
-                    <TableCell colSpan={10} className="text-center py-8 text-muted-foreground text-sm">
-                      Chưa có biến thể nào. Bấm &quot;Thêm biến thể&quot; để tạo.
+                    <TableCell
+                      colSpan={10}
+                      className="text-center py-8 text-muted-foreground text-sm"
+                    >
+                      Chưa có biến thể nào. Bấm &quot;Thêm biến thể&quot; để
+                      tạo.
                     </TableCell>
                   </TableRow>
                 ) : (
