@@ -4,6 +4,7 @@ export { InventoryTable } from './inventory-table';
 export type { InventoryRow } from './inventory-table';
 export { InventoryTabLayout } from './inventory-tab-layout';
 export { InventoryTabTriggers } from './inventory-tab-triggers';
+export type { TabCounts } from './inventory-tab-triggers';
 export { InventorySearchFilters } from './inventory-search-filters';
 export { InventoryEmptyState } from './inventory-empty-state';
 export { InventoryLoading } from './inventory-loading';

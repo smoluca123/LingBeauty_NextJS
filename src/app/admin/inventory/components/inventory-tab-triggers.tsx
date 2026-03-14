@@ -1,58 +1,66 @@
-import type { IInventoryOverview } from '@/lib/types/interfaces/apis/admin-inventory.interfaces';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 // ============ Types ============
 
+export interface TabCounts {
+  allProducts: number | undefined;
+  allVariants: number | undefined;
+  lowStockProducts: number | undefined;
+  lowStockVariants: number | undefined;
+  outOfStockProducts: number | undefined;
+  outOfStockVariants: number | undefined;
+}
+
 interface TabTriggerConfig {
   value: string;
   label: string;
-  badgeCount?: number;
+  badgeCount: number | undefined;
   badgeColorClass: string;
 }
 
 interface InventoryTabTriggersProps {
-  overview: IInventoryOverview | undefined;
+  counts: TabCounts;
 }
 
 // ============ Component ============
 
-export function InventoryTabTriggers({ overview }: InventoryTabTriggersProps) {
+export function InventoryTabTriggers({ counts }: InventoryTabTriggersProps) {
   const tabs: TabTriggerConfig[] = [
     {
       value: 'all-products',
       label: 'Tất cả · SP',
-      badgeCount: overview?.totalProducts,
+      badgeCount: counts.allProducts,
       badgeColorClass: 'bg-blue-100 text-blue-700',
     },
     {
       value: 'all-variants',
       label: 'Tất cả · BT',
-      badgeCount: overview?.totalVariants,
+      badgeCount: counts.allVariants,
       badgeColorClass: 'bg-purple-100 text-purple-700',
     },
     {
       value: 'low-stock-products',
       label: 'Sắp hết · SP',
-      badgeCount: overview?.lowStockCount,
+      badgeCount: counts.lowStockProducts,
       badgeColorClass: 'bg-orange-100 text-orange-700',
     },
     {
       value: 'low-stock-variants',
       label: 'Sắp hết · BT',
-      badgeCount: undefined,
-      badgeColorClass: '',
+      badgeCount: counts.lowStockVariants,
+      badgeColorClass: 'bg-orange-100 text-orange-700',
     },
     {
       value: 'out-of-stock-products',
       label: 'Hết hàng · SP',
-      badgeCount: overview?.outOfStockCount,
+      badgeCount: counts.outOfStockProducts,
       badgeColorClass: 'bg-red-100 text-red-700',
     },
     {
       value: 'out-of-stock-variants',
       label: 'Hết hàng · BT',
-      badgeCount: undefined,
-      badgeColorClass: '',
+      badgeCount: counts.outOfStockVariants,
+      badgeColorClass: 'bg-red-100 text-red-700',
     },
   ];
 
