@@ -41,7 +41,7 @@ export function ReviewReplyForm({
         placeholder="Viết phản hồi của bạn..."
         value={content}
         onChange={(e) => setContent(e.target.value)}
-        className="min-h-[80px] resize-none"
+        className="min-h-20 resize-none"
         disabled={createReplyMutation.isPending}
       />
       <div className="flex justify-end gap-2">
