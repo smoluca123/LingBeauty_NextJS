@@ -12,7 +12,7 @@ import type {
   IRegisterData,
 } from '@/lib/types/interfaces/apis/auth.interfaces';
 import { toast } from 'sonner';
-import { getQueryClient } from '@/lib/query-client/query-client';
+import { queryClient } from '@/lib/query-client/query-client';
 import { useRouter } from 'next/navigation';
 
 // ============ Auth Query Keys ============
@@ -58,7 +58,7 @@ export const useRegisterMutation = () => {
 // ============ Logout Mutation ============
 export const useLogoutMutation = () => {
   const clearAuth = useAuthStore((s) => s.clearAuth);
-  const queryClient = getQueryClient();
+
   const navigate = useRouter();
 
   return useMutation({

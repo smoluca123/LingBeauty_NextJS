@@ -7,6 +7,10 @@ import {
   IFilterCategoryDataType,
   IProductDataType,
 } from '@/lib/types/interfaces/apis/product.interfaces';
+import {
+  IGetReviewsParams,
+  IReviewDataType,
+} from '@/lib/types/interfaces/apis/review.interfaces';
 import { HTTPError } from 'ky';
 
 export interface IProductListingParams {
@@ -88,6 +92,38 @@ export const getFilterCategoriesAPI = async (
     if (error instanceof HTTPError) {
       const errorData = await error.response.json();
       throw new Error(errorData.message || 'Failed to fetch filter categories');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Fetch product reviews via the Next.js proxy route.
+ * Only fetches approved reviews by default.
+ */
+export const getProductReviewsAPI = async (
+  params: IGetReviewsParams,
+): Promise<IApiPaginationResponseWrapperType<IReviewDataType>> => {
+  try {
+    const searchParams: Record<string, string | number | boolean> = {};
+    if (params.productId) searchParams.productId = params.productId;
+    if (params.userId) searchParams.userId = params.userId;
+    if (params.rating !== undefined) searchParams.rating = params.rating;
+    if (params.isApproved !== undefined)
+      searchParams.isApproved = params.isApproved;
+    if (params.sortBy) searchParams.sortBy = params.sortBy;
+    if (params.order) searchParams.order = params.order;
+    if (params.page) searchParams.page = params.page;
+    if (params.limit) searchParams.limit = params.limit;
+
+    const response = await kyNextInstance
+      .get('review', { searchParams })
+      .json<IApiPaginationResponseWrapperType<IReviewDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to fetch reviews');
     }
     throw error;
   }

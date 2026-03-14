@@ -27,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useGetCartCountQuery } from '@/hooks/querys/cart.query';
 
 export function HeaderActions() {
   const [loginOpen, setLoginOpen] = useState(false);
@@ -35,6 +36,10 @@ export function HeaderActions() {
   const isAuthenticated = useIsAuthenticated();
   const isLoading = useAuthLoading();
   const logoutMutation = useLogoutMutation();
+
+  // Cart badge count — only fetches when authenticated
+  const { data: cartCountData } = useGetCartCountQuery();
+  const cartItemCount = cartCountData?.data?.itemCount ?? 0;
 
   const handleLogout = async () => {
     logoutMutation.mutate();
@@ -124,7 +129,7 @@ export function HeaderActions() {
           <Heart className="h-4 w-4" />
         </Link>
 
-        {/* Cart - Always icon only */}
+        {/* Cart - with item count badge */}
         <Button
           variant="ghost"
           size="icon"
@@ -133,6 +138,11 @@ export function HeaderActions() {
           aria-label="Giỏ hàng"
         >
           <ShoppingBag className="h-4 w-4" />
+          {cartItemCount > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-pink text-[10px] font-bold text-white leading-none">
+              {cartItemCount > 99 ? '99+' : cartItemCount}
+            </span>
+          )}
         </Button>
       </div>
 

@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef } from 'react';
+import Link from 'next/link';
 import { Package } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import {
@@ -20,6 +20,11 @@ import { ProductPrice } from '@/components/product/product-price';
 import { ProductHeader } from '@/components/product/product-header';
 import { RatingStars } from '@/components/product/rating-stars';
 import { useProductImages } from '@/hooks/use-product-images';
+import { AddToCartButton } from '@/components/cart/add-to-cart-button';
+import {
+  getIsLowStock,
+  getIsOutOfStock,
+} from '@/lib/utils/product-stock.utils';
 
 type ProductCardProps = {
   product: IProductDataType;
@@ -35,16 +40,20 @@ export function ProductCard2({ product, className }: ProductCardProps) {
   const carouselRef = useRef<ProductImageCarouselRef>(null);
   const allImages = useProductImages(product);
 
+  // ─── Stock status (shared utility — displayStatus is the source of truth) ─────
+  const isOutOfStock = getIsOutOfStock(product);
+  const isLowStock = getIsLowStock(product);
+
   const handleVariantClick = (variant: IProductVariantDataType) => {
-    if (!variant.images || variant.images.length === 0) return;
-
-    const variantImage = variant.images[0];
-    const imageIndex = allImages.findIndex(
-      (img) => img.media.url === variantImage.media.url,
-    );
-
-    if (imageIndex !== -1) {
-      carouselRef.current?.scrollTo(imageIndex);
+    // Sync carousel image
+    if (variant.images && variant.images.length > 0) {
+      const variantImage = variant.images[0];
+      const imageIndex = allImages.findIndex(
+        (img) => img.media.url === variantImage.media.url,
+      );
+      if (imageIndex !== -1) {
+        carouselRef.current?.scrollTo(imageIndex);
+      }
     }
   };
 
@@ -62,24 +71,41 @@ export function ProductCard2({ product, className }: ProductCardProps) {
     <article
       className={cn(
         'flex h-full flex-col rounded-2xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group/product',
+        isOutOfStock && 'opacity-75',
         className,
       )}
     >
       <ProductHeader discountPercent={discountPercent} />
 
-      <ProductImageCarousel
-        ref={carouselRef}
-        images={allImages}
-        productName={name}
-      />
-
+      {/* Image with out-of-stock overlay */}
+      <div className="relative">
+        <ProductImageCarousel
+          ref={carouselRef}
+          images={allImages}
+          productName={name}
+        />
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40 pointer-events-none">
+            <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-destructive shadow">
+              Hết hàng
+            </span>
+          </div>
+        )}
+        {isLowStock && (
+          <div className="absolute top-2 right-2 pointer-events-none">
+            <span className="rounded-full bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white shadow">
+              Sắp hết
+            </span>
+          </div>
+        )}
+      </div>
       <ProductBadges product={product} />
 
       <div className="mt-3 space-y-1 flex-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {brand.name}
         </p>
-        <h3 className="text-base font-semibold text-foreground line-clamp-3">
+        <h3 className="text-base font-semibold text-foreground line-clamp-2">
           {name}
         </h3>
       </div>
@@ -103,12 +129,16 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         onVariantClick={handleVariantClick}
       />
 
-      <Button
-        variant="outline"
-        className="mt-4 rounded-full border-primary-pink text-primary-pink hover:bg-primary-pink/10"
+      {/* Add to cart — direct mode when a variant is selected */}
+      <AddToCartButton product={product} />
+
+      {/* View detail link */}
+      <Link
+        href={`/products/${product.slug}`}
+        className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
       >
         Xem chi tiết
-      </Button>
+      </Link>
     </article>
   );
 }

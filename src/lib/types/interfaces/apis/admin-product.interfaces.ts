@@ -73,7 +73,7 @@ export interface IAdminProductDataType {
   sku: string;
   description?: string;
   shortDesc?: string;
-  basePrice: string;       // BE trả về string (Decimal)
+  basePrice: string; // BE trả về string (Decimal)
   comparePrice?: string;
   isActive: boolean;
   isFeatured: boolean;
@@ -81,7 +81,7 @@ export interface IAdminProductDataType {
   metaTitle?: string;
   metaDesc?: string;
   primaryImage?: IAdminProductImage;
-  productCategories: IAdminProductCategory[];  // API: [{ category: {...} }]
+  productCategories: IAdminProductCategory[]; // API: [{ category: {...} }]
   brand?: IAdminBrandDataType;
   images: IAdminProductImage[];
   variants: IAdminProductVariant[];
@@ -104,18 +104,18 @@ export interface IAdminCategoryDataType {
   slug: string;
 }
 
+/** Mirrors InventoryResponseDto from BE — used in admin inventory management pages */
 export interface IAdminInventoryDataType {
   id: string;
   productId: string;
-  productName: string;
-  productSku: string;
-  productImage: string;
+  variantId: string | null;
   quantity: number;
-  reserved: number;
-  available: number;
+  displayStatus: 'IN_STOCK' | 'OUT_OF_STOCK';
   lowStockThreshold: number;
-  status: 'in_stock' | 'low_stock' | 'out_of_stock';
-  lastUpdated: string;
+  /** Backorder floor. Orders blocked when quantity drops to/below this. Default: -10 */
+  minStockQuantity: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ============ Filter / Query Types ============
