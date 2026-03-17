@@ -1,0 +1,1 @@
+import { z } from 'zod'; type FormValues = { s1: number; }; const schema: z.ZodType<FormValues> = z.object({ s1: z.preprocess((v) => Number(v), z.number()) }); const schema2: z.ZodType<FormValues> = z.object({ s1: z.coerce.number() });
