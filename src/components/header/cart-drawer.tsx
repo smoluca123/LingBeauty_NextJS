@@ -21,6 +21,7 @@ import {
   useUpdateCartItemMutation,
 } from '@/hooks/mutations/cart.mutation';
 import { useIsAuthenticated } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 interface CartDrawerProps {
   open: boolean;
@@ -28,6 +29,7 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
+  const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
   const { data, isLoading } = useGetCartQuery();
 
@@ -55,8 +57,13 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
   };
 
   const handleCheckout = () => {
-    // TODO: Implement checkout flow
-    console.log('Proceeding to checkout');
+    onOpenChange(false);
+    router.push('/checkout');
+  };
+
+  const handleViewCart = () => {
+    onOpenChange(false);
+    router.push('/cart');
   };
 
   return (
@@ -140,12 +147,21 @@ export function CartDrawer({ open, onOpenChange }: CartDrawerProps) {
           <DrawerFooter className="border-t pt-4 gap-3">
             <CartSummary summary={cart.summary} />
 
-            <Button
-              onClick={handleCheckout}
-              className="w-full h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
-            >
-              Thanh toán
-            </Button>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={handleViewCart}
+                variant="outline"
+                className="w-full h-11 rounded-xl text-primary-pink border-primary-pink hover:bg-primary-pink/10"
+              >
+                Xem giỏ hàng
+              </Button>
+              <Button
+                onClick={handleCheckout}
+                className="w-full h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
+              >
+                Thanh toán
+              </Button>
+            </div>
 
             <DrawerClose asChild>
               <Button variant="outline" className="w-full rounded-xl">
