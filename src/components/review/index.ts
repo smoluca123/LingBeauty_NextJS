@@ -2,3 +2,8 @@ export { ReviewSummary } from './review-summary';
 export { ReviewItem } from './review-item';
 export { ReviewReplyForm } from './review-reply-form';
 export { ReviewRepliesList } from './review-replies-list';
+export { ReviewMoreActions } from './review-more-actions';
+export { ReplyMoreActions } from './reply-more-actions';
+export { DeleteConfirmDialog } from './delete-confirm-dialog';
+export { EditReviewDialog } from './edit-review-dialog';
+export { EditReplyDialog } from './edit-reply-dialog';

@@ -19,6 +19,7 @@ import {
 import { useGetReviewRepliesQuery } from '@/hooks/querys/review.query';
 import { ReviewReplyForm } from '@/components/review/review-reply-form';
 import { ReviewRepliesList } from '@/components/review/review-replies-list';
+import { ReviewMoreActions } from './review-more-actions';
 
 interface ReviewItemProps {
   review: IReviewDataType;
@@ -41,7 +42,8 @@ export function ReviewItem({
   const replies = repliesData?.data || [];
   const hasReplies =
     replies.length > 0 || (review.replies && review.replies.length > 0);
-  const displayReplies = review.replies || replies;
+  // Prioritize replies from query (real-time updates) over review.replies (initial data)
+  const displayReplies = replies.length > 0 ? replies : review.replies || [];
 
   const handleHelpfulClick = () => {
     if (!isAuthenticated) {
@@ -76,15 +78,18 @@ export function ReviewItem({
         </Avatar>
 
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <span className="font-medium">
-              {review.user.firstName} {review.user.lastName}
-            </span>
-            {review.isVerified && (
-              <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                Đã mua hàng
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">
+                {review.user.firstName} {review.user.lastName}
               </span>
-            )}
+              {review.isVerified && (
+                <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                  Đã mua hàng
+                </span>
+              )}
+            </div>
+            <ReviewMoreActions review={review} productId={productId} />
           </div>
 
           <div className="flex items-center gap-2 mt-1">
@@ -196,7 +201,7 @@ export function ReviewItem({
         {/* Replies */}
         {showReplies && displayReplies.length > 0 && (
           <div className="mt-4 pl-4 border-l-2 border-muted">
-            <ReviewRepliesList replies={displayReplies} />
+            <ReviewRepliesList replies={displayReplies} reviewId={review.id} />
           </div>
         )}
       </div>

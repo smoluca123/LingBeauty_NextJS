@@ -7,6 +7,8 @@ import type {
   IReviewReplyDataType,
   ICreateReviewDataType,
   ICreateReviewReplyDataType,
+  IUpdateReviewDataType,
+  IUpdateReviewReplyDataType,
 } from '@/lib/types/interfaces/apis/review.interfaces';
 
 // Let HTTPError bubble up naturally — proxyRoute in route handlers handles forwarding.
@@ -47,3 +49,33 @@ export const createReviewReplyAction = async (
   kyInstance
     .post(`review/${reviewId}/reply`, { json: payload })
     .json<IApiResponseWrapperType<IReviewReplyDataType>>();
+
+/** PATCH /review/:id — update a review */
+export const updateReviewAction = async (
+  reviewId: string,
+  payload: IUpdateReviewDataType,
+) =>
+  kyInstance
+    .patch(`review/${reviewId}`, { json: payload })
+    .json<IApiResponseWrapperType<IReviewDataType>>();
+
+/** DELETE /review/:id — delete a review */
+export const deleteReviewAction = async (reviewId: string) =>
+  kyInstance
+    .delete(`review/${reviewId}`)
+    .json<IApiResponseWrapperType<{ deleted: boolean }>>();
+
+/** PATCH /review/reply/:id — update a reply */
+export const updateReviewReplyAction = async (
+  replyId: string,
+  payload: IUpdateReviewReplyDataType,
+) =>
+  kyInstance
+    .patch(`review/reply/${replyId}`, { json: payload })
+    .json<IApiResponseWrapperType<IReviewReplyDataType>>();
+
+/** DELETE /review/reply/:id — delete a reply */
+export const deleteReviewReplyAction = async (replyId: string) =>
+  kyInstance
+    .delete(`review/reply/${replyId}`)
+    .json<IApiResponseWrapperType<{ deleted: boolean }>>();

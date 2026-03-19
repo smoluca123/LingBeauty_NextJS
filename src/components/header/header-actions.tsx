@@ -2,48 +2,19 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  Store,
-  BookOpen,
-  User,
-  Heart,
-  ShoppingBag,
-  LogOut,
-} from 'lucide-react';
+import { Store, BookOpen, Heart, ShoppingBag } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { AuthModal } from '@/components/auth/auth-modal';
 import { CartDrawer } from './cart-drawer';
-import {
-  useAuthUser,
-  useIsAuthenticated,
-  useAuthLoading,
-} from '@/hooks/use-auth';
-import { useLogoutMutation } from '@/hooks/mutations/auth.mutation';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { UserButton } from './user-button';
 import { useGetCartCountQuery } from '@/hooks/querys/cart.query';
 
 export function HeaderActions() {
-  const [loginOpen, setLoginOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const user = useAuthUser();
-  const isAuthenticated = useIsAuthenticated();
-  const isLoading = useAuthLoading();
-  const logoutMutation = useLogoutMutation();
 
   // Cart badge count — only fetches when authenticated
   const { data: cartCountData } = useGetCartCountQuery();
   const cartItemCount = cartCountData?.data?.itemCount ?? 0;
-
-  const handleLogout = async () => {
-    logoutMutation.mutate();
-  };
 
   return (
     <>
@@ -67,58 +38,7 @@ export function HeaderActions() {
         </Link>
 
         {/* Auth section */}
-        {isLoading ? (
-          <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
-        ) : isAuthenticated && user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-1 md:gap-2"
-              >
-                <User className="h-4 w-4" />
-                <span className="hidden md:inline whitespace-nowrap max-w-24 truncate">
-                  {user.firstName || user.username}
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem asChild>
-                <Link href="/profile" className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  Tài khoản
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href="/orders" className="cursor-pointer">
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  Đơn hàng
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="cursor-pointer text-red-600"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Đăng xuất
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLoginOpen(true)}
-            className="flex items-center gap-1 md:gap-2"
-          >
-            <User className="h-4 w-4" />
-            <span className="hidden md:inline whitespace-nowrap">
-              Đăng nhập
-            </span>
-          </Button>
-        )}
+        <UserButton />
 
         {/* Wishlist - Always icon only */}
         <Link
@@ -146,7 +66,6 @@ export function HeaderActions() {
         </Button>
       </div>
 
-      <AuthModal open={loginOpen} onOpenChange={setLoginOpen} />
       <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </>
   );

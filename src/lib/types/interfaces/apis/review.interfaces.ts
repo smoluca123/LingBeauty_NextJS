@@ -74,3 +74,14 @@ export interface ICreateReviewDataType {
 export interface ICreateReviewReplyDataType {
   content: string;
 }
+
+export interface IUpdateReviewDataType {
+  rating?: number;
+  title?: string;
+  comment?: string;
+  mediaIds?: string[];
+}
+
+export interface IUpdateReviewReplyDataType {
+  content: string;
+}
