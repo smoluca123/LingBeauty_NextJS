@@ -9,6 +9,8 @@ import {
   Users,
   Store,
   Tag,
+  ImageIcon,
+  Ticket,
 } from 'lucide-react';
 
 import {
@@ -42,9 +44,7 @@ interface NavSection {
 const NAV_SECTIONS: NavSection[] = [
   {
     title: 'Dashboard',
-    items: [
-      { icon: LayoutDashboard, label: 'Tổng quan', href: '/admin' },
-    ],
+    items: [{ icon: LayoutDashboard, label: 'Tổng quan', href: '/admin' }],
   },
   {
     title: 'Sản phẩm',
@@ -56,10 +56,19 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: 'Người dùng',
+    title: 'Banner',
     items: [
-      { icon: Users, label: 'Tất cả người dùng', href: '/admin/users' },
+      { icon: ImageIcon, label: 'Quản lý Banner', href: '/admin/banners' },
+      { icon: FolderTree, label: 'Nhóm Banner', href: '/admin/banner-groups' },
     ],
+  },
+  {
+    title: 'Khuyến mãi',
+    items: [{ icon: Ticket, label: 'Mã giảm giá', href: '/admin/coupons' }],
+  },
+  {
+    title: 'Ngườii dùng',
+    items: [{ icon: Users, label: 'Tất cả ngườii dùng', href: '/admin/users' }],
   },
 ];
 
@@ -68,38 +77,37 @@ export function AdminSidebar() {
   const { isMobile, setOpenMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible='icon'>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link 
-                href="/admin" 
+            <SidebarMenuButton size='lg' asChild>
+              <Link
+                href='/admin'
                 onClick={() => isMobile && setOpenMobile(false)}
               >
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary-pink text-primary-foreground">
-                  <LayoutDashboard className="size-4 text-white" />
+                <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-primary-pink text-primary-foreground'>
+                  <LayoutDashboard className='size-4 text-white' />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold text-primary-pink">Admin Panel</span>
-                  <span className="">v1.0.0</span>
+                <div className='flex flex-col gap-0.5 leading-none'>
+                  <span className='font-semibold text-primary-pink'>
+                    Admin Panel
+                  </span>
+                  <span className=''>v1.0.0</span>
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarMenu className="px-2 py-1">
+      <SidebarMenu className='px-2 py-1'>
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            tooltip="Về trang chủ"
-            className="bg-primary-pink text-white hover:bg-primary-pink/90 hover:text-white"
+            tooltip='Về trang chủ'
+            className='bg-primary-pink text-white hover:bg-primary-pink/90 hover:text-white'
           >
-            <Link
-              href="/"
-              onClick={() => isMobile && setOpenMobile(false)}
-            >
+            <Link href='/' onClick={() => isMobile && setOpenMobile(false)}>
               <Store />
               <span>Về trang chủ</span>
             </Link>
@@ -130,7 +138,7 @@ export function AdminSidebar() {
                             : 'hover:bg-primary-pink/10 hover:text-primary-pink'
                         }
                       >
-                        <Link 
+                        <Link
                           href={item.href}
                           onClick={() => isMobile && setOpenMobile(false)}
                           aria-current={isActive ? 'page' : undefined}
@@ -152,4 +160,3 @@ export function AdminSidebar() {
     </Sidebar>
   );
 }
-
