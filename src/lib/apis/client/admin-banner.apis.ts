@@ -22,15 +22,18 @@ const handleError = async (error: unknown) => {
 /**
  * Get all banner groups with pagination
  * Calls: GET /admin/banners
+ * @param params - Pagination params and optional bannerId to filter groups containing that banner
  */
 export const getAllBannerGroupsClientAPI = async (params?: {
   page?: number;
   limit?: number;
+  bannerId?: string;
 }) => {
   try {
     const searchParams: Record<string, string> = {};
     if (params?.page) searchParams.page = String(params.page);
     if (params?.limit) searchParams.limit = String(params.limit);
+    if (params?.bannerId) searchParams.bannerId = params.bannerId;
 
     return await kyNextInstance
       .get('admin/banners', { searchParams })
@@ -141,30 +144,29 @@ export const getAllBannersClientAPI = async (params?: {
 };
 
 /**
- * Create banner item in a group
- * Calls: POST /admin/banners/group/[id]/items
+ * Create banner item
+ * Calls: POST /admin/banners/items
+ * Note: groupId is passed in the body, not in URL
  */
-export const createBannerClientAPI = async (
-  groupId: string,
-  data: {
-    type: 'TEXT' | 'IMAGE';
-    position: 'MAIN_CAROUSEL' | 'SIDE_TOP' | 'SIDE_BOTTOM';
-    badge?: string;
-    title?: string;
-    description?: string;
-    highlight?: string;
-    ctaText?: string;
-    ctaLink?: string;
-    subLabel?: string;
-    gradientFrom?: string;
-    gradientTo?: string;
-    sortOrder?: number;
-    isActive?: boolean;
-  },
-) => {
+export const createBannerClientAPI = async (data: {
+  type: 'TEXT' | 'IMAGE';
+  position: 'MAIN_CAROUSEL' | 'SIDE_TOP' | 'SIDE_BOTTOM';
+  badge?: string;
+  title?: string;
+  description?: string;
+  highlight?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  subLabel?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+  groupId?: string;
+}) => {
   try {
     return await kyNextInstance
-      .post(`admin/banners/group/${groupId}/items`, { json: data })
+      .post('admin/banners/items', { json: data })
       .json<IApiResponseWrapperType<IBannerDataType>>();
   } catch (error) {
     return handleError(error);
@@ -173,15 +175,13 @@ export const createBannerClientAPI = async (
 
 /**
  * Create banner item with image upload
- * Calls: POST /admin/banners/group/[id]/items/upload
+ * Calls: POST /admin/banners/items/upload
+ * Note: groupId should be included in the FormData
  */
-export const createBannerWithUploadClientAPI = async (
-  groupId: string,
-  formData: FormData,
-) => {
+export const createBannerWithUploadClientAPI = async (formData: FormData) => {
   try {
     return await kyNextInstance
-      .post(`admin/banners/group/${groupId}/items/upload`, {
+      .post('admin/banners/items/upload', {
         body: formData,
       })
       .json<IApiResponseWrapperType<IBannerDataType>>();
@@ -192,7 +192,7 @@ export const createBannerWithUploadClientAPI = async (
 
 /**
  * Update banner item
- * Calls: PATCH /admin/banners/item/[id]
+ * Calls: PATCH /admin/banners/item/[bannerId]
  */
 export const updateBannerClientAPI = async (
   bannerId: string,
@@ -223,7 +223,7 @@ export const updateBannerClientAPI = async (
 
 /**
  * Update banner item with image upload
- * Calls: PATCH /admin/banners/item/[id]/upload
+ * Calls: PATCH /admin/banners/item/[bannerId]/upload
  */
 export const updateBannerWithUploadClientAPI = async (
   bannerId: string,
@@ -242,7 +242,7 @@ export const updateBannerWithUploadClientAPI = async (
 
 /**
  * Delete banner item
- * Calls: DELETE /admin/banners/item/[id]
+ * Calls: DELETE /admin/banners/item/[bannerId]
  */
 export const deleteBannerClientAPI = async (bannerId: string) => {
   try {
@@ -257,46 +257,17 @@ export const deleteBannerClientAPI = async (bannerId: string) => {
 // ============ Banner-Group Relationship APIs ============
 
 /**
- * Get all groups of a banner
- * Calls: GET /admin/banners/item/[id]/groups
- */
-export const getBannerGroupsClientAPI = async (bannerId: string) => {
-  try {
-    return await kyNextInstance
-      .get(`admin/banners/item/${bannerId}/groups`)
-      .json<
-        IApiResponseWrapperType<
-          Array<{
-            id: string;
-            bannerGroupId: string;
-            bannerId: string;
-            sortOrder: number;
-            bannerGroup: {
-              id: string;
-              name: string;
-              slug: string;
-              description: string | null;
-              isActive: boolean;
-            };
-          }>
-        >
-      >();
-  } catch (error) {
-    return handleError(error);
-  }
-};
-
-/**
  * Add banner to a group
- * Calls: POST /admin/banners/item/[id]/groups
+ * Calls: POST /admin/banners/group/[groupId]/items/[bannerId]
+ * Note: BE endpoint is POST /banner/group/:groupId/items/:bannerId
  */
 export const addBannerToGroupClientAPI = async (
+  groupId: string,
   bannerId: string,
-  data: { groupId: string; sortOrder?: number },
 ) => {
   try {
     return await kyNextInstance
-      .post(`admin/banners/item/${bannerId}/groups`, { json: data })
+      .post(`admin/banners/group/${groupId}/items/${bannerId}`)
       .json<IApiResponseWrapperType<{ message: string }>>();
   } catch (error) {
     return handleError(error);
@@ -305,15 +276,53 @@ export const addBannerToGroupClientAPI = async (
 
 /**
  * Remove banner from a group
- * Calls: DELETE /admin/banners/item/[id]/groups/[groupId]
+ * Calls: DELETE /admin/banners/group/[groupId]/items/[bannerId]
  */
 export const removeBannerFromGroupClientAPI = async (
-  bannerId: string,
   groupId: string,
+  bannerId: string,
 ) => {
   try {
     return await kyNextInstance
-      .delete(`admin/banners/item/${bannerId}/groups/${groupId}`)
+      .delete(`admin/banners/group/${groupId}/items/${bannerId}`)
+      .json<IApiResponseWrapperType<{ message: string }>>();
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Bulk remove banners from a group
+ * Calls: DELETE /admin/banners/group/[groupId]/items
+ */
+export const bulkRemoveBannersFromGroupClientAPI = async (
+  groupId: string,
+  bannerIds: string[],
+) => {
+  try {
+    return await kyNextInstance
+      .delete(`admin/banners/group/${groupId}/items`, {
+        json: { bannerIds },
+      })
+      .json<IApiResponseWrapperType<{ message: string; count: number }>>();
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+/**
+ * Reorder banners within a group
+ * Calls: PATCH /admin/banners/group/[groupId]/reorder
+ */
+export const reorderBannersInGroupClientAPI = async (
+  groupId: string,
+  orderData: Array<{ bannerId: string; sortOrder: number }>,
+) => {
+  try {
+    return await kyNextInstance
+      .patch(`admin/banners/group/${groupId}/reorder`, {
+        json: { orderData },
+      })
       .json<IApiResponseWrapperType<{ message: string }>>();
   } catch (error) {
     return handleError(error);

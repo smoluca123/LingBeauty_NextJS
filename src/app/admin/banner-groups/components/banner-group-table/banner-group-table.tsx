@@ -1,6 +1,13 @@
 'use client';
 
-import { Pencil, Trash2, Calendar, ImageIcon, Settings } from 'lucide-react';
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Calendar,
+  ImageIcon,
+  Settings,
+} from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -9,9 +16,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import type { IBannerGroupDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
+import { formatDate } from '@/app/admin/banners/constants';
 
 interface BannerGroupTableProps {
   groups: IBannerGroupDataType[];
@@ -26,23 +41,26 @@ export function BannerGroupTable({
   onDelete,
   onManageBanners,
 }: BannerGroupTableProps) {
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return '—';
-    return new Date(dateString).toLocaleDateString('vi-VN');
-  };
-
   return (
-    <div className='rounded-lg border bg-card max-h-full overflow-auto'>
+    <div className='rounded-lg border bg-card w-full overflow-x-auto'>
       <Table className='min-w-max'>
         <TableHeader>
           <TableRow>
-            <TableHead>Tên nhóm</TableHead>
-            <TableHead className='hidden md:table-cell'>Slug</TableHead>
-            <TableHead className='hidden sm:table-cell'>Số banner</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className='hidden lg:table-cell'>Thờigian</TableHead>
-            <TableHead className='hidden sm:table-cell'>Ngày tạo</TableHead>
-            <TableHead className='text-right'>Thao tác</TableHead>
+            <TableHead className='min-w-[180px]'>Tên nhóm</TableHead>
+            <TableHead className='hidden md:table-cell min-w-[140px]'>
+              Slug
+            </TableHead>
+            <TableHead className='hidden sm:table-cell w-[110px]'>
+              Số banner
+            </TableHead>
+            <TableHead className='w-[110px]'>Trạng thái</TableHead>
+            <TableHead className='hidden lg:table-cell min-w-40'>
+              Thời gian
+            </TableHead>
+            <TableHead className='hidden sm:table-cell w-[110px]'>
+              Ngày tạo
+            </TableHead>
+            <TableHead className='text-right w-[72px]'>Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -53,7 +71,7 @@ export function BannerGroupTable({
                 <div className='flex flex-col'>
                   <span>{group.name}</span>
                   {group.description && (
-                    <span className='text-xs text-muted-foreground truncate max-w-[200px]'>
+                    <span className='text-xs text-muted-foreground truncate max-w-[220px]'>
                       {group.description}
                     </span>
                   )}
@@ -61,7 +79,7 @@ export function BannerGroupTable({
               </TableCell>
 
               {/* Slug */}
-              <TableCell className='hidden md:table-cell text-muted-foreground text-sm'>
+              <TableCell className='hidden md:table-cell text-muted-foreground text-sm font-mono'>
                 {group.slug}
               </TableCell>
 
@@ -69,7 +87,7 @@ export function BannerGroupTable({
               <TableCell className='hidden sm:table-cell'>
                 <Badge variant='outline'>
                   <ImageIcon className='h-3 w-3 mr-1' />
-                  {group.banners?.length || 0} banner
+                  {group.banners?.length ?? 0} banner
                 </Badge>
               </TableCell>
 
@@ -83,9 +101,9 @@ export function BannerGroupTable({
               {/* Date Range */}
               <TableCell className='hidden lg:table-cell text-muted-foreground text-sm'>
                 <div className='flex items-center gap-1'>
-                  <Calendar className='h-3 w-3' />
+                  <Calendar className='h-3 w-3 shrink-0' />
                   <span>
-                    {formatDate(group.startDate)} - {formatDate(group.endDate)}
+                    {formatDate(group.startDate)} – {formatDate(group.endDate)}
                   </span>
                 </div>
               </TableCell>
@@ -97,33 +115,31 @@ export function BannerGroupTable({
 
               {/* Actions */}
               <TableCell className='text-right'>
-                <div className='flex items-center justify-end gap-1'>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => onManageBanners(group)}
-                    title='Quản lý banner'
-                  >
-                    <Settings className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => onEdit(group)}
-                    title='Chỉnh sửa'
-                  >
-                    <Pencil className='h-4 w-4' />
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => onDelete(group)}
-                    title='Xóa'
-                    className='text-destructive hover:text-destructive'
-                  >
-                    <Trash2 className='h-4 w-4' />
-                  </Button>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant='ghost' size='icon' aria-label='Thao tác'>
+                      <MoreHorizontal className='h-4 w-4' />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align='end'>
+                    <DropdownMenuItem onClick={() => onEdit(group)}>
+                      <Pencil className='h-4 w-4 mr-2' />
+                      Chỉnh sửa
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onManageBanners(group)}>
+                      <Settings className='h-4 w-4 mr-2' />
+                      Quản lý banners
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => onDelete(group)}
+                      className='text-destructive focus:text-destructive'
+                    >
+                      <Trash2 className='h-4 w-4 mr-2' />
+                      Xóa nhóm
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </TableCell>
             </TableRow>
           ))}

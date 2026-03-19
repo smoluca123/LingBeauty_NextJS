@@ -10,6 +10,7 @@ export const GET = (req: Request) => {
   const limit = searchParams.get('limit')
     ? Number(searchParams.get('limit'))
     : undefined;
+  const bannerId = searchParams.get('bannerId') || undefined;
 
-  return proxyRoute(() => getAllBannerGroupsAPI({ page, limit }));
+  return proxyRoute(() => getAllBannerGroupsAPI({ page, limit, bannerId }));
 };

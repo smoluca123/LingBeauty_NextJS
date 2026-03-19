@@ -10,6 +10,7 @@ import {
   Store,
   Tag,
   ImageIcon,
+  Ticket,
 } from 'lucide-react';
 
 import {
@@ -60,6 +61,10 @@ const NAV_SECTIONS: NavSection[] = [
       { icon: ImageIcon, label: 'Quản lý Banner', href: '/admin/banners' },
       { icon: FolderTree, label: 'Nhóm Banner', href: '/admin/banner-groups' },
     ],
+  },
+  {
+    title: 'Khuyến mãi',
+    items: [{ icon: Ticket, label: 'Mã giảm giá', href: '/admin/coupons' }],
   },
   {
     title: 'Ngườii dùng',

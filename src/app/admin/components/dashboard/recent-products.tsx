@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
@@ -31,13 +30,13 @@ export function RecentProducts() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="space-y-1">
-            <CardTitle className="text-base md:text-lg flex items-center gap-2">
+        <div className='flex items-center justify-between flex-wrap gap-2'>
+          <div className='space-y-1'>
+            <CardTitle className='text-base md:text-lg flex items-center gap-2'>
               Sản phẩm bán chạy
-              <Trophy className="h-4 w-4 md:h-5 md:w-5 text-primary-pink" />
+              <Trophy className='h-4 w-4 md:h-5 md:w-5 text-primary-pink' />
             </CardTitle>
-            <CardDescription className="text-xs md:text-sm">
+            <CardDescription className='text-xs md:text-sm'>
               Top {limit} sản phẩm theo doanh số
             </CardDescription>
           </div>
@@ -47,8 +46,8 @@ export function RecentProducts() {
             onValueChange={(v) => setLimit(Number(v))}
           >
             <SelectTrigger
-              id="top-products-limit-select"
-              className="w-20 h-8 text-xs"
+              id='top-products-limit-select'
+              className='w-20 h-8 text-xs'
             >
               <SelectValue />
             </SelectTrigger>
@@ -65,34 +64,34 @@ export function RecentProducts() {
 
       <CardContent>
         {isLoading ? (
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {Array.from({ length: limit }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <Skeleton className="h-6 w-6 rounded-full shrink-0" />
-                  <div className="space-y-1 min-w-0 flex-1">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
+              <div key={i} className='flex items-center justify-between gap-2'>
+                <div className='flex items-center gap-3 min-w-0 flex-1'>
+                  <Skeleton className='h-6 w-6 rounded-full shrink-0' />
+                  <div className='space-y-1 min-w-0 flex-1'>
+                    <Skeleton className='h-4 w-3/4' />
+                    <Skeleton className='h-3 w-1/2' />
                   </div>
                 </div>
-                <Skeleton className="h-4 w-20 shrink-0" />
+                <Skeleton className='h-4 w-20 shrink-0' />
               </div>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <p className="text-center text-muted-foreground text-sm py-8">
+          <p className='text-center text-muted-foreground text-sm py-8'>
             Chưa có dữ liệu
           </p>
         ) : (
-          <div className="space-y-4">
+          <div className='space-y-4'>
             {products.map((product, index) => {
               const revenue = parseFloat(product.revenue);
               return (
                 <div
                   key={product.id}
-                  className="flex items-center justify-between gap-2"
+                  className='flex items-center justify-between gap-2'
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className='flex items-center gap-3 min-w-0 flex-1'>
                     {/* Rank badge */}
                     <span
                       className={`text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
@@ -107,19 +106,21 @@ export function RecentProducts() {
                     >
                       {index + 1}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm md:text-base truncate">
+                    <div className='min-w-0 flex-1'>
+                      <p className='font-medium text-sm md:text-base truncate'>
                         {product.name}
                       </p>
-                      <p className="text-xs md:text-sm text-muted-foreground">
+                      <p className='text-xs md:text-sm text-muted-foreground'>
                         {product.totalSold.toLocaleString('vi-VN')} đã bán
                         {product.avgRating && (
-                          <span className="ml-2">★ {Number(product.avgRating).toFixed(1)}</span>
+                          <span className='ml-2'>
+                            ★ {Number(product.avgRating).toFixed(1)}
+                          </span>
                         )}
                       </p>
                     </div>
                   </div>
-                  <span className="font-medium text-primary-pink text-sm md:text-base whitespace-nowrap">
+                  <span className='font-medium text-primary-pink text-sm md:text-base whitespace-nowrap'>
                     {new Intl.NumberFormat('vi-VN', {
                       style: 'currency',
                       currency: 'VND',

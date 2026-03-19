@@ -25,7 +25,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useUpdateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation';
+import { useAdminBannerGroupQuery } from '@/hooks/querys/admin-banner.query';
 import type { IBannerGroupDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -56,63 +58,48 @@ export function EditBannerGroupDialog({
   onOpenChange,
   group,
 }: EditBannerGroupDialogProps) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[500px]'>
-        <DialogHeader>
-          <DialogTitle>Chỉnh sửa nhóm banner</DialogTitle>
-          <DialogDescription>
-            Cập nhật thông tin nhóm banner &ldquo;{group?.name}&rdquo;
-          </DialogDescription>
-        </DialogHeader>
-
-        {group && (
-          <EditBannerGroupForm
-            group={group}
-            onClose={() => onOpenChange(false)}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Form Component ─────────────────────────────────────────────────────────────
-
-function EditBannerGroupForm({
-  group,
-  onClose,
-}: {
-  group: IBannerGroupDataType;
-  onClose: () => void;
-}) {
   const updateMutation = useUpdateBannerGroupMutation();
+
+  // Fetch fresh group data when dialog opens
+  const { data: groupDetailData, isLoading: isLoadingGroupDetail } =
+    useAdminBannerGroupQuery(group?.id ?? '', {
+      enabled: open && !!group?.id,
+    });
+
+  // Use detailed group data if available, fallback to prop data
+  const groupDetail = groupDetailData?.data ?? group;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: group.name ?? '',
-      slug: group.slug ?? '',
-      description: group.description ?? '',
-      isActive: group.isActive ?? true,
-      startDate: group.startDate ? group.startDate.split('T')[0] : '',
-      endDate: group.endDate ? group.endDate.split('T')[0] : '',
+      name: '',
+      slug: '',
+      description: '',
+      isActive: true,
+      startDate: '',
+      endDate: '',
     },
   });
 
-  // Reset form when group changes
+  // Reset form when group changes or when detailed data is loaded
   useEffect(() => {
-    form.reset({
-      name: group.name ?? '',
-      slug: group.slug ?? '',
-      description: group.description ?? '',
-      isActive: group.isActive ?? true,
-      startDate: group.startDate ? group.startDate.split('T')[0] : '',
-      endDate: group.endDate ? group.endDate.split('T')[0] : '',
-    });
-  }, [group, form]);
+    if (groupDetail) {
+      form.reset({
+        name: groupDetail.name ?? '',
+        slug: groupDetail.slug ?? '',
+        description: groupDetail.description ?? '',
+        isActive: groupDetail.isActive ?? true,
+        startDate: groupDetail.startDate
+          ? groupDetail.startDate.split('T')[0]
+          : '',
+        endDate: groupDetail.endDate ? groupDetail.endDate.split('T')[0] : '',
+      });
+    }
+  }, [groupDetail, form]);
 
   const onSubmit = async (data: FormValues) => {
+    if (!group) return;
+
     await updateMutation.mutateAsync({
       id: group.id,
       data: {
@@ -125,148 +112,167 @@ function EditBannerGroupForm({
       },
     });
 
-    onClose();
+    onOpenChange(false);
   };
 
   const handleClose = () => {
-    if (!updateMutation.isPending) {
-      onClose();
+    if (!updateMutation.isPending && !isLoadingGroupDetail) {
+      onOpenChange(false);
     }
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='grid gap-4 py-4'>
-          {/* Name */}
-          <FormField
-            control={form.control}
-            name='name'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Tên nhóm <span className='text-destructive'>*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder='VD: Banner Tết 2026' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className='sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col'>
+        <DialogHeader>
+          <DialogTitle>Chỉnh sửa nhóm banner</DialogTitle>
+          <DialogDescription>
+            Cập nhật thông tin nhóm &ldquo;{groupDetail?.name ?? group?.name}
+            &rdquo;
+          </DialogDescription>
+        </DialogHeader>
 
-          {/* Slug */}
-          <FormField
-            control={form.control}
-            name='slug'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Slug <span className='text-destructive'>*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder='VD: tet-2026' />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className='flex flex-col flex-1 overflow-hidden'
+          >
+            <ScrollArea className='flex-1 pr-4'>
+              <div className='grid gap-4 py-4'>
+                {/* Name */}
+                <FormField
+                  control={form.control}
+                  name='name'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Tên nhóm <span className='text-destructive'>*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder='VD: Banner Tết 2026' />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          {/* Description */}
-          <FormField
-            control={form.control}
-            name='description'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Mô tả</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    placeholder='Mô tả về nhóm banner này...'
-                    rows={3}
+                {/* Slug */}
+                <FormField
+                  control={form.control}
+                  name='slug'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Slug <span className='text-destructive'>*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder='VD: tet-2026' />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Description */}
+                <FormField
+                  control={form.control}
+                  name='description'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mô tả</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          placeholder='Mô tả về nhóm banner này...'
+                          rows={3}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Date Range */}
+                <div className='grid grid-cols-2 gap-4'>
+                  <FormField
+                    control={form.control}
+                    name='startDate'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ngày bắt đầu</FormLabel>
+                        <FormControl>
+                          <Input {...field} type='date' />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Date Range */}
-          <div className='grid grid-cols-2 gap-4'>
-            <FormField
-              control={form.control}
-              name='startDate'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ngày bắt đầu</FormLabel>
-                  <FormControl>
-                    <Input {...field} type='date' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='endDate'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ngày kết thúc</FormLabel>
-                  <FormControl>
-                    <Input {...field} type='date' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Active Status */}
-          <FormField
-            control={form.control}
-            name='isActive'
-            render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2'>
-                <div className='space-y-0.5'>
-                  <FormLabel>Kích hoạt</FormLabel>
-                  <FormMessage />
+                  <FormField
+                    control={form.control}
+                    name='endDate'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ngày kết thúc</FormLabel>
+                        <FormControl>
+                          <Input {...field} type='date' />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-                <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
 
-        <DialogFooter>
-          <Button
-            type='button'
-            variant='outline'
-            onClick={handleClose}
-            disabled={updateMutation.isPending}
-          >
-            Hủy
-          </Button>
-          <Button
-            type='submit'
-            variant='primary-pink'
-            disabled={updateMutation.isPending}
-          >
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                Đang cập nhật...
-              </>
-            ) : (
-              'Cập nhật'
-            )}
-          </Button>
-        </DialogFooter>
-      </form>
-    </Form>
+                {/* Active Status */}
+                <FormField
+                  control={form.control}
+                  name='isActive'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2'>
+                      <div className='space-y-0.5'>
+                        <FormLabel>Kích hoạt</FormLabel>
+                        <div className='text-sm text-muted-foreground'>
+                          Nhóm banner sẽ được hiển thị trên website
+                        </div>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </ScrollArea>
+
+            <DialogFooter className='pt-4 border-t mt-4'>
+              <Button
+                type='button'
+                variant='outline'
+                onClick={handleClose}
+                disabled={updateMutation.isPending || isLoadingGroupDetail}
+              >
+                Hủy
+              </Button>
+              <Button
+                type='submit'
+                variant='primary-pink'
+                disabled={updateMutation.isPending || isLoadingGroupDetail}
+              >
+                {updateMutation.isPending || isLoadingGroupDetail ? (
+                  <>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    {isLoadingGroupDetail ? 'Đang tải...' : 'Đang cập nhật...'}
+                  </>
+                ) : (
+                  'Cập nhật'
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

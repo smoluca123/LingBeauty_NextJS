@@ -1,7 +1,17 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Upload, X } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Loader2,
+  Upload,
+  X,
+  Plus,
+  Trash2,
+  Info,
+  FolderTree,
+  Inbox,
+  LayoutList,
+} from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,14 +43,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   useUpdateBannerMutation,
   useUpdateBannerWithUploadMutation,
+  useAddBannerToGroupMutation,
+  useRemoveBannerFromGroupMutation,
 } from '@/hooks/mutations/admin-banner.mutation';
+import { useBannerGroupsOfBannerQuery } from '@/hooks/querys/admin-banner.query';
 import type {
   IBannerDataType,
   IBannerGroupDataType,
 } from '@/lib/types/interfaces/apis/banner.interfaces';
+import {
+  BANNER_TYPES,
+  BANNER_POSITIONS,
+  DEFAULT_GRADIENT,
+} from '@/app/admin/banners/constants';
 
 // ── Schema ───────────────────────────────────────────────────────────────────
 
@@ -79,11 +109,22 @@ export function EditBannerDialog({
   banner,
   groups,
 }: EditBannerDialogProps) {
+  const [activeTab, setActiveTab] = useState('info');
+
+  // Reset tab when dialog opens
+  useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => {
+        setActiveTab('info');
+      });
+    }
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
-        <DialogHeader>
-          <DialogTitle>Chỉnh sửa banner</DialogTitle>
+      <DialogContent className='sm:max-w-[800px] max-h-[90vh] p-0 gap-0'>
+        <DialogHeader className='px-6 pt-6 pb-2'>
+          <DialogTitle className='text-xl'>Chỉnh sửa banner</DialogTitle>
           <DialogDescription>
             Cập nhật thông tin banner &ldquo;
             {banner?.title || 'Không có tiêu đề'}&rdquo;
@@ -91,39 +132,62 @@ export function EditBannerDialog({
         </DialogHeader>
 
         {banner && (
-          <EditBannerForm
-            key={banner.id}
-            banner={banner}
-            groups={groups}
-            onClose={() => onOpenChange(false)}
-          />
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className='w-full'
+          >
+            <div className='px-6'>
+              <TabsList className='grid w-full grid-cols-2 h-11'>
+                <TabsTrigger value='info' className='gap-2 text-sm'>
+                  <LayoutList className='h-4 w-4' />
+                  Thông tin Banner
+                </TabsTrigger>
+                <TabsTrigger value='groups' className='gap-2 text-sm'>
+                  <FolderTree className='h-4 w-4' />
+                  Quản lý Nhóm
+                </TabsTrigger>
+              </TabsList>
+            </div>
+
+            <TabsContent value='info' className='mt-0 m-0'>
+              <ScrollArea className='h-[calc(90vh-180px)]'>
+                <div className='px-6 pb-6 pt-4'>
+                  <BannerInfoTab
+                    key={banner.id}
+                    banner={banner}
+                    onClose={() => onOpenChange(false)}
+                  />
+                </div>
+              </ScrollArea>
+            </TabsContent>
+
+            <TabsContent value='groups' className='mt-0 m-0'>
+              <ScrollArea className='h-[calc(90vh-180px)]'>
+                <div className='px-6 pb-6 pt-4'>
+                  <GroupManagementTab banner={banner} allGroups={groups} />
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </Tabs>
         )}
       </DialogContent>
     </Dialog>
   );
 }
 
-// ── Form Component ─────────────────────────────────────────────────────────────
+// ==================== TAB 1: BANNER INFO ====================
 
-function EditBannerForm({
+function BannerInfoTab({
   banner,
-  groups,
   onClose,
 }: {
   banner: IBannerDataType & { groupId?: string };
-  groups: IBannerGroupDataType[];
   onClose: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [prevBanner, setPrevBanner] = useState(banner);
-
-  if (banner !== prevBanner) {
-    setPrevBanner(banner);
-    setPreviewUrl(null);
-    setSelectedFile(null);
-  }
 
   const updateMutation = useUpdateBannerMutation();
   const updateWithUploadMutation = useUpdateBannerWithUploadMutation();
@@ -144,8 +208,8 @@ function EditBannerForm({
       ctaText: banner.ctaText ?? '',
       ctaLink: banner.ctaLink ?? '',
       subLabel: banner.subLabel ?? '',
-      gradientFrom: banner.gradientFrom ?? '#FF6B9D',
-      gradientTo: banner.gradientTo ?? '#FF8E53',
+      gradientFrom: banner.gradientFrom ?? DEFAULT_GRADIENT.from,
+      gradientTo: banner.gradientTo ?? DEFAULT_GRADIENT.to,
       sortOrder: banner.sortOrder ?? 0,
       isActive: banner.isActive ?? true,
     },
@@ -165,8 +229,8 @@ function EditBannerForm({
       ctaText: banner.ctaText ?? '',
       ctaLink: banner.ctaLink ?? '',
       subLabel: banner.subLabel ?? '',
-      gradientFrom: banner.gradientFrom ?? '#FF6B9D',
-      gradientTo: banner.gradientTo ?? '#FF8E53',
+      gradientFrom: banner.gradientFrom ?? DEFAULT_GRADIENT.from,
+      gradientTo: banner.gradientTo ?? DEFAULT_GRADIENT.to,
       sortOrder: banner.sortOrder ?? 0,
       isActive: banner.isActive ?? true,
     });
@@ -237,14 +301,6 @@ function EditBannerForm({
     <Form {...form}>
       <form onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}>
         <div className='grid gap-4 py-4'>
-          {/* Group Info (Read-only) */}
-          <div className='rounded-lg border p-3 bg-muted/50'>
-            <Label className='text-sm text-muted-foreground'>Nhóm banner</Label>
-            <p className='font-medium'>
-              {groups.find((g) => g.id === banner.groupId)?.name || '—'}
-            </p>
-          </div>
-
           {/* Type & Position */}
           <div className='grid grid-cols-2 gap-4'>
             <FormField
@@ -263,8 +319,11 @@ function EditBannerForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='TEXT'>Text</SelectItem>
-                      <SelectItem value='IMAGE'>Hình ảnh</SelectItem>
+                      {BANNER_TYPES.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -287,13 +346,11 @@ function EditBannerForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value='MAIN_CAROUSEL'>
-                        Carousel chính
-                      </SelectItem>
-                      <SelectItem value='SIDE_TOP'>Bên phải (trên)</SelectItem>
-                      <SelectItem value='SIDE_BOTTOM'>
-                        Bên phải (dưới)
-                      </SelectItem>
+                      {BANNER_POSITIONS.map((pos) => (
+                        <SelectItem key={pos.value} value={pos.value}>
+                          {pos.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -408,10 +465,10 @@ function EditBannerForm({
                   <FormLabel>Màu gradient (từ)</FormLabel>
                   <FormControl>
                     <div className='flex gap-2'>
-                      <Input {...field} placeholder='#FF6B9D' />
+                      <Input {...field} placeholder={DEFAULT_GRADIENT.from} />
                       <input
                         type='color'
-                        value={field.value || '#FF6B9D'}
+                        value={field.value || DEFAULT_GRADIENT.from}
                         onChange={(e) => field.onChange(e.target.value)}
                         className='w-10 h-10 rounded border cursor-pointer'
                       />
@@ -429,10 +486,10 @@ function EditBannerForm({
                   <FormLabel>Màu gradient (đến)</FormLabel>
                   <FormControl>
                     <div className='flex gap-2'>
-                      <Input {...field} placeholder='#FF8E53' />
+                      <Input {...field} placeholder={DEFAULT_GRADIENT.to} />
                       <input
                         type='color'
-                        value={field.value || '#FF8E53'}
+                        value={field.value || DEFAULT_GRADIENT.to}
                         onChange={(e) => field.onChange(e.target.value)}
                         className='w-10 h-10 rounded border cursor-pointer'
                       />
@@ -558,5 +615,217 @@ function EditBannerForm({
         </DialogFooter>
       </form>
     </Form>
+  );
+}
+
+// ==================== TAB 2: GROUP MANAGEMENT ====================
+
+function GroupManagementTab({
+  banner,
+  allGroups,
+}: {
+  banner: IBannerDataType & { groupId?: string };
+  allGroups: IBannerGroupDataType[];
+}) {
+  const [selectedGroupId, setSelectedGroupId] = useState<string>('');
+
+  // Get all groups of this banner
+  const { data: bannerGroupsData, isLoading: isLoadingGroups } =
+    useBannerGroupsOfBannerQuery(banner.id);
+
+  const addToGroupMutation = useAddBannerToGroupMutation();
+  const removeFromGroupMutation = useRemoveBannerFromGroupMutation();
+
+  // bannerGroupsData trả về dạng pagination với items
+  const bannerGroups: IBannerGroupDataType[] = useMemo(
+    () => bannerGroupsData?.data?.items ?? [],
+    [bannerGroupsData?.data?.items],
+  );
+
+  const availableGroups = useMemo(() => {
+    const currentGroupIds = new Set(bannerGroups.map((g) => g.id));
+    return allGroups.filter(
+      (g: IBannerGroupDataType) => !currentGroupIds.has(g.id),
+    );
+  }, [allGroups, bannerGroups]);
+
+  const handleAddToGroup = useCallback(async () => {
+    if (!selectedGroupId) return;
+    await addToGroupMutation.mutateAsync({
+      groupId: selectedGroupId,
+      bannerId: banner.id,
+    });
+    setSelectedGroupId('');
+  }, [selectedGroupId, banner.id, addToGroupMutation]);
+
+  const handleRemoveFromGroup = useCallback(
+    async (groupId: string) => {
+      await removeFromGroupMutation.mutateAsync({
+        groupId,
+        bannerId: banner.id,
+      });
+    },
+    [banner.id, removeFromGroupMutation],
+  );
+
+  const isLoading = isLoadingGroups;
+  const isMutating =
+    addToGroupMutation.isPending || removeFromGroupMutation.isPending;
+
+  if (isLoading) {
+    return (
+      <div className='space-y-4'>
+        <Skeleton className='h-10 w-full' />
+        <Skeleton className='h-32 w-full' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='space-y-6'>
+      {/* Stats */}
+      <div className='grid grid-cols-3 gap-4'>
+        <Card>
+          <CardHeader className='pb-2'>
+            <CardDescription>Tổng nhóm</CardDescription>
+            <CardTitle className='text-2xl'>{bannerGroups.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className='pb-2'>
+            <CardDescription>Nhóm khả dụng</CardDescription>
+            <CardTitle className='text-2xl'>{availableGroups.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className='pb-2'>
+            <CardDescription>Trạng thái banner</CardDescription>
+            <CardTitle className='text-lg'>
+              {banner.isActive ? (
+                <Badge variant='default' className='bg-green-500'>
+                  Đang hoạt động
+                </Badge>
+              ) : (
+                <Badge variant='secondary'>Đã tắt</Badge>
+              )}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+
+      <Separator />
+
+      {/* Add to group */}
+      <div className='space-y-3'>
+        <h4 className='text-sm font-medium flex items-center gap-2'>
+          <Plus className='h-4 w-4' />
+          Thêm vào nhóm
+        </h4>
+        <div className='flex gap-2'>
+          <Select value={selectedGroupId} onValueChange={setSelectedGroupId}>
+            <SelectTrigger className='flex-1'>
+              <SelectValue placeholder='Chọn nhóm để thêm...' />
+            </SelectTrigger>
+            <SelectContent>
+              {availableGroups.length === 0 ? (
+                <div className='p-2 text-sm text-muted-foreground text-center'>
+                  Không có nhóm nào khả dụng
+                </div>
+              ) : (
+                availableGroups.map((group: IBannerGroupDataType) => (
+                  <SelectItem key={group.id} value={group.id}>
+                    {group.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          <Button
+            onClick={handleAddToGroup}
+            disabled={
+              !selectedGroupId || addToGroupMutation.isPending || isMutating
+            }
+          >
+            {addToGroupMutation.isPending && (
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+            )}
+            Thêm
+          </Button>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Current groups list */}
+      <div className='space-y-3'>
+        <h4 className='text-sm font-medium flex items-center gap-2'>
+          <FolderTree className='h-4 w-4' />
+          Các nhóm hiện tại
+        </h4>
+
+        {bannerGroups.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-8 text-muted-foreground border rounded-lg'>
+            <Inbox className='h-10 w-10 mb-2 opacity-50' />
+            <p className='text-sm'>Banner chưa thuộc nhóm nào</p>
+          </div>
+        ) : (
+          <div className='space-y-2'>
+            {bannerGroups.map((item) => (
+              <Card key={item.id} className='overflow-hidden'>
+                <CardContent className='p-4'>
+                  <div className='flex items-center justify-between'>
+                    <div className='flex items-center gap-3'>
+                      <div className='w-10 h-10 bg-muted rounded-md flex items-center justify-center'>
+                        <FolderTree className='h-5 w-5 text-muted-foreground' />
+                      </div>
+                      <div className='flex flex-col'>
+                        <span className='font-medium'>{item.name}</span>
+                        <span className='text-xs text-muted-foreground'>
+                          Slug: {item.slug}
+                        </span>
+                      </div>
+                      {item.isActive ? (
+                        <Badge
+                          variant='outline'
+                          className='text-green-600 border-green-600'
+                        >
+                          Hoạt động
+                        </Badge>
+                      ) : (
+                        <Badge variant='outline' className='text-gray-500'>
+                          Tắt
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      className='text-destructive hover:text-destructive hover:bg-destructive/10'
+                      onClick={() => handleRemoveFromGroup(item.id)}
+                      disabled={removeFromGroupMutation.isPending || isMutating}
+                    >
+                      {removeFromGroupMutation.isPending ? (
+                        <Loader2 className='h-4 w-4 animate-spin' />
+                      ) : (
+                        <Trash2 className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Info note */}
+      <div className='flex items-start gap-2 text-sm text-muted-foreground bg-muted p-3 rounded-lg'>
+        <Info className='h-4 w-4 mt-0.5 shrink-0' />
+        <p>
+          Một banner có thể thuộc về nhiều nhóm khác nhau. Việc xóa banner khỏi
+          nhóm sẽ không xóa banner khỏi hệ thống.
+        </p>
+      </div>
+    </div>
   );
 }

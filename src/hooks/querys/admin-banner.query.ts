@@ -1,10 +1,17 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import {
   getAllBannerGroupsClientAPI,
   getBannerGroupByIdClientAPI,
-  getBannerGroupsClientAPI,
   getAllBannersClientAPI,
 } from '@/lib/apis/client/admin-banner.apis';
+import type {
+  IApiPaginationResponseWrapperType,
+  IApiResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces';
+import type {
+  IBannerGroupDataType,
+  IBannerDataType,
+} from '@/lib/types/interfaces/apis/banner.interfaces';
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -18,16 +25,23 @@ export const adminBannerQueryKeys = {
 
 // ── Get All Banners ──────────────────────────────────────────────────────────
 
-export const useAdminBannersQuery = (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-  groupId?: string;
-}) =>
+export const useAdminBannersQuery = (
+  params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    groupId?: string;
+  },
+  options?: Omit<
+    UseQueryOptions<IApiPaginationResponseWrapperType<IBannerDataType>>,
+    'queryKey' | 'queryFn'
+  >,
+) =>
   useQuery({
     queryKey: [...adminBannerQueryKeys.banners, params],
     queryFn: () => getAllBannersClientAPI(params),
     staleTime: 1000 * 60 * 2, // 2 phút
+    ...options,
   });
 
 // ── Get All Banner Groups ────────────────────────────────────────────────────
@@ -44,12 +58,19 @@ export const useAdminBannerGroupsQuery = (params?: {
 
 // ── Get Banner Group by ID ───────────────────────────────────────────────────
 
-export const useAdminBannerGroupQuery = (id: string) =>
+export const useAdminBannerGroupQuery = (
+  id: string,
+  options?: Omit<
+    UseQueryOptions<IApiResponseWrapperType<IBannerGroupDataType>>,
+    'queryKey' | 'queryFn'
+  >,
+) =>
   useQuery({
     queryKey: adminBannerQueryKeys.bannerGroup(id),
     queryFn: () => getBannerGroupByIdClientAPI(id),
     staleTime: 1000 * 60 * 2,
     enabled: !!id,
+    ...options,
   });
 
 // ── Get All Groups of a Banner ───────────────────────────────────────────────
@@ -57,7 +78,7 @@ export const useAdminBannerGroupQuery = (id: string) =>
 export const useBannerGroupsOfBannerQuery = (bannerId: string) =>
   useQuery({
     queryKey: adminBannerQueryKeys.bannerGroupsOfBanner(bannerId),
-    queryFn: () => getBannerGroupsClientAPI(bannerId),
+    queryFn: () => getAllBannerGroupsClientAPI({ bannerId }),
     staleTime: 1000 * 60 * 1, // 1 phút
     enabled: !!bannerId,
   });

@@ -1,6 +1,6 @@
 'use client';
 
-import { Pencil, Trash2, Type, LayoutGrid } from 'lucide-react';
+import { Pencil, Trash2, Type, ImageIcon } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -11,10 +11,9 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import type {
-  IBannerDataType,
-} from '@/lib/types/interfaces/apis/banner.interfaces';
+import type { IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 import Image from 'next/image';
+import { getPositionLabel } from '@/app/admin/banners/constants';
 
 interface BannerTableProps {
   banners: Array<IBannerDataType & { groupId?: string; groupName?: string }>;
@@ -22,37 +21,24 @@ interface BannerTableProps {
   onDelete: (banner: IBannerDataType & { groupId?: string }) => void;
 }
 
-export function BannerTable({
-  banners,
-  onEdit,
-  onDelete,
-}: BannerTableProps) {
-  const getPositionLabel = (position: string) => {
-    switch (position) {
-      case 'MAIN_CAROUSEL':
-        return 'Carousel chính';
-      case 'SIDE_TOP':
-        return 'Bên phải (trên)';
-      case 'SIDE_BOTTOM':
-        return 'Bên phải (dưới)';
-      default:
-        return position;
-    }
-  };
-
+export function BannerTable({ banners, onEdit, onDelete }: BannerTableProps) {
   return (
-    <div className='rounded-lg border bg-card max-h-full overflow-auto'>
+    <div className='rounded-lg border bg-card w-full overflow-x-auto'>
       <Table className='min-w-max'>
         <TableHeader>
           <TableRow>
-            <TableHead className='w-16'>Hình ảnh</TableHead>
-            <TableHead>Thông tin</TableHead>
-            <TableHead>Nhóm</TableHead>
-            <TableHead>Loại</TableHead>
-            <TableHead>Vị trí</TableHead>
-            <TableHead>Thứ tự</TableHead>
-            <TableHead>Trạng thái</TableHead>
-            <TableHead className='text-right'>Thao tác</TableHead>
+            <TableHead className='w-[72px]'>Hình ảnh</TableHead>
+            <TableHead className='min-w-[180px]'>Thông tin</TableHead>
+            <TableHead className='hidden sm:table-cell min-w-[120px]'>
+              Nhóm
+            </TableHead>
+            <TableHead className='w-[100px]'>Loại</TableHead>
+            <TableHead className='hidden md:table-cell w-[140px]'>
+              Vị trí
+            </TableHead>
+            <TableHead className='hidden sm:table-cell w-20'>Thứ tự</TableHead>
+            <TableHead className='w-[100px]'>Trạng thái</TableHead>
+            <TableHead className='text-right w-[90px]'>Thao tác</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -63,8 +49,8 @@ export function BannerTable({
                 {banner.imageMedia?.url ? (
                   <Image
                     src={banner.imageMedia.url}
-                    alt={banner.title || 'Banner'}
-                    width={48}
+                    alt={banner.title ?? 'Banner'}
+                    width={64}
                     height={48}
                     className='h-12 w-16 rounded-md object-cover border'
                   />
@@ -73,7 +59,7 @@ export function BannerTable({
                     {banner.type === 'TEXT' ? (
                       <Type className='h-4 w-4 text-muted-foreground' />
                     ) : (
-                      <LayoutGrid className='h-4 w-4 text-muted-foreground' />
+                      <ImageIcon className='h-4 w-4 text-muted-foreground' />
                     )}
                   </div>
                 )}
@@ -99,9 +85,9 @@ export function BannerTable({
               </TableCell>
 
               {/* Group */}
-              <TableCell>
+              <TableCell className='hidden sm:table-cell'>
                 <Badge variant='secondary' className='text-xs'>
-                  {banner.groupName || '—'}
+                  {banner.groupName ?? '—'}
                 </Badge>
               </TableCell>
 
@@ -117,14 +103,14 @@ export function BannerTable({
               </TableCell>
 
               {/* Position */}
-              <TableCell>
+              <TableCell className='hidden md:table-cell'>
                 <span className='text-sm'>
                   {getPositionLabel(banner.position)}
                 </span>
               </TableCell>
 
               {/* Sort Order */}
-              <TableCell>
+              <TableCell className='hidden sm:table-cell'>
                 <Badge variant='outline'>{banner.sortOrder}</Badge>
               </TableCell>
 
@@ -142,7 +128,7 @@ export function BannerTable({
                     variant='ghost'
                     size='icon'
                     onClick={() => onEdit(banner)}
-                    title='Chỉnh sửa'
+                    aria-label='Chỉnh sửa'
                   >
                     <Pencil className='h-4 w-4' />
                   </Button>
@@ -150,7 +136,7 @@ export function BannerTable({
                     variant='ghost'
                     size='icon'
                     onClick={() => onDelete(banner)}
-                    title='Xóa'
+                    aria-label='Xóa'
                     className='text-destructive hover:text-destructive'
                   >
                     <Trash2 className='h-4 w-4' />

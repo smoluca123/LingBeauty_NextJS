@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useCreateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation';
+import { generateSlug } from '@/app/admin/banners/constants';
 
 // ── Schema ───────────────────────────────────────────────────────────────────
 
@@ -84,17 +85,6 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
       endDate: '',
     },
   });
-
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
-  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;

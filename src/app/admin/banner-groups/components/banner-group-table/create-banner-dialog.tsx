@@ -37,17 +37,13 @@ import {
   useCreateBannerMutation,
   useCreateBannerWithUploadMutation,
 } from '@/hooks/mutations/admin-banner.mutation';
-import type { IBannerGroupDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 import {
   BANNER_TYPES,
   BANNER_POSITIONS,
   DEFAULT_GRADIENT,
 } from '@/app/admin/banners/constants';
 
-// ── Schema ───────────────────────────────────────────────────────────────────
-
 const formSchema = z.object({
-  groupId: z.string().min(1, 'Vui lòng chọn nhóm banner').optional(),
   type: z.enum(['TEXT', 'IMAGE']),
   position: z.enum(['MAIN_CAROUSEL', 'SIDE_TOP', 'SIDE_BOTTOM']),
   badge: z.string().optional(),
@@ -59,41 +55,34 @@ const formSchema = z.object({
   subLabel: z.string().optional(),
   gradientFrom: z.string().optional(),
   gradientTo: z.string().optional(),
-  sortOrder: z.coerce.number<number>().min(0),
+  sortOrder: z.coerce.number().min(0),
   isActive: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-// ── Types ──────────────────────────────────────────────────────────────────────
-
 interface CreateBannerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  groups: IBannerGroupDataType[];
-  defaultGroupId: string | null;
+  groupId: string;
 }
-
-// ── Component ──────────────────────────────────────────────────────────────────
 
 export function CreateBannerDialog({
   open,
   onOpenChange,
-  groups,
-  defaultGroupId,
+  groupId,
 }: CreateBannerDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='sm:max-w-[600px] max-h-[90vh] overflow-y-auto'>
         <DialogHeader>
           <DialogTitle>Thêm banner mới</DialogTitle>
-          <DialogDescription>Tạo banner mới trong nhóm</DialogDescription>
+          <DialogDescription>Tạo banner mới trong nhóm này</DialogDescription>
         </DialogHeader>
 
         {open && (
           <CreateBannerForm
-            groups={groups}
-            defaultGroupId={defaultGroupId}
+            groupId={groupId}
             onClose={() => onOpenChange(false)}
           />
         )}
@@ -102,15 +91,11 @@ export function CreateBannerDialog({
   );
 }
 
-// ── Form Component ─────────────────────────────────────────────────────────────
-
 function CreateBannerForm({
-  groups,
-  defaultGroupId,
+  groupId,
   onClose,
 }: {
-  groups: IBannerGroupDataType[];
-  defaultGroupId: string | null;
+  groupId: string;
   onClose: () => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -123,9 +108,9 @@ function CreateBannerForm({
     createMutation.isPending || createWithUploadMutation.isPending;
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
-      groupId: defaultGroupId || '',
       type: 'TEXT',
       position: 'MAIN_CAROUSEL',
       badge: '',
@@ -153,9 +138,9 @@ function CreateBannerForm({
 
   const handleRemoveFile = useCallback(() => {
     setSelectedFile(null);
-    setPreviewUrl((prev) => {
-      if (prev) {
-        URL.revokeObjectURL(prev);
+    setPreviewUrl((prevPreviewUrl) => {
+      if (prevPreviewUrl) {
+        URL.revokeObjectURL(prevPreviewUrl);
       }
       return null;
     });
@@ -164,35 +149,42 @@ function CreateBannerForm({
     }
   }, []);
 
-  const onSubmit = async (data: FormValues) => {
-    if (selectedFile) {
-      const formData = new FormData();
-      formData.append('type', data.type);
-      formData.append('position', data.position);
-      formData.append('badge', data.badge || '');
-      formData.append('title', data.title);
-      formData.append('description', data.description || '');
-      formData.append('highlight', data.highlight || '');
-      formData.append('ctaText', data.ctaText || '');
-      formData.append('ctaLink', data.ctaLink || '');
-      formData.append('subLabel', data.subLabel || '');
-      formData.append('gradientFrom', data.gradientFrom || '');
-      formData.append('gradientTo', data.gradientTo || '');
-      formData.append('sortOrder', String(data.sortOrder));
-      formData.append('isActive', String(data.isActive));
-      formData.append('file', selectedFile);
+  const onSubmit = useCallback(
+    async (data: FormValues) => {
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append('type', data.type);
+        formData.append('position', data.position);
+        formData.append('badge', data.badge || '');
+        formData.append('title', data.title);
+        formData.append('description', data.description || '');
+        formData.append('highlight', data.highlight || '');
+        formData.append('ctaText', data.ctaText || '');
+        formData.append('ctaLink', data.ctaLink || '');
+        formData.append('subLabel', data.subLabel || '');
+        formData.append('gradientFrom', data.gradientFrom || '');
+        formData.append('gradientTo', data.gradientTo || '');
+        formData.append('sortOrder', String(data.sortOrder));
+        formData.append('isActive', String(data.isActive));
+        formData.append('file', selectedFile);
 
-      await createWithUploadMutation.mutateAsync({
-        formData,
-        groupId: data.groupId,
-      });
-    } else {
-      await createMutation.mutateAsync({ ...data, groupId: data.groupId });
-    }
+        await createWithUploadMutation.mutateAsync({ groupId, formData });
+      } else {
+        await createMutation.mutateAsync({ ...data, groupId });
+      }
 
-    handleRemoveFile();
-    onClose();
-  };
+      handleRemoveFile();
+      onClose();
+    },
+    [
+      selectedFile,
+      groupId,
+      createWithUploadMutation,
+      createMutation,
+      handleRemoveFile,
+      onClose,
+    ],
+  );
 
   const handleClose = () => {
     if (!isPending) {
@@ -205,37 +197,6 @@ function CreateBannerForm({
     <Form {...form}>
       <form onSubmit={(e) => void form.handleSubmit(onSubmit)(e)}>
         <div className='grid gap-4 py-4'>
-          {/* Group Selection */}
-          <FormField
-            control={form.control}
-            name='groupId'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Nhóm banner <span className='text-destructive'>*</span>
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder='Chọn nhóm banner' />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {groups.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        {group.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           {/* Type & Position */}
           <div className='grid grid-cols-2 gap-4'>
             <FormField
@@ -250,7 +211,7 @@ function CreateBannerForm({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder='Chọn loại' />
+                        <SelectValue placeholder='Chọn loại banner' />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -300,9 +261,12 @@ function CreateBannerForm({
             name='badge'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Badge</FormLabel>
+                <FormLabel>Badge (nhãn nhỏ)</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='VD: Beauty Box' />
+                  <Input
+                    {...field}
+                    placeholder='VD: Beauty Box, Ưu đãi hôm nay'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -315,11 +279,12 @@ function CreateBannerForm({
             name='title'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Tiêu đề <span className='text-destructive'>*</span>
-                </FormLabel>
+                <FormLabel>Tiêu đề</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='VD: FLASH SALE' />
+                  <Input
+                    {...field}
+                    placeholder='VD: FLASH SALE RINH QUÀ LINH ĐÌNH'
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -390,6 +355,24 @@ function CreateBannerForm({
             />
           </div>
 
+          {/* Sub Label */}
+          <FormField
+            control={form.control}
+            name='subLabel'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nhãn phụ</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder='VD: Số lượng quà tặng có hạn'
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           {/* Gradient Colors */}
           <div className='grid grid-cols-2 gap-4'>
             <FormField
@@ -400,10 +383,10 @@ function CreateBannerForm({
                   <FormLabel>Màu gradient (từ)</FormLabel>
                   <FormControl>
                     <div className='flex gap-2'>
-                      <Input {...field} placeholder='#FF6B9D' />
+                      <Input {...field} placeholder={DEFAULT_GRADIENT.from} />
                       <input
                         type='color'
-                        value={field.value || '#FF6B9D'}
+                        value={field.value || DEFAULT_GRADIENT.from}
                         onChange={(e) => field.onChange(e.target.value)}
                         className='w-10 h-10 rounded border cursor-pointer'
                       />
@@ -421,10 +404,10 @@ function CreateBannerForm({
                   <FormLabel>Màu gradient (đến)</FormLabel>
                   <FormControl>
                     <div className='flex gap-2'>
-                      <Input {...field} placeholder='#FF8E53' />
+                      <Input {...field} placeholder={DEFAULT_GRADIENT.to} />
                       <input
                         type='color'
-                        value={field.value || '#FF8E53'}
+                        value={field.value || DEFAULT_GRADIENT.to}
                         onChange={(e) => field.onChange(e.target.value)}
                         className='w-10 h-10 rounded border cursor-pointer'
                       />

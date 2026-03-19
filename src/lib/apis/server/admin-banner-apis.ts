@@ -23,15 +23,17 @@ const buildSearchParams = (
 
 /**
  * Get all banner groups (Admin - requires JWT auth)
+ * @param params - Pagination params and optional bannerId to filter groups containing that banner
  */
 export const getAllBannerGroupsAPI = async (
-  params: IApiPaginationParams = {},
+  params: IApiPaginationParams & { bannerId?: string } = {},
 ) =>
   kyInstance
     .get('banner', {
       searchParams: buildSearchParams({
         page: params.page ?? 1,
         limit: params.limit ?? 50,
+        bannerId: params.bannerId,
       }),
     })
     .json<IApiPaginationResponseWrapperType<IBannerGroupDataType>>();
@@ -112,38 +114,35 @@ export const getAllBannersAPI = async (
 
 /**
  * Create banner item (Admin - requires JWT auth)
+ * Note: groupId is now passed in the data body, not in URL
  */
-export const createBannerAPI = async (
-  groupId: string,
-  data: {
-    type: 'TEXT' | 'IMAGE';
-    position: 'MAIN_CAROUSEL' | 'SIDE_TOP' | 'SIDE_BOTTOM';
-    badge?: string;
-    title?: string;
-    description?: string;
-    highlight?: string;
-    ctaText?: string;
-    ctaLink?: string;
-    subLabel?: string;
-    gradientFrom?: string;
-    gradientTo?: string;
-    sortOrder?: number;
-    isActive?: boolean;
-  },
-) =>
+export const createBannerAPI = async (data: {
+  type: 'TEXT' | 'IMAGE';
+  position: 'MAIN_CAROUSEL' | 'SIDE_TOP' | 'SIDE_BOTTOM';
+  badge?: string;
+  title?: string;
+  description?: string;
+  highlight?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  subLabel?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+  sortOrder?: number;
+  isActive?: boolean;
+  groupId?: string;
+}) =>
   kyInstance
-    .post(`banner/group/${groupId}/items`, { json: data })
+    .post('banner/items', { json: data })
     .json<IApiResponseWrapperType<IBannerDataType>>();
 
 /**
  * Create banner item with image upload (Admin - requires JWT auth)
+ * Note: groupId should be included in the FormData as 'groupId' field
  */
-export const createBannerWithUploadAPI = async (
-  groupId: string,
-  formData: FormData,
-) =>
+export const createBannerWithUploadAPI = async (formData: FormData) =>
   kyInstance
-    .post(`banner/group/${groupId}/items/upload`, {
+    .post('banner/items/upload', {
       body: formData,
     })
     .json<IApiResponseWrapperType<IBannerDataType>>();
@@ -220,22 +219,49 @@ export const getBannerGroupsAPI = async (bannerId: string) =>
 
 /**
  * Add banner to a group (Admin - requires JWT auth)
+ * Note: BE endpoint is POST /banner/group/:groupId/items/:bannerId
  */
-export const addBannerToGroupAPI = async (
-  bannerId: string,
-  data: { groupId: string; sortOrder?: number },
-) =>
+export const addBannerToGroupAPI = async (groupId: string, bannerId: string) =>
   kyInstance
-    .post(`banner/item/${bannerId}/groups`, { json: data })
+    .post(`banner/group/${groupId}/items/${bannerId}`)
     .json<IApiResponseWrapperType<{ message: string }>>();
 
 /**
  * Remove banner from a group (Admin - requires JWT auth)
+ * Note: BE endpoint is DELETE /banner/group/:groupId/items/:bannerId
  */
 export const removeBannerFromGroupAPI = async (
-  bannerId: string,
   groupId: string,
+  bannerId: string,
 ) =>
   kyInstance
-    .delete(`banner/item/${bannerId}/groups/${groupId}`)
+    .delete(`banner/group/${groupId}/items/${bannerId}`)
+    .json<IApiResponseWrapperType<{ message: string }>>();
+
+/**
+ * Bulk remove banners from a group (Admin - requires JWT auth)
+ * Note: BE endpoint is DELETE /banner/group/:groupId/items
+ */
+export const bulkRemoveBannersFromGroupAPI = async (
+  groupId: string,
+  bannerIds: string[],
+) =>
+  kyInstance
+    .delete(`banner/group/${groupId}/items`, {
+      json: { bannerIds },
+    })
+    .json<IApiResponseWrapperType<{ message: string; count: number }>>();
+
+/**
+ * Reorder banners within a group (Admin - requires JWT auth)
+ * Note: BE endpoint is PATCH /banner/group/:groupId/reorder
+ */
+export const reorderBannersInGroupAPI = async (
+  groupId: string,
+  orderData: Array<{ bannerId: string; sortOrder: number }>,
+) =>
+  kyInstance
+    .patch(`banner/group/${groupId}/reorder`, {
+      json: { orderData },
+    })
     .json<IApiResponseWrapperType<{ message: string }>>();

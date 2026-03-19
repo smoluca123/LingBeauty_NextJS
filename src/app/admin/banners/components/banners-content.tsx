@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Loader2, ImageIcon } from 'lucide-react';
+import { useState } from 'react';
+import { Loader2, ImageIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   useAdminBannerGroupsQuery,
   useAdminBannersQuery,
@@ -18,65 +18,66 @@ import {
   EditBannerDialog,
   DeleteBannerDialog,
 } from './banner-table';
+import { Button } from '@/components/ui/button';
+
+const PAGE_SIZE = 10;
 
 export function BannersContent() {
-  const { data: groupsData, isLoading: isLoadingGroups } =
-    useAdminBannerGroupsQuery({ limit: 100 });
-
+  const [page, setPage] = useState(1);
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [selectedBanner, setSelectedBanner] = useState<IBannerDataType | null>(
-    null,
-  );
+  const [selectedBanner, setSelectedBanner] = useState<IBannerDataType | null>(null);
 
-  // Fetch banners using the new API
-  const { data: bannersData, isLoading: isLoadingBanners } =
-    useAdminBannersQuery({
-      limit: 100,
-      groupId: selectedGroupId || undefined,
-    });
+  const { data: groupsData, isLoading: isLoadingGroups } = useAdminBannerGroupsQuery({
+    limit: 100, // Groups needed for filter dropdown — usually small set
+  });
 
-  const groupsResult = groupsData as
-    | IApiPaginationResponseWrapperType<IBannerGroupDataType>
-    | undefined;
-  const groups = useMemo(() => groupsResult?.data?.items ?? [], [groupsResult?.data?.items]);
+  const { data: bannersData, isLoading: isLoadingBanners } = useAdminBannersQuery({
+    page,
+    limit: PAGE_SIZE,
+    search: searchQuery || undefined,
+    groupId: selectedGroupId ?? undefined,
+  });
 
-  const bannersResult = bannersData as
-    | IApiPaginationResponseWrapperType<IBannerDataType>
-    | undefined;
-  const banners = useMemo(() => bannersResult?.data?.items ?? [], [bannersResult?.data?.items]);
+  const groups: IBannerGroupDataType[] =
+    (groupsData as IApiPaginationResponseWrapperType<IBannerGroupDataType> | undefined)?.data?.items ?? [];
+  const bannersResult = bannersData as IApiPaginationResponseWrapperType<IBannerDataType> | undefined;
+  const banners: IBannerDataType[] = bannersResult?.data?.items ?? [];
+  const totalCount: number = bannersResult?.data?.totalCount ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
 
-  // Create a map of groupId -> groupName for quick lookup
-  const groupMap = useMemo(() => {
-    const map = new Map<string, string>();
-    groups.forEach((group) => {
-      map.set(group.id, group.name);
-    });
-    return map;
-  }, [groups]);
+  // Build groupId → groupName lookup
+  const groupNameMap = new Map<string, string>(groups.map((g) => [g.id, g.name]));
 
-  // Enrich banners with group info
-  const allBanners = useMemo(() => {
-    return banners.map((banner) => {
-      // Get the first group mapping if exists
-      const firstGroup = banner.groups?.[0];
-      const groupId = firstGroup?.bannerGroupId || '';
-      const groupName = groupMap.get(groupId) || '—';
-
-      return {
-        ...banner,
-        groupId,
-        groupName,
-      };
-    });
-  }, [banners, groupMap]);
+  // Enrich banners with group info (derived during render — no useEffect)
+  const enrichedBanners = banners.map((banner) => {
+    const firstGroup = banner.groups?.[0];
+    const groupId = firstGroup?.bannerGroupId ?? '';
+    return {
+      ...banner,
+      groupId,
+      groupName: groupNameMap.get(groupId) ?? '—',
+    };
+  });
 
   const isLoading = isLoadingGroups || isLoadingBanners;
 
-  const handleAddBanner = () => {
-    setCreateDialogOpen(true);
+  // Get fresh selected banner data from cache
+  const currentSelectedBanner = selectedBanner
+    ? (enrichedBanners.find((b) => b.id === selectedBanner.id) ?? selectedBanner)
+    : null;
+
+  const handleGroupChange = (groupId: string | null) => {
+    setSelectedGroupId(groupId);
+    setPage(1);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPage(1);
   };
 
   const handleEdit = (banner: IBannerDataType & { groupId?: string }) => {
@@ -89,18 +90,14 @@ export function BannersContent() {
     setDeleteDialogOpen(true);
   };
 
-  // Get current selected banner from fresh data
-  const currentSelectedBanner = selectedBanner
-    ? allBanners.find((b) => b.id === selectedBanner.id) || null
-    : null;
-
   return (
     <div className='flex flex-col h-full gap-4 md:gap-6 w-full min-w-0'>
       <BannersHeader
         groups={groups}
         selectedGroupId={selectedGroupId}
-        onGroupChange={setSelectedGroupId}
-        onAddBanner={handleAddBanner}
+        onGroupChange={handleGroupChange}
+        onSearch={handleSearch}
+        onAddBanner={() => setCreateDialogOpen(true)}
       />
 
       {/* Loading state */}
@@ -110,40 +107,69 @@ export function BannersContent() {
         </div>
       )}
 
-      {/* Empty state - no groups */}
+      {/* Empty state – no groups */}
       {!isLoading && groups.length === 0 && (
         <div className='flex flex-col items-center justify-center py-20 text-muted-foreground gap-3 w-full'>
           <ImageIcon className='h-12 w-12' />
           <p className='text-lg font-medium'>Chưa có nhóm banner nào</p>
-          <p className='text-sm'>
-            Vui lòng tạo nhóm banner trước khi thêm banner
-          </p>
+          <p className='text-sm'>Vui lòng tạo nhóm banner trước khi thêm banner</p>
         </div>
       )}
 
-      {/* Empty state - no banners */}
-      {!isLoading && groups.length > 0 && allBanners.length === 0 && (
+      {/* Empty state – no banners */}
+      {!isLoading && groups.length > 0 && enrichedBanners.length === 0 && (
         <div className='flex flex-col items-center justify-center py-20 text-muted-foreground gap-3 w-full'>
           <ImageIcon className='h-12 w-12' />
           <p className='text-lg font-medium'>Chưa có banner nào</p>
           <p className='text-sm'>
-            Nhấn &ldquo;Thêm banner&rdquo; để tạo banner đầu tiên
+            {searchQuery
+              ? `Không tìm thấy banner nào khớp với "${searchQuery}"`
+              : 'Nhấn \u201cThêm banner\u201d để tạo banner đầu tiên'}
           </p>
         </div>
       )}
 
       {/* Banner Table */}
-      {!isLoading && allBanners.length > 0 && (
-        <div className='flex-1 min-h-0'>
-          <BannerTable
-            banners={allBanners}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+      {!isLoading && enrichedBanners.length > 0 && (
+        <div className='flex flex-col gap-4 flex-1 min-h-0 w-full overflow-hidden'>
+          <BannerTable banners={enrichedBanners} onEdit={handleEdit} onDelete={handleDelete} />
+
+          {/* Pagination */}
+          <div className='flex items-center justify-between px-1'>
+            <p className='text-sm text-muted-foreground'>
+              Hiển thị{' '}
+              <span className='font-medium'>
+                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, totalCount)}
+              </span>{' '}
+              trong <span className='font-medium'>{totalCount}</span> banner
+            </p>
+            <div className='flex items-center gap-2'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1 || isLoading}
+              >
+                <ChevronLeft className='h-4 w-4' />
+                Trước
+              </Button>
+              <span className='text-sm text-muted-foreground px-1'>
+                Trang {page} / {totalPages}
+              </span>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages || isLoading}
+              >
+                Tiếp
+                <ChevronRight className='h-4 w-4' />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Create Dialog */}
       <CreateBannerDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
@@ -151,7 +177,6 @@ export function BannersContent() {
         defaultGroupId={selectedGroupId}
       />
 
-      {/* Edit Dialog */}
       <EditBannerDialog
         open={editDialogOpen}
         onOpenChange={setEditDialogOpen}
@@ -159,7 +184,6 @@ export function BannersContent() {
         groups={groups}
       />
 
-      {/* Delete Dialog */}
       <DeleteBannerDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
