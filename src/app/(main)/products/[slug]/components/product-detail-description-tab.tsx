@@ -1,4 +1,6 @@
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
+import parse from 'html-react-parser';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface ProductDetailDescriptionTabProps {
   product: IProductDataType;
@@ -25,10 +27,9 @@ export function ProductDetailDescriptionTab({
         </p>
       )}
       {product.description && (
-        <div
-          className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_strong]:text-foreground"
-          dangerouslySetInnerHTML={{ __html: product.description }}
-        />
+        <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_strong]:text-foreground">
+          {parse(DOMPurify.sanitize(product.description))}
+        </div>
       )}
     </div>
   );
