@@ -10,6 +10,8 @@ import type {
   IGetReviewsParams,
   ICreateReviewDataType,
   ICreateReviewReplyDataType,
+  IUpdateReviewDataType,
+  IUpdateReviewReplyDataType,
 } from '@/lib/types/interfaces/apis/review.interfaces';
 import { HTTPError } from 'ky';
 
@@ -188,6 +190,88 @@ export const getReviewRepliesAPI = async (reviewId: string) => {
     if (error instanceof HTTPError) {
       const errorData = await error.response.json();
       throw new Error(errorData.message || 'Failed to fetch replies');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Update a review
+ * Calls Next.js API route (/api/review/:reviewId) which uses server action
+ */
+export const updateReviewAPI = async (
+  reviewId: string,
+  data: IUpdateReviewDataType,
+) => {
+  try {
+    const response = await kyNextInstance
+      .patch(`review/${reviewId}`, { json: data })
+      .json<IApiResponseWrapperType<IReviewDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to update review');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Delete a review
+ * Calls Next.js API route (/api/review/:reviewId) which uses server action
+ */
+export const deleteReviewAPI = async (reviewId: string) => {
+  try {
+    const response = await kyNextInstance
+      .delete(`review/${reviewId}`)
+      .json<IApiResponseWrapperType<{ deleted: boolean }>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to delete review');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Update a review reply
+ * Calls Next.js API route (/api/review/reply/:replyId) which uses server action
+ */
+export const updateReviewReplyAPI = async (
+  replyId: string,
+  data: IUpdateReviewReplyDataType,
+) => {
+  try {
+    const response = await kyNextInstance
+      .patch(`review/reply/${replyId}`, { json: data })
+      .json<IApiResponseWrapperType<IReviewReplyDataType>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to update reply');
+    }
+    throw error;
+  }
+};
+
+/**
+ * Delete a review reply
+ * Calls Next.js API route (/api/review/reply/:replyId) which uses server action
+ */
+export const deleteReviewReplyAPI = async (replyId: string) => {
+  try {
+    const response = await kyNextInstance
+      .delete(`review/reply/${replyId}`)
+      .json<IApiResponseWrapperType<{ deleted: boolean }>>();
+    return response;
+  } catch (error) {
+    if (error instanceof HTTPError) {
+      const errorData = await error.response.json();
+      throw new Error(errorData.message || 'Failed to delete reply');
     }
     throw error;
   }

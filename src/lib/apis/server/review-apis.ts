@@ -11,8 +11,8 @@ import type {
   IReviewReplyDataType,
   IGetReviewsParams,
 } from '@/lib/types/interfaces/apis/review.interfaces';
-import { cacheLife, cacheTag } from 'next/cache';
-import { DEFAULT_CACHE_TIME } from '@/constants/cache';
+// import { cacheLife, cacheTag } from 'next/cache';
+// import { DEFAULT_CACHE_TIME } from '@/constants/cache';
 
 // Helper: build search params object, omitting undefined values
 const buildSearchParams = (
@@ -30,9 +30,9 @@ export const getPublicProductReviewsAPI = async (
   productId: string,
   options: Omit<IGetReviewsParams, 'productId'> = {},
 ) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`product-reviews-${productId}`);
+  // 'use cache';
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`product-reviews-${productId}`);
 
   return publicKyInstance
     .get(`review/public/product/${productId}`, {
@@ -52,9 +52,9 @@ export const getPublicProductReviewsAPI = async (
  * Uses 'use cache' for optimal performance
  */
 export const getProductReviewSummaryAPI = async (productId: string) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`product-review-summary-${productId}`);
+  // 'use cache';
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`product-review-summary-${productId}`);
 
   return publicKyInstance
     .get(`review/public/product/${productId}/summary`)
@@ -66,9 +66,9 @@ export const getProductReviewSummaryAPI = async (productId: string) => {
  * Uses 'use cache' for optimal performance
  */
 export const getPublicReviewByIdAPI = async (reviewId: string) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`review-${reviewId}`);
+  // 'use cache';
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`review-${reviewId}`);
 
   return publicKyInstance
     .get(`review/public/${reviewId}`)
@@ -80,9 +80,9 @@ export const getPublicReviewByIdAPI = async (reviewId: string) => {
  * Uses 'use cache' for optimal performance
  */
 export const getReviewRepliesAPI = async (reviewId: string) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`review-replies-${reviewId}`);
+  // 'use cache';
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`review-replies-${reviewId}`);
 
   return publicKyInstance
     .get(`review/${reviewId}/replies`)
