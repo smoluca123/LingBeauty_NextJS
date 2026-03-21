@@ -11,6 +11,7 @@ import {
   Tag,
   ImageIcon,
   Ticket,
+  Zap,
 } from 'lucide-react';
 
 import {
@@ -64,7 +65,10 @@ const NAV_SECTIONS: NavSection[] = [
   },
   {
     title: 'Khuyến mãi',
-    items: [{ icon: Ticket, label: 'Mã giảm giá', href: '/admin/coupons' }],
+    items: [
+      { icon: Ticket, label: 'Mã giảm giá', href: '/admin/coupons' },
+      { icon: Zap, label: 'Flash Sale', href: '/admin/flash-sales' },
+    ],
   },
   {
     title: 'Ngườii dùng',
