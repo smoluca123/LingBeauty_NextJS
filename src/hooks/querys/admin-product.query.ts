@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   getAllAdminProductsClientAPI,
+  getProductByIdClientAPI,
   createProductClientAPI,
   updateProductClientAPI,
   getProductImagesClientAPI,
@@ -37,6 +38,8 @@ export const adminProductQueryKeys = {
   all: ['admin', 'products'] as const,
   list: (params: IAdminProductFilters) =>
     ['admin', 'products', 'list', params] as const,
+  detail: (productId: string) =>
+    ['admin', 'products', 'detail', productId] as const,
 };
 
 // ── Get All Products (Admin) ──────────────────────────────────────────────────
@@ -47,6 +50,16 @@ export const useAdminProductsQuery = (params: IAdminProductFilters = {}) =>
     queryFn: () => getAllAdminProductsClientAPI(params),
     staleTime: 1000 * 30, // 30 giây
     placeholderData: (prev) => prev, // giữ data cũ khi đang fetch trang mới
+  });
+
+// ── Get Product by ID (Admin) ─────────────────────────────────────────────────
+
+export const useAdminProductByIdQuery = (productId: string | null) =>
+  useQuery({
+    queryKey: adminProductQueryKeys.detail(productId ?? ''),
+    queryFn: () => getProductByIdClientAPI(productId!),
+    enabled: !!productId,
+    staleTime: 1000 * 60, // 1 phút
   });
 
 // ── Create Product (Admin) ────────────────────────────────────────────────────
@@ -62,7 +75,9 @@ export const useCreateProductMutation = () => {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Tạo sản phẩm thất bại. Vui lòng thử lại.',
+        error instanceof Error
+          ? error.message
+          : 'Tạo sản phẩm thất bại. Vui lòng thử lại.',
       );
     },
   });
@@ -74,15 +89,22 @@ export const useUpdateProductMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ productId, data }: { productId: string; data: IUpdateProductPayload }) =>
-      updateProductClientAPI(productId, data),
+    mutationFn: ({
+      productId,
+      data,
+    }: {
+      productId: string;
+      data: IUpdateProductPayload;
+    }) => updateProductClientAPI(productId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminProductQueryKeys.all });
       toast.success('Cập nhật sản phẩm thành công');
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Cập nhật sản phẩm thất bại. Vui lòng thử lại.',
+        error instanceof Error
+          ? error.message
+          : 'Cập nhật sản phẩm thất bại. Vui lòng thử lại.',
       );
     },
   });
@@ -91,7 +113,8 @@ export const useUpdateProductMutation = () => {
 // ── Query Keys for Images ──────────────────────────────────────────────────────
 
 export const productImageQueryKeys = {
-  images: (productId: string) => ['admin', 'products', productId, 'images'] as const,
+  images: (productId: string) =>
+    ['admin', 'products', productId, 'images'] as const,
 };
 
 // ── Get Product Images ─────────────────────────────────────────────────────────
@@ -119,7 +142,9 @@ export const useUploadProductImageMutation = (productId: string) => {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Upload ảnh thất bại. Vui lòng thử lại.',
+        error instanceof Error
+          ? error.message
+          : 'Upload ảnh thất bại. Vui lòng thử lại.',
       );
     },
   });
@@ -131,8 +156,13 @@ export const useSetPrimaryProductImageMutation = (productId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ imageId, data }: { imageId: string; data: IUpdateProductImagePayload }) =>
-      updateProductImageClientAPI(productId, imageId, data),
+    mutationFn: ({
+      imageId,
+      data,
+    }: {
+      imageId: string;
+      data: IUpdateProductImagePayload;
+    }) => updateProductImageClientAPI(productId, imageId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: productImageQueryKeys.images(productId),
@@ -154,8 +184,13 @@ export const useUpdateProductImageMutation = (productId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ imageId, data }: { imageId: string; data: IUpdateProductImagePayload }) =>
-      updateProductImageClientAPI(productId, imageId, data),
+    mutationFn: ({
+      imageId,
+      data,
+    }: {
+      imageId: string;
+      data: IUpdateProductImagePayload;
+    }) => updateProductImageClientAPI(productId, imageId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: productImageQueryKeys.images(productId),
@@ -185,9 +220,7 @@ export const useDeleteProductImageMutation = (productId: string) => {
       toast.success('Đã xóa ảnh!');
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : 'Xóa ảnh thất bại.',
-      );
+      toast.error(error instanceof Error ? error.message : 'Xóa ảnh thất bại.');
     },
   });
 };
@@ -205,7 +238,9 @@ export const useDeleteProductMutation = () => {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Xóa sản phẩm thất bại. Vui lòng thử lại.',
+        error instanceof Error
+          ? error.message
+          : 'Xóa sản phẩm thất bại. Vui lòng thử lại.',
       );
     },
   });
@@ -241,10 +276,13 @@ export const useAddProductVariantMutation = (productId: string) => {
       if (!res || !('data' in res) || !res.data) return;
       const newVariant = res.data as IAdminProductVariant;
       // Append vào cache — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductVariant[] } | undefined) => {
-        if (!old) return old;
-        return { ...old, data: [...(old.data ?? []), newVariant] };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductVariant[] } | undefined) => {
+          if (!old) return old;
+          return { ...old, data: [...(old.data ?? []), newVariant] };
+        },
+      );
       toast.success('Thêm biến thể thành công');
     },
     onError: (error) => {
@@ -262,19 +300,27 @@ export const useUpdateProductVariantMutation = (productId: string) => {
   const qKey = productVariantQueryKeys.variants(productId);
 
   return useMutation({
-    mutationFn: ({ variantId, data }: { variantId: string; data: IUpdateProductVariantPayload }) =>
-      updateProductVariantClientAPI(productId, variantId, data),
+    mutationFn: ({
+      variantId,
+      data,
+    }: {
+      variantId: string;
+      data: IUpdateProductVariantPayload;
+    }) => updateProductVariantClientAPI(productId, variantId, data),
     onSuccess: (res) => {
       if (!res || !('data' in res) || !res.data) return;
       const updated = res.data as IAdminProductVariant;
       // Thay thế biến thể trong cache — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductVariant[] } | undefined) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: old.data.map((v) => (v.id === updated.id ? updated : v)),
-        };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductVariant[] } | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((v) => (v.id === updated.id ? updated : v)),
+          };
+        },
+      );
       toast.success('Cập nhật biến thể thành công');
     },
     onError: (error) => {
@@ -296,13 +342,16 @@ export const useDeleteProductVariantMutation = (productId: string) => {
       deleteProductVariantClientAPI(productId, variantId),
     onSuccess: (_, variantId) => {
       // Xóa khỏi cache — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductVariant[] } | undefined) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: old.data.filter((v) => v.id !== variantId),
-        };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductVariant[] } | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.filter((v) => v.id !== variantId),
+          };
+        },
+      );
       toast.success('Xóa biến thể thành công');
     },
     onError: (error) => {
@@ -429,10 +478,13 @@ export const useAddProductBadgeMutation = (productId: string) => {
       if (!res || !('data' in res) || !res.data) return;
       const newBadge = res.data as IAdminProductBadge;
       // Cập nhật cache trực tiếp — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductBadge[] } | undefined) => {
-        if (!old) return old;
-        return { ...old, data: [...(old.data ?? []), newBadge] };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductBadge[] } | undefined) => {
+          if (!old) return old;
+          return { ...old, data: [...(old.data ?? []), newBadge] };
+        },
+      );
       toast.success('Thêm badge thành công');
     },
     onError: (error) => {
@@ -450,19 +502,27 @@ export const useUpdateProductBadgeMutation = (productId: string) => {
   const qKey = productBadgeQueryKeys.badges(productId);
 
   return useMutation({
-    mutationFn: ({ badgeId, data }: { badgeId: string; data: IUpdateProductBadgePayload }) =>
-      updateProductBadgeClientAPI(productId, badgeId, data),
+    mutationFn: ({
+      badgeId,
+      data,
+    }: {
+      badgeId: string;
+      data: IUpdateProductBadgePayload;
+    }) => updateProductBadgeClientAPI(productId, badgeId, data),
     onSuccess: (res) => {
       if (!res || !('data' in res) || !res.data) return;
       const updated = res.data as IAdminProductBadge;
       // Thay thế badge được cập nhật trong cache — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductBadge[] } | undefined) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: old.data.map((b) => (b.id === updated.id ? updated : b)),
-        };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductBadge[] } | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.map((b) => (b.id === updated.id ? updated : b)),
+          };
+        },
+      );
       toast.success('Cập nhật badge thành công');
     },
     onError: (error) => {
@@ -484,13 +544,16 @@ export const useDeleteProductBadgeMutation = (productId: string) => {
       deleteProductBadgeClientAPI(productId, badgeId),
     onSuccess: (_, badgeId) => {
       // Xóa badge khỏi cache — không re-fetch
-      queryClient.setQueryData(qKey, (old: { data: IAdminProductBadge[] } | undefined) => {
-        if (!old) return old;
-        return {
-          ...old,
-          data: old.data.filter((b) => b.id !== badgeId),
-        };
-      });
+      queryClient.setQueryData(
+        qKey,
+        (old: { data: IAdminProductBadge[] } | undefined) => {
+          if (!old) return old;
+          return {
+            ...old,
+            data: old.data.filter((b) => b.id !== badgeId),
+          };
+        },
+      );
       toast.success('Xóa badge thành công');
     },
     onError: (error) => {
