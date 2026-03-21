@@ -11,15 +11,16 @@ import {
 import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import {
   useMarkHelpfulMutation,
   useUnmarkHelpfulMutation,
 } from '@/hooks/mutations/review.mutation';
-import { useGetReviewRepliesQuery } from '@/hooks/querys/review.query';
+import { useGetReviewRepliesInfiniteQuery } from '@/hooks/querys/review.query';
 import { ReviewReplyForm } from '@/components/review/review-reply-form';
 import { ReviewRepliesList } from '@/components/review/review-replies-list';
 import { ReviewMoreActions } from './review-more-actions';
+import Image from 'next/image';
 
 interface ReviewItemProps {
   review: IReviewDataType;
@@ -37,13 +38,20 @@ export function ReviewItem({
 
   const markHelpfulMutation = useMarkHelpfulMutation(review.id, productId);
   const unmarkHelpfulMutation = useUnmarkHelpfulMutation(review.id, productId);
-  const { data: repliesData } = useGetReviewRepliesQuery(review.id);
+  const {
+    data: repliesData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetReviewRepliesInfiniteQuery(review.id);
 
-  const replies = repliesData?.data || [];
+  const fetchedReplies =
+    repliesData?.pages.flatMap((page) => page.data?.items ?? []) || [];
   const hasReplies =
-    replies.length > 0 || (review.replies && review.replies.length > 0);
+    fetchedReplies.length > 0 || (review.replies && review.replies.length > 0);
   // Prioritize replies from query (real-time updates) over review.replies (initial data)
-  const displayReplies = replies.length > 0 ? replies : review.replies || [];
+  const displayReplies =
+    fetchedReplies.length > 0 ? fetchedReplies : review.replies || [];
 
   const handleHelpfulClick = () => {
     if (!isAuthenticated) {
@@ -132,10 +140,11 @@ export function ReviewItem({
                 key={image.id}
                 className="relative h-20 w-20 rounded-lg overflow-hidden border"
               >
-                <img
+                <Image
                   src={image.media.url}
                   alt={image.alt || 'Review image'}
                   className="h-full w-full object-cover"
+                  fill
                 />
               </div>
             ))}
@@ -201,7 +210,13 @@ export function ReviewItem({
         {/* Replies */}
         {showReplies && displayReplies.length > 0 && (
           <div className="mt-4 pl-4 border-l-2 border-muted">
-            <ReviewRepliesList replies={displayReplies} reviewId={review.id} />
+            <ReviewRepliesList
+              replies={displayReplies}
+              reviewId={review.id}
+              onLoadMore={() => fetchNextPage()}
+              hasMore={hasNextPage}
+              isLoadingMore={isFetchingNextPage}
+            />
           </div>
         )}
       </div>

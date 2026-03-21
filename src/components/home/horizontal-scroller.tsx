@@ -11,7 +11,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { SCROLLER_GAP, DEFAULT_SLIDES_PER_VIEW } from '@/constants/ui';
 
 type SlidesPerView = {
@@ -102,7 +102,7 @@ export function HorizontalScroller({
                 'w-(--item-width-mobile) min-w-(--item-width-mobile)',
                 'sm:w-(--item-width-tablet) sm:min-w-(--item-width-tablet)',
                 'lg:w-(--item-width-desktop) lg:min-w-(--item-width-desktop)',
-                itemClassName
+                itemClassName,
               )}
             >
               {child}

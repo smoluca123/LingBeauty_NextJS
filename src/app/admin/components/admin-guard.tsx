@@ -3,17 +3,7 @@
 import { useEffect } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
-
-// Roles allowed to access admin panel
-const ADMIN_ROLES = ['Quản trị viên', 'Quản lý'] as const;
-type AdminRole = (typeof ADMIN_ROLES)[number];
-
-function hasAdminRole(roleAssignments?: { role: { name: string } }[]): boolean {
-  if (!roleAssignments || roleAssignments.length === 0) return false;
-  return roleAssignments.some((ra) =>
-    (ADMIN_ROLES as readonly AdminRole[]).includes(ra.role.name as AdminRole),
-  );
-}
+import { hasAdminRole } from '@/lib/utils/utils';
 
 interface AdminGuardProps {
   children: React.ReactNode;

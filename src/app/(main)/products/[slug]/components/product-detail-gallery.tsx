@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight, ZoomIn, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 
 interface ProductDetailGalleryProps {
@@ -200,7 +200,12 @@ interface LightboxProps {
   onClose: () => void;
 }
 
-function Lightbox({ images, initialIndex, productName, onClose }: LightboxProps) {
+function Lightbox({
+  images,
+  initialIndex,
+  productName,
+  onClose,
+}: LightboxProps) {
   const [lightboxRef, lightboxApi] = useEmblaCarousel({
     startIndex: initialIndex,
     loop: true,

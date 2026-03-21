@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { trendCategories, getProductsByCategory } from './data';
 import { TrendCard } from './trend-card';
 import { SectionHeadingCenter } from '@/components/home/section-heading';

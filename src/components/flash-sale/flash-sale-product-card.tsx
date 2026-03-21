@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { isSoldOut } from '@/lib/utils/flash-sale-utils';
-import { ProductCard } from '@/components/product/product-card';
-import type { FlashSaleProduct } from '@/types/flash-sale';
-import type { Product } from '@/types/product';
+import { ProductCard2 } from '@/components/product/product-card2';
+import type { IFlashSaleProductDataType } from '@/lib/types/interfaces/apis/flash-sale.interfaces';
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 
 interface FlashSaleProductCardProps {
-  product: FlashSaleProduct;
+  product: IFlashSaleProductDataType;
   className?: string;
 }
 
@@ -17,26 +17,22 @@ export function FlashSaleProductCard({
   product,
   className,
 }: FlashSaleProductCardProps) {
-  const { flashPrice, originalPrice, maxQuantity, soldQuantity, badges } =
-    product;
+  const { flashPrice, originalPrice, maxQuantity, soldQuantity } = product;
 
   const soldOut = isSoldOut(soldQuantity, maxQuantity);
 
-  // Convert FlashSaleProduct to Product format for ProductCard
-  const productData: Product = {
-    id: product.product.id,
-    name: product.product.name,
-    brand: product.product.brand.name,
-    image: product.product.image,
-    price: flashPrice,
-    originalPrice: originalPrice,
-    rating: product.product.rating,
-    reviewCount: product.product.reviewCount,
-    badges: badges?.map((b) => ({
-      label: b.label,
-      variant: b.variant === 'freeship' ? 'info' : 'primary',
-    })),
-    dealLabel: 'Flash Sale',
+  // Parse prices from string to number (BE returns prices as strings)
+  const parsedFlashPrice =
+    typeof flashPrice === 'string' ? parseFloat(flashPrice) : flashPrice;
+  const parsedOriginalPrice =
+    typeof originalPrice === 'string'
+      ? parseFloat(originalPrice)
+      : originalPrice;
+
+  const productData: IProductDataType = {
+    ...product.product,
+    basePrice: parsedFlashPrice.toString(),
+    comparePrice: parsedOriginalPrice.toString(),
   };
 
   const cardContent = (
@@ -50,9 +46,12 @@ export function FlashSaleProductCard({
         </div>
       )}
 
-      <ProductCard
+      <ProductCard2
         product={productData}
-        className="border-2 border-pink-200 hover:border-pink-300"
+        className={cn(
+          'border-2 border-pink-200 hover:border-pink-300',
+          soldOut && 'pointer-events-none',
+        )}
         showStock
         soldQuantity={soldQuantity}
         maxQuantity={maxQuantity}

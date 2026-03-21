@@ -1,11 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, ChevronRight, ChevronDown, Pencil, Trash2, GripVertical } from 'lucide-react';
+import {
+  Plus,
+  ChevronRight,
+  ChevronDown,
+  Pencil,
+  Trash2,
+  GripVertical,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 interface CategoryTreeItemProps {
   category: IAdminCategoryDataType;
@@ -33,7 +40,10 @@ export function CategoryTreeItem({
           level > 0 && 'ml-4 sm:ml-6',
         )}
       >
-        <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 shrink-0 hidden sm:block" aria-hidden="true" />
+        <GripVertical
+          className="h-4 w-4 cursor-grab text-muted-foreground opacity-0 group-hover:opacity-100 shrink-0 hidden sm:block"
+          aria-hidden="true"
+        />
 
         {/* Toggle expand */}
         {hasChildren ? (
@@ -64,7 +74,10 @@ export function CategoryTreeItem({
             className="h-8 w-8 rounded object-cover shrink-0"
           />
         ) : (
-          <div className="h-8 w-8 rounded bg-muted shrink-0" aria-hidden="true" />
+          <div
+            className="h-8 w-8 rounded bg-muted shrink-0"
+            aria-hidden="true"
+          />
         )}
 
         {/* Info */}
@@ -80,12 +93,18 @@ export function CategoryTreeItem({
               </Badge>
             )}
             {category.sortOrder !== undefined && (
-              <span className="text-xs text-muted-foreground">#{category.sortOrder}</span>
+              <span className="text-xs text-muted-foreground">
+                #{category.sortOrder}
+              </span>
             )}
           </div>
-          <p className="text-sm text-muted-foreground truncate">/{category.slug}</p>
+          <p className="text-sm text-muted-foreground truncate">
+            /{category.slug}
+          </p>
           {category.description && (
-            <p className="text-xs text-muted-foreground truncate">{category.description}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {category.description}
+            </p>
           )}
         </div>
 
@@ -145,4 +164,3 @@ export function CategoryTreeItem({
     </div>
   );
 }
-

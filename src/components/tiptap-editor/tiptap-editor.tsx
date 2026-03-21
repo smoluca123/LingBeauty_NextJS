@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { HashtagExtension } from './extensions/hashtag';
 
 // ============ Types ============
@@ -67,9 +67,9 @@ function ToolbarButton({
 }: ToolbarButtonProps) {
   return (
     <Button
-      type='button'
-      variant='ghost'
-      size='sm'
+      type="button"
+      variant="ghost"
+      size="sm"
       onClick={onClick}
       disabled={disabled}
       title={title}
@@ -161,161 +161,161 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
   }
 
   return (
-    <div className='flex flex-wrap items-center gap-1 border-b p-2 bg-muted/30'>
+    <div className="flex flex-wrap items-center gap-1 border-b p-2 bg-muted/30">
       {/* History */}
-      <div className='flex items-center gap-0.5 pr-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 pr-2 border-r border-border">
         <ToolbarButton
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().chain().focus().undo().run()}
-          title='Hoàn tác (Ctrl+Z)'
+          title="Hoàn tác (Ctrl+Z)"
         >
-          <Undo className='h-4 w-4' />
+          <Undo className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().chain().focus().redo().run()}
-          title='Làm lại (Ctrl+Y)'
+          title="Làm lại (Ctrl+Y)"
         >
-          <Redo className='h-4 w-4' />
+          <Redo className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Text Style */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
-          title='In đậm (Ctrl+B)'
+          title="In đậm (Ctrl+B)"
         >
-          <Bold className='h-4 w-4' />
+          <Bold className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
-          title='In nghiêng (Ctrl+I)'
+          title="In nghiêng (Ctrl+I)"
         >
-          <Italic className='h-4 w-4' />
+          <Italic className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           isActive={editor.isActive('underline')}
-          title='Gạch chân (Ctrl+U)'
+          title="Gạch chân (Ctrl+U)"
         >
-          <UnderlineIcon className='h-4 w-4' />
+          <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editor.isActive('strike')}
-          title='Gạch ngang'
+          title="Gạch ngang"
         >
-          <Strikethrough className='h-4 w-4' />
+          <Strikethrough className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           isActive={editor.isActive('highlight')}
-          title='Đánh dấu'
+          title="Đánh dấu"
         >
-          <Highlighter className='h-4 w-4' />
+          <Highlighter className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Headings */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <ToolbarButton
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 1 }).run()
           }
           isActive={editor.isActive('heading', { level: 1 })}
-          title='Tiêu đề 1'
+          title="Tiêu đề 1"
         >
-          <Heading1 className='h-4 w-4' />
+          <Heading1 className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() =>
             editor.chain().focus().toggleHeading({ level: 2 }).run()
           }
           isActive={editor.isActive('heading', { level: 2 })}
-          title='Tiêu đề 2'
+          title="Tiêu đề 2"
         >
-          <Heading2 className='h-4 w-4' />
+          <Heading2 className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Lists */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           isActive={editor.isActive('bulletList')}
-          title='Danh sách dấu đầu dòng'
+          title="Danh sách dấu đầu dòng"
         >
-          <List className='h-4 w-4' />
+          <List className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleOrderedList().run()}
           isActive={editor.isActive('orderedList')}
-          title='Danh sách đánh số'
+          title="Danh sách đánh số"
         >
-          <ListOrdered className='h-4 w-4' />
+          <ListOrdered className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Alignment */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('left').run()}
           isActive={editor.isActive({ textAlign: 'left' })}
-          title='Căn trái'
+          title="Căn trái"
         >
-          <AlignLeft className='h-4 w-4' />
+          <AlignLeft className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('center').run()}
           isActive={editor.isActive({ textAlign: 'center' })}
-          title='Căn giữa'
+          title="Căn giữa"
         >
-          <AlignCenter className='h-4 w-4' />
+          <AlignCenter className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().setTextAlign('right').run()}
           isActive={editor.isActive({ textAlign: 'right' })}
-          title='Căn phải'
+          title="Căn phải"
         >
-          <AlignRight className='h-4 w-4' />
+          <AlignRight className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Link */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <ToolbarButton
           onClick={setLink}
           isActive={editor.isActive('link')}
-          title='Thêm liên kết'
+          title="Thêm liên kết"
         >
-          <LinkIcon className='h-4 w-4' />
+          <LinkIcon className="h-4 w-4" />
         </ToolbarButton>
       </div>
 
       {/* Image */}
-      <div className='flex items-center gap-0.5 px-2 border-r border-border'>
+      <div className="flex items-center gap-0.5 px-2 border-r border-border">
         <Popover open={isImagePopoverOpen} onOpenChange={setIsImagePopoverOpen}>
           <PopoverTrigger asChild>
             <Button
-              type='button'
-              variant='ghost'
-              size='sm'
-              className='h-8 w-8 p-0 hover:bg-muted'
-              title='Thêm hình ảnh'
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-muted"
+              title="Thêm hình ảnh"
             >
-              <ImageIcon className='h-4 w-4' />
+              <ImageIcon className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-80' align='start'>
-            <div className='space-y-4'>
-              <div className='space-y-2'>
+          <PopoverContent className="w-80" align="start">
+            <div className="space-y-4">
+              <div className="space-y-2">
                 <Label>URL hình ảnh</Label>
-                <div className='flex gap-2'>
+                <div className="flex gap-2">
                   <Input
-                    placeholder='https://example.com/image.jpg'
+                    placeholder="https://example.com/image.jpg"
                     value={imageUrl}
                     onChange={(e) => setImageUrl(e.target.value)}
                     onKeyDown={(e) => {
@@ -325,36 +325,36 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                       }
                     }}
                   />
-                  <Button type='button' size='sm' onClick={addImage}>
+                  <Button type="button" size="sm" onClick={addImage}>
                     Thêm
                   </Button>
                 </div>
               </div>
               {onImageUpload && (
-                <div className='space-y-2'>
-                  <div className='relative'>
-                    <div className='absolute inset-0 flex items-center'>
-                      <span className='w-full border-t' />
+                <div className="space-y-2">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
                     </div>
-                    <div className='relative flex justify-center text-xs uppercase'>
-                      <span className='bg-popover px-2 text-muted-foreground'>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-popover px-2 text-muted-foreground">
                         Hoặc
                       </span>
                     </div>
                   </div>
                   <Button
-                    type='button'
-                    variant='outline'
-                    className='w-full'
+                    type="button"
+                    variant="outline"
+                    className="w-full"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     Tải ảnh lên
                   </Button>
                   <input
                     ref={fileInputRef}
-                    type='file'
-                    accept='image/*'
-                    className='hidden'
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
                     onChange={handleFileUpload}
                   />
                 </div>
@@ -365,28 +365,28 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
       </div>
 
       {/* Hashtag */}
-      <div className='flex items-center gap-0.5 px-2'>
+      <div className="flex items-center gap-0.5 px-2">
         <Popover
           open={isHashtagPopoverOpen}
           onOpenChange={setIsHashtagPopoverOpen}
         >
           <PopoverTrigger asChild>
             <Button
-              type='button'
-              variant='ghost'
-              size='sm'
-              className='h-8 w-8 p-0 hover:bg-muted text-primary-pink'
-              title='Thêm hashtag'
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 hover:bg-muted text-primary-pink"
+              title="Thêm hashtag"
             >
-              <Hash className='h-4 w-4' />
+              <Hash className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className='w-64' align='start'>
-            <div className='space-y-2'>
+          <PopoverContent className="w-64" align="start">
+            <div className="space-y-2">
               <Label>Thêm hashtag</Label>
-              <div className='flex gap-2'>
+              <div className="flex gap-2">
                 <Input
-                  placeholder='Nhập hashtag...'
+                  placeholder="Nhập hashtag..."
                   value={hashtagInput}
                   onChange={(e) => setHashtagInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -397,25 +397,25 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                   }}
                 />
                 <Button
-                  type='button'
-                  size='sm'
+                  type="button"
+                  size="sm"
                   onClick={() => addHashtag(hashtagInput)}
                 >
                   Thêm
                 </Button>
               </div>
               {filteredHashtags.length > 0 && (
-                <div className='max-h-32 overflow-y-auto space-y-1 pt-2'>
-                  <p className='text-xs text-muted-foreground'>
+                <div className="max-h-32 overflow-y-auto space-y-1 pt-2">
+                  <p className="text-xs text-muted-foreground">
                     Hashtag gợi ý:
                   </p>
-                  <div className='flex flex-wrap gap-1'>
+                  <div className="flex flex-wrap gap-1">
                     {filteredHashtags.map((tag) => (
                       <button
                         key={tag}
-                        type='button'
+                        type="button"
                         onClick={() => addHashtag(tag)}
-                        className='inline-flex items-center rounded-full bg-primary-pink/10 px-2 py-1 text-xs text-primary-pink hover:bg-primary-pink/20 transition-colors'
+                        className="inline-flex items-center rounded-full bg-primary-pink/10 px-2 py-1 text-xs text-primary-pink hover:bg-primary-pink/20 transition-colors"
                       >
                         #{tag}
                       </button>

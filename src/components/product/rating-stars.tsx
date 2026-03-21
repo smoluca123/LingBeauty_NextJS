@@ -1,6 +1,6 @@
 import { Star } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 type RatingStarsProps = {
   rating?: number;
@@ -28,7 +28,7 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
             'h-4 w-4',
             rating >= index + 1
               ? 'text-amber-400 fill-amber-400'
-              : 'text-muted fill-transparent'
+              : 'text-muted fill-transparent',
           )}
         />
       ))}

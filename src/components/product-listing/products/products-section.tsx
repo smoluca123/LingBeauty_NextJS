@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { Pagination } from '@/components/pagination';
 import { ProductsHeader } from './products-header';

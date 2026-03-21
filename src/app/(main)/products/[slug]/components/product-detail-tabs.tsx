@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { ProductDetailDescriptionTab } from './product-detail-description-tab';
 import { ProductDetailReviewTab } from './product-detail-review-tab';

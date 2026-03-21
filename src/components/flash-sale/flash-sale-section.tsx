@@ -13,11 +13,5 @@ export async function FlashSaleSection() {
     return null;
   }
 
-  // Don't render if flash sale has ended
-  const endTime = new Date(flashSale.endTime).getTime();
-  if (endTime <= new Date().getTime()) {
-    return null;
-  }
-
   return <FlashSaleContent flashSale={flashSale} />;
 }

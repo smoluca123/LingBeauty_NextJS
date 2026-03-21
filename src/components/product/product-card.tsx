@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Star } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
 import type { Product } from '@/types/product';
@@ -45,7 +45,7 @@ export function ProductCard({
     <article
       className={cn(
         'flex h-full flex-col rounded-2xl border bg-card p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md group/product',
-        className
+        className,
       )}
     >
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
@@ -185,7 +185,7 @@ export function ProductBadge({
     <span
       className={cn(
         'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide',
-        variantClasses[variant]
+        variantClasses[variant],
       )}
     >
       {label}
@@ -219,7 +219,7 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
             'h-4 w-4',
             rating >= index + 1
               ? 'text-amber-400 fill-amber-400'
-              : 'text-muted fill-transparent'
+              : 'text-muted fill-transparent',
           )}
         />
       ))}
