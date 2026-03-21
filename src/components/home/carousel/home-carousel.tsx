@@ -1,6 +1,6 @@
 import { HomeCarouselClient } from '@/components/home/carousel/home-carousel-client';
 import { getActiveBannerGroupAPI } from '@/lib/apis/server/banner-apis';
-import { IBannerGroupMapping } from '@/lib/types/interfaces/apis/banner.interfaces';
+import { IBannerGroupMapping, IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 
 /**
  * Server Component - Fetches banner data from API
@@ -13,7 +13,7 @@ export async function HomeCarousel() {
     const mappings = response?.data?.banners || [];
     const banners = mappings
       .map((mapping: IBannerGroupMapping) => mapping.banner)
-      .filter(Boolean);
+      .filter((banner): banner is IBannerDataType => Boolean(banner));
 
     return <HomeCarouselClient banners={banners} />;
   } catch (error) {

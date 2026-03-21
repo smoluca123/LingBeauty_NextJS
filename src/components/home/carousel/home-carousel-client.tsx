@@ -6,7 +6,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 
 type HomeCarouselClientProps = {
@@ -117,8 +117,12 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
     return {
       carouselSlides:
         carouselBanners.length > 0 ? carouselBanners : FALLBACK_CAROUSEL,
-      sideTopBanners: sideTopBannersList.length > 0 ? sideTopBannersList : FALLBACK_SIDE_TOP,
-      sideBottomBanners: sideBottomBannersList.length > 0 ? sideBottomBannersList : FALLBACK_SIDE_BOTTOM,
+      sideTopBanners:
+        sideTopBannersList.length > 0 ? sideTopBannersList : FALLBACK_SIDE_TOP,
+      sideBottomBanners:
+        sideBottomBannersList.length > 0
+          ? sideBottomBannersList
+          : FALLBACK_SIDE_BOTTOM,
     };
   }, [banners]);
 
@@ -141,7 +145,10 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         </div>
 
         {/* 2 banner nhỏ bên phải */}
-        <SideBannerGrid topBanners={sideTopBanners} bottomBanners={sideBottomBanners} />
+        <SideBannerGrid
+          topBanners={sideTopBanners}
+          bottomBanners={sideBottomBanners}
+        />
       </div>
     </section>
   );
@@ -406,7 +413,7 @@ function SideBannerSlider({ slides }: { slides: SideBannerItem[] }) {
           ))}
         </div>
       </div>
-      
+
       {/* Dots (only if more than 1 slide) */}
       {slides.length > 1 && (
         <div className="pointer-events-auto flex items-center gap-1 absolute bottom-3 right-3 z-10">
@@ -417,7 +424,9 @@ function SideBannerSlider({ slides }: { slides: SideBannerItem[] }) {
               onClick={() => scrollTo(index)}
               className={cn(
                 'h-1.5 rounded-full transition-all cursor-pointer shadow-sm shadow-black/20',
-                index === activeIndex ? 'w-4 bg-primary-pink' : 'w-1.5 bg-muted/80',
+                index === activeIndex
+                  ? 'w-4 bg-primary-pink'
+                  : 'w-1.5 bg-muted/80',
               )}
               aria-label={`Chuyển đến banner phụ ${index + 1}`}
             />

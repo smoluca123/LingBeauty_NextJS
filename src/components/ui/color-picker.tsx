@@ -8,12 +8,15 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 // ── Helpers ──────────────────────────────────────────────
 /** Chuẩn hoá hex string: loại ký tự không hợp lệ + tối đa 6 ký tự. */
 const sanitizeHex = (raw: string) =>
-  raw.replace(/[^0-9a-fA-F]/g, '').slice(0, 6).toUpperCase();
+  raw
+    .replace(/[^0-9a-fA-F]/g, '')
+    .slice(0, 6)
+    .toUpperCase();
 
 /** Kiểm tra hex 6 ký tự hợp lệ để truyền vào react-colorful. */
 const isFullHex = (h: string) => /^[0-9a-fA-F]{6}$/.test(h);
@@ -52,7 +55,9 @@ export function ColorPicker({
 
   // Giá trị màu hợp lệ để preview & truyền vào picker
   const normalizedHex = sanitizeHex((value || '').replace('#', ''));
-  const pickerColor = isFullHex(normalizedHex) ? `#${normalizedHex}` : '#000000';
+  const pickerColor = isFullHex(normalizedHex)
+    ? `#${normalizedHex}`
+    : '#000000';
 
   // ── Handlers ──
   /** react-colorful callback — luôn trả `#rrggbb` */
@@ -166,7 +171,9 @@ export function ColorPicker({
 
         {/* Hex text input */}
         <div className="flex items-center gap-1.5 rounded-md border border-input px-2 h-8 focus-within:ring-1 focus-within:ring-primary-pink bg-background">
-          <span className="text-xs text-muted-foreground font-mono select-none">#</span>
+          <span className="text-xs text-muted-foreground font-mono select-none">
+            #
+          </span>
           <input
             ref={inputRef}
             type="text"
@@ -212,7 +219,19 @@ export function ColorPicker({
 
 // ── Preset palette ────────────────────────────────────────
 const PRESET_COLORS = [
-  '#000000', '#FFFFFF', '#F43F5E', '#EC4899', '#A855F7',
-  '#6366F1', '#3B82F6', '#06B6D4', '#10B981', '#84CC16',
-  '#F59E0B', '#EF4444', '#8B5CF6', '#14B8A6', '#F97316',
+  '#000000',
+  '#FFFFFF',
+  '#F43F5E',
+  '#EC4899',
+  '#A855F7',
+  '#6366F1',
+  '#3B82F6',
+  '#06B6D4',
+  '#10B981',
+  '#84CC16',
+  '#F59E0B',
+  '#EF4444',
+  '#8B5CF6',
+  '#14B8A6',
+  '#F97316',
 ];

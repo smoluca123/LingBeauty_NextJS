@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 // ============ Types ============
@@ -34,16 +34,24 @@ export function StatCard({
           {description && (
             <div className="flex items-center gap-1">
               {trend === 'up' && (
-                <TrendingUp className="h-3 w-3 text-green-600" aria-hidden="true" />
+                <TrendingUp
+                  className="h-3 w-3 text-green-600"
+                  aria-hidden="true"
+                />
               )}
               {trend === 'down' && (
-                <TrendingDown className="h-3 w-3 text-red-600" aria-hidden="true" />
+                <TrendingDown
+                  className="h-3 w-3 text-red-600"
+                  aria-hidden="true"
+                />
               )}
-              <p className={cn(
-                'text-xs text-muted-foreground',
-                trend === 'up' && 'text-green-600',
-                trend === 'down' && 'text-red-600',
-              )}>
+              <p
+                className={cn(
+                  'text-xs text-muted-foreground',
+                  trend === 'up' && 'text-green-600',
+                  trend === 'down' && 'text-red-600',
+                )}
+              >
                 {description}
               </p>
             </div>
@@ -56,4 +64,3 @@ export function StatCard({
     </div>
   );
 }
-

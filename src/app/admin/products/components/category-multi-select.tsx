@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -13,7 +13,11 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import type { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
 
 interface CategoryMultiSelectProps {
@@ -48,7 +52,10 @@ export function CategoryMultiSelect({
 }: CategoryMultiSelectProps) {
   const [open, setOpen] = useState(false);
 
-  const flatCategories = useMemo(() => flattenCategories(categories), [categories]);
+  const flatCategories = useMemo(
+    () => flattenCategories(categories),
+    [categories],
+  );
 
   const selectedCategories = useMemo(
     () => flatCategories.filter((c) => value.includes(c.id)),
@@ -92,7 +99,9 @@ export function CategoryMultiSelect({
               ))}
             </div>
           ) : (
-            <span className="text-muted-foreground font-normal">{placeholder}</span>
+            <span className="text-muted-foreground font-normal">
+              {placeholder}
+            </span>
           )}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

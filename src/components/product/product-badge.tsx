@@ -1,5 +1,5 @@
 import { ProductBadgeVariantType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 type ProductBadgeProps = {
   label: string;
@@ -22,7 +22,7 @@ export function ProductBadge({
     <span
       className={cn(
         'rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide',
-        variantClasses[variant]
+        variantClasses[variant],
       )}
     >
       {label}

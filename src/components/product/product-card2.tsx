@@ -4,12 +4,13 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { Package } from 'lucide-react';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import {
   IProductDataType,
   IProductVariantDataType,
 } from '@/lib/types/interfaces/apis/product.interfaces';
+import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
 import { ProductBadges } from '@/components/product/product-badges';
 import {
   ProductImageCarousel,
@@ -28,9 +29,18 @@ import {
 
 type ProductCardProps = {
   product: IProductDataType;
+  showStock?: boolean;
+  soldQuantity?: number;
+  maxQuantity?: number;
 } & IPropsWithClassName;
 
-export function ProductCard2({ product, className }: ProductCardProps) {
+export function ProductCard2({
+  product,
+  className,
+  showStock = false,
+  soldQuantity,
+  maxQuantity,
+}: ProductCardProps) {
   const { name, brand, primaryImage, stats } = product;
   const basePrice = Number(product.basePrice);
   const comparePrice = product.comparePrice
@@ -129,16 +139,27 @@ export function ProductCard2({ product, className }: ProductCardProps) {
         onVariantClick={handleVariantClick}
       />
 
-      {/* Add to cart — direct mode when a variant is selected */}
-      <AddToCartButton product={product} />
+      {/* Add to cart / Stock */}
+      {showStock && typeof maxQuantity === 'number' ? (
+        <div className="mt-3">
+          <StockProgressBar
+            soldQuantity={soldQuantity ?? 0}
+            maxQuantity={maxQuantity}
+          />
+        </div>
+      ) : (
+        <AddToCartButton product={product} />
+      )}
 
       {/* View detail link */}
-      <Link
-        href={`/products/${product.slug}`}
-        className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
-      >
-        Xem chi tiết
-      </Link>
+      {!showStock && (
+        <Link
+          href={`/products/${product.slug}`}
+          className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
+        >
+          Xem chi tiết
+        </Link>
+      )}
     </article>
   );
 }

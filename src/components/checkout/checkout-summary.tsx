@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useApplyCouponMutation } from "@/hooks/mutations/coupon.mutation";
-import { useCartStore } from "@/stores/cart.store";
-import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import Link from "next/link";
-import { ICartDataType } from "@/lib/types/interfaces/cart.interfaces";
+import { useApplyCouponMutation } from '@/hooks/mutations/coupon.mutation';
+import { useCartStore } from '@/stores/cart.store';
+import { formatCurrency } from '@/lib/utils/utils';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import Image from 'next/image';
+import Link from 'next/link';
+import { ICartDataType } from '@/lib/types/interfaces/cart.interfaces';
 
 interface CheckoutSummaryProps {
   cartData: ICartDataType;
@@ -17,7 +17,8 @@ interface CheckoutSummaryProps {
 
 export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
   const applyCouponMutation = useApplyCouponMutation();
-  const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } = useCartStore();
+  const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } =
+    useCartStore();
   const subtotal = Number(cartData.summary.subtotal);
 
   const handleApplyCoupon = () => {
@@ -99,8 +100,16 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Giảm giá</span>
-          <span className={appliedCoupon ? "text-green-600 font-medium" : "font-medium text-gray-900"}>
-            {appliedCoupon ? `-${formatCurrency(appliedCoupon.discountAmount)}` : "0 ₫"}
+          <span
+            className={
+              appliedCoupon
+                ? 'text-green-600 font-medium'
+                : 'font-medium text-gray-900'
+            }
+          >
+            {appliedCoupon
+              ? `-${formatCurrency(appliedCoupon.discountAmount)}`
+              : '0 ₫'}
           </span>
         </div>
       </div>
@@ -126,7 +135,7 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
             onClick={handleApplyCoupon}
             disabled={!couponCode.trim() || applyCouponMutation.isPending}
           >
-            {applyCouponMutation.isPending ? "Đang áp dụng..." : "Áp dụng"}
+            {applyCouponMutation.isPending ? 'Đang áp dụng...' : 'Áp dụng'}
           </Button>
         </div>
         {appliedCoupon && (
@@ -142,7 +151,9 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         <span className="text-lg font-bold">Tổng cộng</span>
         <div className="text-right">
           <span className="text-2xl font-bold text-primary-pink block">
-            {formatCurrency(appliedCoupon ? appliedCoupon.finalTotal : subtotal)}
+            {formatCurrency(
+              appliedCoupon ? appliedCoupon.finalTotal : subtotal,
+            )}
           </span>
           <span className="text-xs text-gray-500 font-normal">
             Đã bao gồm VAT (nếu có)
@@ -150,19 +161,29 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         </div>
       </div>
 
-      <Button size="lg" className="w-full text-base font-semibold" variant="primary-pink">
+      <Button
+        size="lg"
+        className="w-full text-base font-semibold"
+        variant="primary-pink"
+      >
         Đặt hàng
       </Button>
       <p className="text-xs text-center text-gray-500 mt-4 leading-relaxed">
         Bằng việc tiến hành Đặt hàng, bạn đồng ý với
         <br />
-        <Link href="#" className="underline text-gray-700 hover:text-primary-pink">
+        <Link
+          href="#"
+          className="underline text-gray-700 hover:text-primary-pink"
+        >
           Điều khoản dịch vụ
-        </Link>{" "}
-        và{" "}
-        <Link href="#" className="underline text-gray-700 hover:text-primary-pink">
+        </Link>{' '}
+        và{' '}
+        <Link
+          href="#"
+          className="underline text-gray-700 hover:text-primary-pink"
+        >
           Chính sách bảo mật
-        </Link>{" "}
+        </Link>{' '}
         của chúng tôi.
       </p>
     </Card>

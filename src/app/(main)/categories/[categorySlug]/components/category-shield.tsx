@@ -4,7 +4,7 @@ import { getProductStatsAPI } from '@/lib/apis/server/product-apis';
 import { CategoryBanner } from './category-banner';
 import { CategoryInfo } from './category-info';
 import { CategoryProducts } from './category-products';
-import { findCategoryBySlug } from '@/lib/utils';
+import { findCategoryBySlug } from '@/lib/utils/utils';
 
 export async function CategoryShield({
   params,

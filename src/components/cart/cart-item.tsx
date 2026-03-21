@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils/utils';
 import { useState } from 'react';
 import type { ICartItemType } from '@/lib/types/interfaces/cart.interfaces';
 
@@ -24,7 +24,9 @@ export function CartItem({
   isRemoving = false,
 }: CartItemProps) {
   // Price: use variant price if available, otherwise product basePrice
-  const price = item.variant ? Number(item.variant.price) : Number(item.product.basePrice);
+  const price = item.variant
+    ? Number(item.variant.price)
+    : Number(item.product.basePrice);
   const lineTotal = Number(item.lineTotal);
   const imageUrl = item.product.thumbnailImage?.media?.url;
 
@@ -116,13 +118,15 @@ export function CartItem({
               <p className="text-xs text-muted-foreground mt-1">
                 {item.variant.color && (
                   <>
-                    Màu: <span className="font-medium">{item.variant.color}</span>
+                    Màu:{' '}
+                    <span className="font-medium">{item.variant.color}</span>
                   </>
                 )}
                 {item.variant.color && item.variant.size && ' • '}
                 {item.variant.size && (
                   <>
-                    Size: <span className="font-medium">{item.variant.size}</span>
+                    Size:{' '}
+                    <span className="font-medium">{item.variant.size}</span>
                   </>
                 )}
                 {item.variant.type &&

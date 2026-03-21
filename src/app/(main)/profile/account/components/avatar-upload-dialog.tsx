@@ -18,7 +18,7 @@ import {
 import { Button } from '@/components/ui/button';
 import LoadingButton from '@/components/ui/loading-button';
 import { Upload, ImageIcon, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { getCroppedImageFile } from '@/hooks/use-image-crop';
 import { useUploadAvatarMutation } from '@/hooks/mutations/user.mutation';
 import { toast } from 'sonner';

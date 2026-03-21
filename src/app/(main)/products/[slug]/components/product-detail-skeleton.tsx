@@ -1,10 +1,8 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 // Reusable skeleton block
 function SkeletonBlock({ className }: { className?: string }) {
-  return (
-    <div className={cn('animate-pulse rounded-lg bg-muted', className)} />
-  );
+  return <div className={cn('animate-pulse rounded-lg bg-muted', className)} />;
 }
 
 export function ProductDetailSkeleton() {

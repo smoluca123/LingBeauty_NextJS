@@ -1,7 +1,7 @@
 import { kyNextInstance } from '@/lib/kyInstance/kyNext';
 import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
-import { extractErrorMessage } from '@/lib/utils';
+import { extractErrorMessage } from '@/lib/utils/utils';
 import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
 
 // ============ Upload Avatar ============

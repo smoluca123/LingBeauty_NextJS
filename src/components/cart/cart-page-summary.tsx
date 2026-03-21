@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useApplyCouponMutation } from "@/hooks/mutations/coupon.mutation";
-import { useCartStore } from "@/stores/cart.store";
-import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import Link from "next/link";
+import { useApplyCouponMutation } from '@/hooks/mutations/coupon.mutation';
+import { useCartStore } from '@/stores/cart.store';
+import { formatCurrency } from '@/lib/utils/utils';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 
 interface CartPageSummaryProps {
   subtotal: number;
@@ -15,7 +15,8 @@ interface CartPageSummaryProps {
 
 export function CartPageSummary({ subtotal }: CartPageSummaryProps) {
   const applyCouponMutation = useApplyCouponMutation();
-  const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } = useCartStore();
+  const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } =
+    useCartStore();
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return;
@@ -48,8 +49,10 @@ export function CartPageSummary({ subtotal }: CartPageSummaryProps) {
         </div>
         <div className="flex justify-between text-gray-600">
           <span>Giảm giá</span>
-          <span className={appliedCoupon ? "text-green-600 font-medium" : ""}>
-            {appliedCoupon ? `-${formatCurrency(appliedCoupon.discountAmount)}` : "0 ₫"}
+          <span className={appliedCoupon ? 'text-green-600 font-medium' : ''}>
+            {appliedCoupon
+              ? `-${formatCurrency(appliedCoupon.discountAmount)}`
+              : '0 ₫'}
           </span>
         </div>
         <div className="flex justify-between text-gray-600">
@@ -79,7 +82,7 @@ export function CartPageSummary({ subtotal }: CartPageSummaryProps) {
             onClick={handleApplyCoupon}
             disabled={!couponCode.trim() || applyCouponMutation.isPending}
           >
-            {applyCouponMutation.isPending ? "Đang áp dụng..." : "Áp dụng"}
+            {applyCouponMutation.isPending ? 'Đang áp dụng...' : 'Áp dụng'}
           </Button>
         </div>
         {appliedCoupon && (
@@ -95,13 +98,19 @@ export function CartPageSummary({ subtotal }: CartPageSummaryProps) {
         <span className="text-lg font-bold">Tổng cộng</span>
         <div className="text-right">
           <span className="text-2xl font-bold text-primary-pink block">
-            {formatCurrency(appliedCoupon ? appliedCoupon.finalTotal : subtotal)}
+            {formatCurrency(
+              appliedCoupon ? appliedCoupon.finalTotal : subtotal,
+            )}
           </span>
         </div>
       </div>
 
       <Link href="/checkout" className="w-full">
-        <Button size="lg" className="w-full text-base font-semibold" variant="primary-pink">
+        <Button
+          size="lg"
+          className="w-full text-base font-semibold"
+          variant="primary-pink"
+        >
           Tiến hành thanh toán
         </Button>
       </Link>

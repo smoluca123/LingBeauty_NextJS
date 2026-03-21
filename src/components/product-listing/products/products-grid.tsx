@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { ProductCard2 } from '@/components/product/product-card2';
 import { PRODUCTS_PER_PAGE } from '../constants';
