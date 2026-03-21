@@ -17,9 +17,6 @@ export function FlashSaleHeader({ endTime, onExpire }: FlashSaleHeaderProps) {
         <h2 className="font-script text-2xl font-bold italic text-white drop-shadow-md md:text-3xl">
           Flash Sale
         </h2>
-        <span className="rounded-md bg-muted px-2 py-0.5 text-lg font-bold text-primary-pink md:text-xl">
-          24h
-        </span>
       </div>
 
       {/* Countdown */}

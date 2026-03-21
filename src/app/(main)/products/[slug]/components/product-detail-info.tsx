@@ -11,7 +11,7 @@ import {
   Plus,
   CheckCircle2,
 } from 'lucide-react';
-import { cn, formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils/utils';
 import { Button } from '@/components/ui/button';
 import { RatingStars } from '@/components/product/rating-stars';
 import { ProductBadge } from '@/components/product/product-badge';

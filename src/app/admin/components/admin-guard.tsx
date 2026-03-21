@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { notFound, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/auth.store';
-import { hasAdminRole } from '@/lib/utils/role-utils';
+import { hasAdminRole } from '@/lib/utils/utils';
 
 interface AdminGuardProps {
   children: React.ReactNode;

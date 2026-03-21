@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { calculateTimeRemaining, padZero } from '@/lib/utils/flash-sale-utils';
-import type { CountdownTime } from '@/types/flash-sale';
+import type { CountdownTime } from '@/lib/types/interfaces/apis/flash-sale.interfaces';
 
 interface CountdownTimerProps {
   endTime: string;

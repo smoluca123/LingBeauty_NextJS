@@ -7,7 +7,7 @@ import type {
   ICartItemType,
   IUpdateCartItemPayload,
 } from '@/lib/types/interfaces/cart.interfaces';
-import { extractErrorMessage } from '@/lib/utils';
+import { extractErrorMessage } from '@/lib/utils/utils';
 
 /** GET /api/cart — fetch the current user's full cart */
 export const getCartAPI = async (): Promise<
