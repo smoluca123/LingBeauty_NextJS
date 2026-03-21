@@ -51,6 +51,12 @@ export const getAllAdminProductsAPI = async (
     })
     .json<IApiPaginationResponseWrapperType<IAdminProductDataType>>();
 
+// ============ Get Product by ID (Admin - yêu cầu auth JWT) ============
+export const getAdminProductByIdAPI = async (productId: string) =>
+  kyInstance
+    .get(`product/${productId}`)
+    .json<IApiResponseWrapperType<IAdminProductDataType>>();
+
 // ============ Create Product (Admin - yêu cầu auth JWT) ============
 export const createAdminProductAPI = async (data: ICreateProductPayload) =>
   kyInstance

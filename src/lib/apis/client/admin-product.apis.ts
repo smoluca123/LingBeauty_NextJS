@@ -63,6 +63,17 @@ export const getAllAdminProductsClientAPI = async (
   }
 };
 
+// ============ Get Product by ID (Admin) ============
+export const getProductByIdClientAPI = async (productId: string) => {
+  try {
+    return await kyNextInstance
+      .get(`admin/products/${productId}`)
+      .json<IApiResponseWrapperType<IAdminProductDataType>>();
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
 // ============ Create Product (Admin) ============
 export const createProductClientAPI = async (data: ICreateProductPayload) => {
   try {
@@ -202,7 +213,9 @@ export const updateProductVariantClientAPI = async (
 ) => {
   try {
     return await kyNextInstance
-      .patch(`admin/products/${productId}/variants/${variantId}`, { json: data })
+      .patch(`admin/products/${productId}/variants/${variantId}`, {
+        json: data,
+      })
       .json<IApiResponseWrapperType<IAdminProductVariant>>();
   } catch (error) {
     return handleError(error);
