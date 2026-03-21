@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 import {
   calculateStockPercent,
   getRemainingStock,
@@ -30,7 +30,7 @@ export function StockProgressBar({
             'h-full rounded-full transition-all duration-300',
             lowStock
               ? 'bg-linear-to-r from-orange-400 to-red-500'
-              : 'bg-linear-to-r from-pink-400 to-primary-pink'
+              : 'bg-linear-to-r from-pink-400 to-primary-pink',
           )}
           style={{ width: `${stockPercent}%` }}
         />

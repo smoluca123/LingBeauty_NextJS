@@ -69,3 +69,15 @@ export async function extractErrorMessage(
   }
   return error?.message || fallback;
 }
+
+// Roles allowed to access admin panel
+const ADMIN_ROLES = ['Quản trị viên', 'Quản lý'] as const;
+type AdminRole = (typeof ADMIN_ROLES)[number];
+export function hasAdminRole(
+  roleAssignments?: { role: { name: string } }[],
+): boolean {
+  if (!roleAssignments || roleAssignments.length === 0) return false;
+  return roleAssignments.some((ra) =>
+    (ADMIN_ROLES as readonly AdminRole[]).includes(ra.role.name as AdminRole),
+  );
+}

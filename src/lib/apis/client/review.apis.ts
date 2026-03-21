@@ -12,6 +12,7 @@ import type {
   ICreateReviewReplyDataType,
   IUpdateReviewDataType,
   IUpdateReviewReplyDataType,
+  IGetReviewRepliesParams,
 } from '@/lib/types/interfaces/apis/review.interfaces';
 import { HTTPError } from 'ky';
 
@@ -180,11 +181,21 @@ export const createReviewReplyAPI = async (
  * Fetch replies for a review
  * Calls Next.js API route -> Backend API
  */
-export const getReviewRepliesAPI = async (reviewId: string) => {
+export const getReviewRepliesAPI = async (
+  reviewId: string,
+  params: IGetReviewRepliesParams = {},
+) => {
   try {
+    const searchParams: Record<string, string | number> = {
+      page: params.page ?? 1,
+      limit: params.limit ?? 10,
+    };
+    if (params.sortBy) searchParams.sortBy = params.sortBy;
+    if (params.order) searchParams.order = params.order;
+
     const response = await kyNextInstance
-      .get(`review/${reviewId}/replies`)
-      .json<IApiResponseWrapperType<IReviewReplyDataType[]>>();
+      .get(`review/${reviewId}/replies`, { searchParams })
+      .json<IApiPaginationResponseWrapperType<IReviewReplyDataType>>();
     return response;
   } catch (error) {
     if (error instanceof HTTPError) {

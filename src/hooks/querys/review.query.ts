@@ -1,11 +1,11 @@
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import {
   getPublicProductReviewsAPI,
   getProductReviewSummaryAPI,
   getPublicReviewByIdAPI,
   getReviewRepliesAPI,
 } from '@/lib/apis/client/review.apis';
-import { IGetReviewsParams } from '@/lib/types/interfaces/apis/review.interfaces';
+import { IGetReviewsParams, IGetReviewRepliesParams } from '@/lib/types/interfaces/apis/review.interfaces';
 
 // Query Keys
 export const getProductReviewsQueryKey = (
@@ -67,12 +67,23 @@ export const useGetPublicReviewByIdQuery = (reviewId: string) => {
 };
 
 /**
- * React Query hook to fetch replies for a review
+ * React Query hook to fetch infinite replies for a review
  */
-export const useGetReviewRepliesQuery = (reviewId: string) => {
-  return useQuery({
+export const useGetReviewRepliesInfiniteQuery = (
+  reviewId: string,
+  params?: Omit<IGetReviewRepliesParams, 'page'>,
+) => {
+  return useInfiniteQuery({
     queryKey: getReviewRepliesQueryKey(reviewId),
-    queryFn: () => getReviewRepliesAPI(reviewId),
+    queryFn: ({ pageParam = 1 }) =>
+      getReviewRepliesAPI(reviewId, { ...params, page: pageParam as number }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data) return undefined;
+      const { currentPage, pageSize, totalCount } = lastPage.data;
+      const hasMore = currentPage * pageSize < totalCount;
+      return hasMore ? currentPage + 1 : undefined;
+    },
     enabled: !!reviewId,
   });
 };

@@ -1,4 +1,4 @@
-import type { CountdownTime } from '@/types/flash-sale';
+import type { CountdownTime } from '@/lib/types/interfaces/apis/flash-sale.interfaces';
 
 /**
  * Calculate remaining time until endTime
@@ -28,7 +28,7 @@ export function padZero(num: number): string {
  */
 export function calculateDiscountPercent(
   originalPrice: number,
-  flashPrice: number
+  flashPrice: number,
 ): number {
   if (originalPrice <= 0 || flashPrice >= originalPrice) return 0;
   return Math.round(((originalPrice - flashPrice) / originalPrice) * 100);
@@ -39,7 +39,7 @@ export function calculateDiscountPercent(
  */
 export function calculateStockPercent(
   soldQuantity: number,
-  maxQuantity: number
+  maxQuantity: number,
 ): number {
   if (maxQuantity <= 0) return 0;
   return Math.max(0, ((maxQuantity - soldQuantity) / maxQuantity) * 100);
@@ -64,7 +64,7 @@ export function isSoldOut(soldQuantity: number, maxQuantity: number): boolean {
  */
 export function getRemainingStock(
   soldQuantity: number,
-  maxQuantity: number
+  maxQuantity: number,
 ): number {
   return Math.max(0, maxQuantity - soldQuantity);
 }

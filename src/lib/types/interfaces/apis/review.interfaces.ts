@@ -63,6 +63,13 @@ export interface IGetReviewsParams {
   limit?: number;
 }
 
+export interface IGetReviewRepliesParams {
+  page?: number;
+  limit?: number;
+  sortBy?: 'createdAt';
+  order?: 'asc' | 'desc';
+}
+
 export interface ICreateReviewDataType {
   productId: string;
   rating: number;

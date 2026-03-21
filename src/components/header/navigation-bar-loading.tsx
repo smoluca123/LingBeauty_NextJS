@@ -1,5 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/utils';
 
 export function NavigationBarLoading() {
   const randomWidths = [
@@ -22,7 +22,7 @@ export function NavigationBarLoading() {
               key={index}
               className={cn(
                 'h-8 rounded-md',
-                randomWidths[index % randomWidths.length]
+                randomWidths[index % randomWidths.length],
               )}
             />
           ))}
