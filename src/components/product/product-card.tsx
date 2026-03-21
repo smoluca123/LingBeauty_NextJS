@@ -7,7 +7,20 @@ import { Button } from '@/components/ui/button';
 import { cn, formatCurrency } from '@/lib/utils/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
-import type { Product } from '@/types/product';
+export type Product = {
+  id: string;
+  name: string;
+  brand: string;
+  price: number;
+  originalPrice?: number;
+  rankLabel?: string;
+  dealLabel?: string;
+  image: string;
+  badges?: ProductBadgeProps[];
+  rating?: number;
+  reviewCount?: number;
+  variants?: { id: string; name: string; thumbnail?: string; color?: string }[];
+};
 
 type ProductCardProps = {
   product: Product;
@@ -78,7 +91,7 @@ export function ProductCard({
 
       {badges && badges.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {badges.map((badge) => (
+          {badges.map((badge: ProductBadgeProps) => (
             <ProductBadge key={`${product.id}-${badge.label}`} {...badge} />
           ))}
         </div>
@@ -108,7 +121,7 @@ export function ProductCard({
       {product.variants && product.variants.length > 0 && (
         <div className="hidden group-hover/product:block">
           <div className="mt-3 flex items-center gap-1.5 ">
-            {product.variants.slice(0, 4).map((variant) => (
+            {product.variants.slice(0, 4).map((variant: { id: string; name: string; thumbnail?: string; color?: string }) => (
               <div
                 key={variant.id}
                 className="relative h-6 w-6 overflow-hidden rounded-full border border-muted ring-1 ring-transparent transition-all hover:scale-110 hover:ring-primary-pink/50"

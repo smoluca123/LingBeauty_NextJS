@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils/utils';
-import type { Product } from '@/types/product';
+import type { Product } from '../../../product/product-card';
 
 import { HorizontalScroller } from '../../horizontal-scroller';
 import { ProductCard } from '../../../product/product-card';
