@@ -77,7 +77,7 @@ const formSchema = z.object({
     ),
   startTime: z.string().min(1, 'Vui lòng chọn thời gian bắt đầu'),
   endTime: z.string().min(1, 'Vui lòng chọn thời gian kết thúc'),
-  status: z.enum(['UPCOMING', 'ACTIVE', 'ENDED']),
+  status: z.enum(['UPCOMING', 'ACTIVE', 'ENDED', 'CANCELLED']),
   isActive: z.boolean(),
   sortOrder: z.coerce.number().int().min(0),
 });
