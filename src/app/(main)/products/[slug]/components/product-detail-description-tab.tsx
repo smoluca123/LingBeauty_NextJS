@@ -28,9 +28,9 @@ export function ProductDetailDescriptionTab({
         </p>
       )}
       {product.description && (
-        <div className="prose prose-sm max-w-none text-muted-foreground [&_h2]:text-foreground [&_h3]:text-foreground [&_strong]:text-foreground">
+        <article className="prose prose-sm max-w-none text-muted-foreground tiptap">
           {parse(DOMPurify.sanitize(product.description))}
-        </div>
+        </article>
       )}
     </div>
   );

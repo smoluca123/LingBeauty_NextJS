@@ -141,9 +141,9 @@
     scrollbar-width: none;
     /* Firefox */
   }
-}
 
-/* ============ Tiptap Editor Styles ============ */
+
+  /* ============ Tiptap Editor Styles ============ */
 .tiptap {
   /* Placeholder styling */
   p.is-editor-empty:first-child::before {
@@ -254,6 +254,9 @@
     align-items: center;
   }
 }
+
+}
+
 
 @utility container {
   margin-inline: auto;
