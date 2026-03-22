@@ -2,7 +2,6 @@ import { ICategoryDataType } from "@/lib/types/interfaces/apis/header.interfaces
 import { clsx, type ClassValue } from "clsx";
 import { HTTPError } from "ky";
 import { twMerge } from "tailwind-merge";
-import { IUserRoleDataType } from "./types/interfaces/apis/user.interfaces";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
