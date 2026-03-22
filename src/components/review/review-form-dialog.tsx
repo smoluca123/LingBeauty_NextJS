@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { useCreateReviewMutation } from '@/hooks/mutations/review.mutation';
 import { ICreateReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
 

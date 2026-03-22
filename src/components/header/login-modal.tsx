@@ -1,9 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -23,13 +21,8 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-
-const loginSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-  password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
-})
-
-type LoginFormValues = z.infer<typeof loginSchema>
+import { loginSchema } from '@/lib/schemas'
+import type { LoginFormValues } from '@/lib/types/forms'
 
 interface LoginModalProps {
   open: boolean
@@ -40,7 +33,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      usernameOrEmail: '',
       password: '',
     },
   })
@@ -63,14 +56,14 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="email"
+              name="usernameOrEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email hoặc tên người dùng</FormLabel>
                   <FormControl>
                     <Input
-                      type="email"
-                      placeholder="email@example.com"
+                      type="text"
+                      placeholder="email@example.com hoặc username"
                       {...field}
                     />
                   </FormControl>

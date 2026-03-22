@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { HashtagExtension } from './extensions/hashtag';
 
 // ============ Types ============

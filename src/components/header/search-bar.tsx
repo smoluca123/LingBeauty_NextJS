@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { Search } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -14,12 +13,11 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { searchSchema } from '@/lib/schemas/search.schema'
 
-const searchSchema = z.object({
-  search: z.string().min(1, 'Vui lòng nhập từ khóa tìm kiếm'),
-})
-
-type SearchFormValues = z.infer<typeof searchSchema>
+interface SearchFormValues {
+  search: string
+}
 
 export function SearchBar() {
   const form = useForm<SearchFormValues>({

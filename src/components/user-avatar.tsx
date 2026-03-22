@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 
 interface IProps extends IPropsWithClassName {

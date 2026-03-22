@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,18 +23,14 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
-const forgetPasswordSchema = z.object({
-  email: z.string().email('Email không hợp lệ'),
-});
-
-type ForgetPasswordValues = z.infer<typeof forgetPasswordSchema>;
+import { forgetPasswordSchema } from '@/lib/schemas';
+import type { ForgetPasswordFormValues } from '@/lib/types/forms';
 
 export default function ForgetPasswordPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<ForgetPasswordValues>({
+  const form = useForm<ForgetPasswordFormValues>({
     resolver: zodResolver(forgetPasswordSchema),
     defaultValues: {
       email: '',
@@ -43,7 +38,7 @@ export default function ForgetPasswordPage() {
     mode: 'onTouched',
   });
 
-  async function onSubmit(data: ForgetPasswordValues) {
+  async function onSubmit(data: ForgetPasswordFormValues) {
     setError(null);
     try {
       // TODO: Implement forget password API call

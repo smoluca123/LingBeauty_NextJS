@@ -6,7 +6,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
 
 type HomeCarouselClientProps = {

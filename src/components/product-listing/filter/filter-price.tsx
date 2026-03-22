@@ -6,7 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { PRICE_RANGES, PriceRange } from '../constants';
 import { CustomCheckbox } from './custom-checkbox';
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { FilterSearch } from './filter-search';
 import { FilterPrice } from './filter-price';

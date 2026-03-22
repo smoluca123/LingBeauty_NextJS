@@ -1,7 +1,7 @@
 'use no memo';
 
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { PropsWithChildren } from 'react';
 import { useInView } from 'react-intersection-observer';
 

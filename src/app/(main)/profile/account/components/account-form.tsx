@@ -2,7 +2,6 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import {
   Form,
   FormControl,
@@ -16,16 +15,8 @@ import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
 import { useUpdateUserInfomationMutation } from '@/hooks/mutations/user.mutation';
 import LoadingButton from '@/components/ui/loading-button';
 import ChangePasswordButton from '@/components/change-password/change-password-button';
-
-// ============ Schema ============
-const accountFormSchema = z.object({
-  firstName: z.string().min(1, 'Vui lòng nhập tên'),
-  lastName: z.string().min(1, 'Vui lòng nhập họ'),
-  email: z.email('Email không hợp lệ'),
-  phone: z.string().min(1, 'Vui lòng nhập số điện thoại'),
-});
-
-type AccountFormValues = z.infer<typeof accountFormSchema>;
+import { accountFormSchema } from '@/lib/schemas';
+import type { AccountFormValues } from '@/lib/types/forms';
 
 // ============ Component ============
 export function AccountForm({ user }: { user: IUserDataType }) {

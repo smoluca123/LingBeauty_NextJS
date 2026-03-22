@@ -12,10 +12,8 @@ import {
 import { Input } from '@/components/ui/input';
 import LoadingButton from '@/components/ui/loading-button';
 import { useChangePasswordMutation } from '@/hooks/mutations/auth.mutation';
-import {
-  changePasswordSchema,
-  ChangePasswordValues,
-} from '@/lib/zod-schemas/auth.schema';
+import { changePasswordSchema } from '@/lib/schemas';
+import type { ChangePasswordFormValues } from '@/lib/types/forms';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
@@ -33,7 +31,7 @@ export function ChangePasswordForm({ onSuccess, onClose }: IProps) {
 
   const { mutate, isPending } = useChangePasswordMutation();
 
-  const form = useForm<ChangePasswordValues>({
+  const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
       currentPassword: '',
@@ -43,7 +41,7 @@ export function ChangePasswordForm({ onSuccess, onClose }: IProps) {
     mode: 'onTouched',
   });
 
-  const onSubmit = (data: ChangePasswordValues) => {
+  const onSubmit = (data: ChangePasswordFormValues) => {
     mutate(
       {
         currentPassword: data.currentPassword,

@@ -4,10 +4,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  registerSchema,
-  type RegisterValues,
-} from '@/lib/zod-schemas/auth.schema';
+import { registerSchema } from '@/lib/schemas';
+import type { RegisterFormValues } from '@/lib/types/forms';
 import {
   Form,
   FormControl,
@@ -29,7 +27,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
   const registerMutation = useRegisterMutation();
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<RegisterValues>({
+  const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       firstName: '',
@@ -43,7 +41,7 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     mode: 'onTouched',
   });
 
-  async function onSubmit(data: RegisterValues) {
+  async function onSubmit(data: RegisterFormValues) {
     setError(null);
     registerMutation.mutate(
       {

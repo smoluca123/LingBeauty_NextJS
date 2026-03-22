@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { cn, formatCurrency } from '@/lib/utils/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import type {
   IProductDataType,
   IProductVariantDataType,

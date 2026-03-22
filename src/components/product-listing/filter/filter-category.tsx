@@ -9,7 +9,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { CustomCheckbox } from './custom-checkbox';
 

@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 
 // ── Helpers ──────────────────────────────────────────────
 /** Chuẩn hoá hex string: loại ký tự không hợp lệ + tối đa 6 ký tự. */

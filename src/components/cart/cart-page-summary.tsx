@@ -2,7 +2,7 @@
 
 import { useApplyCouponMutation } from '@/hooks/mutations/coupon.mutation';
 import { useCartStore } from '@/stores/cart.store';
-import { formatCurrency } from '@/lib/utils/utils';
+import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';

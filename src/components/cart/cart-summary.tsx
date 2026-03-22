@@ -1,6 +1,6 @@
 'use client';
 
-import { formatCurrency } from '@/lib/utils/utils';
+import { formatCurrency } from '@/lib/utils';
 import type { ICartSummaryType } from '@/lib/types/interfaces/cart.interfaces';
 
 /** Free shipping threshold in VND */
