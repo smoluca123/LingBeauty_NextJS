@@ -136,10 +136,19 @@ export const adminReplyToReviewClientAPI = async (
 };
 
 // ============ Get Review Replies ============
-export const getReviewRepliesClientAPI = async (reviewId: string) => {
+export const getReviewRepliesClientAPI = async (
+  reviewId: string,
+  page: number = 1,
+  limit: number = 10,
+) => {
   try {
     return await kyNextInstance
-      .get(`admin/reviews/${reviewId}/replies`)
+      .get(`admin/reviews/${reviewId}/replies`, {
+        searchParams: buildSearchParams({
+          page,
+          limit,
+        }),
+      })
       .json<IApiResponseWrapperType<IReviewRepliesPaginationResponse>>();
   } catch (error) {
     return handleError(error);

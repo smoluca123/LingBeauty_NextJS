@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+} from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   getAllAdminReviewsClientAPI,
@@ -28,6 +33,8 @@ export const adminReviewQueryKeys = {
     ['admin', 'reviews', 'detail', reviewId] as const,
   replies: (reviewId: string) =>
     ['admin', 'reviews', 'replies', reviewId] as const,
+  repliesInfinite: (reviewId: string) =>
+    ['admin', 'reviews', 'replies', 'infinite', reviewId] as const,
   stats: (params?: { startDate?: string; endDate?: string }) =>
     ['admin', 'reviews', 'stats', params] as const,
   infinite: {
@@ -76,6 +83,33 @@ export const useReviewRepliesQuery = (reviewId: string | null) =>
     enabled: !!reviewId,
     staleTime: 1000 * 30,
   });
+
+// ── Get Review Replies (Infinite) ─────────────────────────────────────────────
+
+interface IUseInfiniteReviewRepliesOptions {
+  pageSize?: number;
+}
+
+export const useInfiniteReviewRepliesQuery = (
+  reviewId: string | null,
+  options: IUseInfiniteReviewRepliesOptions = {},
+) => {
+  const { pageSize = 10 } = options;
+
+  return useInfiniteQuery({
+    queryKey: adminReviewQueryKeys.repliesInfinite(reviewId ?? ''),
+    queryFn: ({ pageParam = 1 }) =>
+      getReviewRepliesClientAPI(reviewId!, pageParam, pageSize),
+    getNextPageParam: (lastPage) => {
+      const { currentPage, pageSize, totalCount } = lastPage.data;
+      const totalPages = Math.ceil(totalCount / pageSize);
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
+    initialPageParam: 1,
+    enabled: !!reviewId,
+    staleTime: 1000 * 30,
+  });
+};
 
 // ── Get Review Statistics ─────────────────────────────────────────────────────
 
@@ -161,6 +195,9 @@ export const useAdminReplyToReviewMutation = () => {
       queryClient.invalidateQueries({
         queryKey: adminReviewQueryKeys.replies(variables.reviewId),
       });
+      queryClient.invalidateQueries({
+        queryKey: adminReviewQueryKeys.repliesInfinite(variables.reviewId),
+      });
       queryClient.invalidateQueries({ queryKey: adminReviewQueryKeys.all });
       toast.success('Đã gửi phản hồi');
     },
@@ -185,6 +222,9 @@ export const useDeleteReplyMutation = () => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: adminReviewQueryKeys.replies(variables.reviewId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: adminReviewQueryKeys.repliesInfinite(variables.reviewId),
       });
       queryClient.invalidateQueries({ queryKey: adminReviewQueryKeys.all });
       toast.success('Đã xóa phản hồi');

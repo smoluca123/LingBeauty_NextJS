@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -21,11 +20,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { TiptapEditor } from '@/components/tiptap-editor';
 import {
   useAdminBrandsQuery,
   useAdminCategoriesQuery,
 } from '@/hooks/querys/admin-category-brand.query';
-import { ICategoryFormData, IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
+import {
+  ICategoryFormData,
+  IAdminCategoryDataType,
+} from '@/lib/types/interfaces/apis/admin-category.interfaces';
 import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
 import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
 
@@ -74,11 +77,15 @@ export function CategoryForm({
 
   // Flatten tree → flat list for parent select, excluding "self" when editing
   const flatCategories = useMemo<FlatCategory[]>(() => {
-    const result = categoriesData as IApiResponseWrapperType<IAdminCategoryDataType[]> | undefined;
+    const result = categoriesData as
+      | IApiResponseWrapperType<IAdminCategoryDataType[]>
+      | undefined;
     const tree = (result?.data ?? []) as IAdminCategoryDataType[];
     const flat = flattenCategories(tree);
     // Exclude the category being edited so it can't be its own parent
-    return excludeCategoryId ? flat.filter((c) => c.id !== excludeCategoryId) : flat;
+    return excludeCategoryId
+      ? flat.filter((c) => c.id !== excludeCategoryId)
+      : flat;
   }, [categoriesData, excludeCategoryId]);
 
   const watchedType = form.watch('type');
@@ -104,16 +111,16 @@ export function CategoryForm({
   };
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {/* Name */}
       <FormField
         control={form.control}
-        name="name"
+        name='name'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tên danh mục *</FormLabel>
             <FormControl>
-              <Input placeholder="Nhập tên danh mục" {...field} />
+              <Input placeholder='Nhập tên danh mục' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -123,16 +130,15 @@ export function CategoryForm({
       {/* Description */}
       <FormField
         control={form.control}
-        name="description"
+        name='description'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Mô tả</FormLabel>
             <FormControl>
-              <Textarea
-                placeholder="Mô tả danh mục (tuỳ chọn)"
-                className="resize-none"
-                rows={3}
-                {...field}
+              <TiptapEditor
+                value={field.value || ''}
+                onChange={field.onChange}
+                placeholder='Mô tả danh mục (tuỳ chọn)'
               />
             </FormControl>
             <FormMessage />
@@ -143,21 +149,25 @@ export function CategoryForm({
       {/* Parent Category Select – luôn hiển thị */}
       <FormField
         control={form.control}
-        name="parentId"
+        name='parentId'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Danh mục cha</FormLabel>
             <Select
-              onValueChange={(val) => field.onChange(val === '__none__' ? undefined : val)}
+              onValueChange={(val) =>
+                field.onChange(val === '__none__' ? undefined : val)
+              }
               value={field.value ?? '__none__'}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="— Không có (danh mục gốc) —" />
+                  <SelectValue placeholder='— Không có (danh mục gốc) —' />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="__none__">— Không có (danh mục gốc) —</SelectItem>
+                <SelectItem value='__none__'>
+                  — Không có (danh mục gốc) —
+                </SelectItem>
                 {flatCategories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.label}
@@ -171,22 +181,22 @@ export function CategoryForm({
       />
 
       {/* Type + SortOrder row */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className='grid grid-cols-2 gap-4'>
         <FormField
           control={form.control}
-          name="type"
+          name='type'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Loại danh mục</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn loại" />
+                    <SelectValue placeholder='Chọn loại' />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CATEGORY">Danh mục</SelectItem>
-                  <SelectItem value="BRAND">Thương hiệu</SelectItem>
+                  <SelectItem value='CATEGORY'>Danh mục</SelectItem>
+                  <SelectItem value='BRAND'>Thương hiệu</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -196,15 +206,15 @@ export function CategoryForm({
 
         <FormField
           control={form.control}
-          name="sortOrder"
+          name='sortOrder'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Thứ tự sắp xếp</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
+                  type='number'
                   min={0}
-                  placeholder="0"
+                  placeholder='0'
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -219,14 +229,14 @@ export function CategoryForm({
       {watchedType === 'BRAND' && (
         <FormField
           control={form.control}
-          name="brandId"
+          name='brandId'
           render={({ field }) => (
             <FormItem>
               <FormLabel>Thương hiệu liên kết</FormLabel>
               <Select onValueChange={field.onChange} value={field.value ?? ''}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Chọn thương hiệu" />
+                    <SelectValue placeholder='Chọn thương hiệu' />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -246,44 +256,46 @@ export function CategoryForm({
       {/* Image upload */}
       <FormItem>
         <FormLabel>Ảnh danh mục</FormLabel>
-        <div className="space-y-2">
+        <div className='space-y-2'>
           {imagePreview ? (
-            <div className="relative w-24 h-24 rounded-md overflow-hidden border">
+            <div className='relative w-24 h-24 rounded-md overflow-hidden border'>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imagePreview}
-                alt="Preview"
-                className="w-full h-full object-cover"
+                alt='Preview'
+                className='w-full h-full object-cover'
               />
               <button
-                type="button"
+                type='button'
                 onClick={handleRemoveImage}
-                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                className='absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5'
               >
-                <X className="h-3 w-3" />
+                <X className='h-3 w-3' />
               </button>
             </div>
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors"
+              className='flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors'
             >
-              <ImageIcon className="h-6 w-6 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground mt-1">Chọn ảnh</span>
+              <ImageIcon className='h-6 w-6 text-muted-foreground' />
+              <span className='text-xs text-muted-foreground mt-1'>
+                Chọn ảnh
+              </span>
             </div>
           )}
           <input
             ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
+            type='file'
+            accept='image/*'
+            className='hidden'
             onChange={handleFileChange}
           />
           {!imagePreview && (
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
+              type='button'
+              variant='outline'
+              size='sm'
               onClick={() => fileInputRef.current?.click()}
             >
               Tải ảnh lên
@@ -295,12 +307,14 @@ export function CategoryForm({
       {/* isActive */}
       <FormField
         control={form.control}
-        name="isActive"
+        name='isActive'
         render={({ field }) => (
-          <FormItem className="flex items-center justify-between rounded-lg border p-3">
+          <FormItem className='flex items-center justify-between rounded-lg border p-3'>
             <div>
-              <FormLabel className="text-sm font-medium">Hiển thị</FormLabel>
-              <p className="text-xs text-muted-foreground">Bật để hiển thị danh mục trên website</p>
+              <FormLabel className='text-sm font-medium'>Hiển thị</FormLabel>
+              <p className='text-xs text-muted-foreground'>
+                Bật để hiển thị danh mục trên website
+              </p>
             </div>
             <FormControl>
               <Switch checked={field.value} onCheckedChange={field.onChange} />

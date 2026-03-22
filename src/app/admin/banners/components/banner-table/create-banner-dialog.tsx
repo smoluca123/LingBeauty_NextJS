@@ -23,9 +23,9 @@ import {
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { TiptapEditor } from '@/components/tiptap-editor';
 import {
   Select,
   SelectContent,
@@ -334,10 +334,10 @@ function CreateBannerForm({
               <FormItem>
                 <FormLabel>Mô tả</FormLabel>
                 <FormControl>
-                  <Textarea
-                    {...field}
+                  <TiptapEditor
+                    value={field.value || ''}
+                    onChange={field.onChange}
                     placeholder='Mô tả chi tiết...'
-                    rows={2}
                   />
                 </FormControl>
                 <FormMessage />
