@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { TiptapEditor } from '@/components/tiptap-editor';
+import { EditorWithPreview } from '@/components/tiptap-editor';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -36,7 +36,7 @@ export default function TestEditorPage() {
           <CardTitle>Editor</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <TiptapEditor
+          <EditorWithPreview
             value={content}
             onChange={setContent}
             placeholder="Nhập nội dung..."
@@ -48,7 +48,7 @@ export default function TestEditorPage() {
               variant="outline"
               onClick={() => setShowPreview(!showPreview)}
             >
-              {showPreview ? 'Ẩn Preview' : 'Xem Preview'}
+              {showPreview ? 'Ẩn HTML Output' : 'Xem HTML Output'}
             </Button>
             <Button
               variant="outline"
@@ -86,7 +86,7 @@ export default function TestEditorPage() {
 
               <div className="p-4 bg-muted rounded-lg">
                 <h3 className="text-sm font-semibold mb-2">Raw HTML:</h3>
-                <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words">
+                <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word">
                   {content}
                 </pre>
               </div>
@@ -113,7 +113,7 @@ export default function TestEditorPage() {
             <div>
               <h3 className="font-semibold mb-2">🖼️ Upload ảnh (3 cách):</h3>
               <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                <li><strong>Cách 1:</strong> Click icon Image → Click "Tải ảnh lên" → Chọn file</li>
+                <li><strong>Cách 1:</strong> Click icon Image → Click &quot;Tải ảnh lên&quot; → Chọn file</li>
                 <li><strong>Cách 2:</strong> Copy ảnh (screenshot/file) → Paste vào editor (Ctrl+V)</li>
                 <li><strong>Cách 3:</strong> Kéo file ảnh từ file explorer → Thả vào editor</li>
               </ul>
