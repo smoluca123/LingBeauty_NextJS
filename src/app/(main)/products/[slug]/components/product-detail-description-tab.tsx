@@ -1,7 +1,7 @@
-'use client'
+
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import parse from 'html-react-parser';
-import DOMPurify from 'isomorphic-dompurify';
+// import DOMPurify from 'isomorphic-dompurify';
 
 interface ProductDetailDescriptionTabProps {
   product: IProductDataType;
@@ -29,7 +29,7 @@ export function ProductDetailDescriptionTab({
       )}
       {product.description && (
         <article className="prose prose-sm max-w-none text-muted-foreground tiptap">
-          {parse(DOMPurify.sanitize(product.description))}
+          {parse(product.description)}
         </article>
       )}
     </div>
