@@ -19,15 +19,7 @@ import {
   useAuthLoading,
 } from '@/hooks/use-auth';
 import { useLogoutMutation } from '@/hooks/mutations/auth.mutation';
-
-const ADMIN_ROLES = ['Quản trị viên', 'Quản lý'] as const;
-
-function hasAdminRole(roleAssignments?: { role: { name: string } }[]): boolean {
-  if (!roleAssignments || roleAssignments.length === 0) return false;
-  return roleAssignments.some((ra) =>
-    (ADMIN_ROLES as readonly string[]).includes(ra.role.name),
-  );
-}
+import { hasAdminRole } from '@/lib/utils';
 
 export function UserButton() {
   const [loginOpen, setLoginOpen] = useState(false);

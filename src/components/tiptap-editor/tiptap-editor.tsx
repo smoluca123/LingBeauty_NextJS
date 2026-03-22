@@ -1,4 +1,5 @@
 'use client';
+'use no memo'
 
 import { useCallback, useState, useRef } from 'react';
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
@@ -9,6 +10,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import Highlight from '@tiptap/extension-highlight';
+import { handleTiptapImageUpload } from '@/lib/utils/tiptap-image-upload';
 import {
   Bold,
   Italic,
@@ -74,12 +76,17 @@ function ToolbarButton({
       disabled={disabled}
       title={title}
       className={cn(
-        'h-8 w-8 p-0 hover:bg-muted',
-        isActive &&
-          'bg-primary-pink/10 text-primary-pink hover:bg-primary-pink/20',
+        'h-8 w-8 p-0 transition-all relative',
+        isActive
+          ? 'bg-primary-pink text-white hover:bg-primary-pink/90 shadow-sm ring-1 ring-primary-pink/20'
+          : 'hover:bg-muted text-muted-foreground hover:text-foreground',
+        disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
       {children}
+      {isActive && (
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-white rounded-full" />
+      )}
     </Button>
   );
 }
@@ -96,6 +103,7 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
   const [hashtagInput, setHashtagInput] = useState('');
   const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
   const [isHashtagPopoverOpen, setIsHashtagPopoverOpen] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const addImage = useCallback(() => {
@@ -110,12 +118,20 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (file && onImageUpload && editor) {
+        setIsUploadingImage(true);
         try {
           const url = await onImageUpload(file);
           editor.chain().focus().setImage({ src: url }).run();
           setIsImagePopoverOpen(false);
         } catch (error) {
           console.error('Failed to upload image:', error);
+          alert('Tải ảnh lên thất bại. Vui lòng thử lại.');
+        } finally {
+          setIsUploadingImage(false);
+          // Reset file input
+          if (e.target) {
+            e.target.value = '';
+          }
         }
       }
     },
@@ -185,35 +201,35 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
-          title="In đậm (Ctrl+B)"
+          title="In đậm (Ctrl+B) - Click để bật/tắt"
         >
           <Bold className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
-          title="In nghiêng (Ctrl+I)"
+          title="In nghiêng (Ctrl+I) - Click để bật/tắt"
         >
           <Italic className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           isActive={editor.isActive('underline')}
-          title="Gạch chân (Ctrl+U)"
+          title="Gạch chân (Ctrl+U) - Click để bật/tắt"
         >
           <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editor.isActive('strike')}
-          title="Gạch ngang"
+          title="Gạch ngang - Click để bật/tắt"
         >
           <Strikethrough className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           isActive={editor.isActive('highlight')}
-          title="Đánh dấu"
+          title="Đánh dấu - Click để bật/tắt"
         >
           <Highlighter className="h-4 w-4" />
         </ToolbarButton>
@@ -303,7 +319,12 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted"
+              className={cn(
+                'h-8 w-8 p-0 transition-all',
+                isImagePopoverOpen
+                  ? 'bg-primary-pink text-white hover:bg-primary-pink/90'
+                  : 'hover:bg-muted text-muted-foreground hover:text-foreground',
+              )}
               title="Thêm hình ảnh"
             >
               <ImageIcon className="h-4 w-4" />
@@ -347,8 +368,9 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                     variant="outline"
                     className="w-full"
                     onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage}
                   >
-                    Tải ảnh lên
+                    {isUploadingImage ? 'Đang tải lên...' : 'Tải ảnh lên'}
                   </Button>
                   <input
                     ref={fileInputRef}
@@ -356,7 +378,11 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                     accept="image/*"
                     className="hidden"
                     onChange={handleFileUpload}
+                    disabled={isUploadingImage}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Hoặc dán/kéo thả ảnh vào editor
+                  </p>
                 </div>
               )}
             </div>
@@ -375,7 +401,12 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted text-primary-pink"
+              className={cn(
+                'h-8 w-8 p-0 transition-all',
+                isHashtagPopoverOpen
+                  ? 'bg-primary-pink text-white hover:bg-primary-pink/90'
+                  : 'text-primary-pink hover:bg-primary-pink/10',
+              )}
               title="Thêm hashtag"
             >
               <Hash className="h-4 w-4" />
@@ -440,6 +471,19 @@ export function TiptapEditor({
   onImageUpload,
   availableHashtags = [],
 }: TiptapEditorProps) {
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Use provided onImageUpload or default to handleTiptapImageUpload
+  const uploadImage = useCallback(
+    async (file: File): Promise<string> => {
+      if (onImageUpload) {
+        return onImageUpload(file);
+      }
+      return handleTiptapImageUpload(file);
+    },
+    [onImageUpload],
+  );
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -448,6 +492,8 @@ export function TiptapEditor({
         HTMLAttributes: {
           class: 'rounded-lg max-w-full h-auto',
         },
+        inline: true,
+        allowBase64: false,
       }),
       Link.configure({
         openOnClick: false,
@@ -476,6 +522,82 @@ export function TiptapEditor({
         class:
           'prose prose-sm max-w-none focus:outline-none min-h-[200px] px-4 py-3 [&_.hashtag]:text-primary-pink [&_.hashtag]:font-medium [&_.hashtag]:bg-primary-pink/10 [&_.hashtag]:px-1.5 [&_.hashtag]:py-0.5 [&_.hashtag]:rounded',
       },
+      // Handle paste events for images
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items;
+        if (!items) return false;
+
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+
+          if (item.type.indexOf('image') === 0) {
+            event.preventDefault();
+
+            const file = item.getAsFile();
+            if (!file) continue;
+
+            setIsUploading(true);
+            uploadImage(file)
+              .then((url) => {
+                editor?.chain().focus().setImage({ src: url }).run();
+              })
+              .catch((error) => {
+                console.error('Paste upload failed:', error);
+              })
+              .finally(() => {
+                setIsUploading(false);
+              });
+
+            return true;
+          }
+        }
+
+        return false;
+      },
+      // Handle drop events for images
+      handleDrop: (view, event, slice, moved) => {
+        if (moved || !event.dataTransfer?.files?.length) {
+          return false;
+        }
+
+        const files = Array.from(event.dataTransfer.files);
+        const imageFiles = files.filter((file) =>
+          file.type.startsWith('image/'),
+        );
+
+        if (imageFiles.length === 0) {
+          return false;
+        }
+
+        event.preventDefault();
+
+        const { schema } = view.state;
+        const coordinates = view.posAtCoords({
+          left: event.clientX,
+          top: event.clientY,
+        });
+
+        imageFiles.forEach((file) => {
+          setIsUploading(true);
+          uploadImage(file)
+            .then((url) => {
+              const node = schema.nodes.image.create({ src: url });
+              const transaction = view.state.tr.insert(
+                coordinates?.pos ?? 0,
+                node,
+              );
+              view.dispatch(transaction);
+            })
+            .catch((error) => {
+              console.error('Drop upload failed:', error);
+            })
+            .finally(() => {
+              setIsUploading(false);
+            });
+        });
+
+        return true;
+      },
     },
   });
 
@@ -488,10 +610,18 @@ export function TiptapEditor({
     >
       <Toolbar
         editor={editor}
-        onImageUpload={onImageUpload}
+        onImageUpload={uploadImage}
         availableHashtags={availableHashtags}
       />
+      {isUploading && (
+        <div className="px-4 py-2 text-sm text-muted-foreground bg-muted/50 border-b">
+          Đang tải ảnh lên...
+        </div>
+      )}
       <EditorContent editor={editor} />
+      <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30 border-t">
+        💡 Tip: Nút toolbar sáng = có định dạng trong vùng chọn. Click để bật/tắt.
+      </div>
     </div>
   );
 }
