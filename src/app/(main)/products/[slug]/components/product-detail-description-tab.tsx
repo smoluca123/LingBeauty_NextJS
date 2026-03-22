@@ -1,3 +1,4 @@
+'use client'
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import parse from 'html-react-parser';
 import DOMPurify from 'isomorphic-dompurify';
