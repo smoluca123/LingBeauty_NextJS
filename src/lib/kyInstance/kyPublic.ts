@@ -1,21 +1,18 @@
 "use server";
-
 import { env } from "@/lib/env.config";
 import ky from "ky";
 
 /**
- * Public Ky instance for endpoints that don't require authentication
- * This instance does NOT inject cookies, making it compatible with 'use cache'
- * Use this for public data like products, categories, etc.
+ * Public ky instance for server-side API calls that don't require authentication.
+ * This instance doesn't use cookies() which can cause issues on Vercel serverless.
  */
-export const publicKyInstance = ky.create({
+export const kyPublicInstance = ky.create({
   prefixUrl: env.NEXT_PUBLIC_API_URL,
   headers: {
     Authorization: `Bearer ${env.NEXT_PUBLIC_AUTHORIZATION_TOKEN}`,
   },
   parseJson: (text) => {
     return JSON.parse(text, (key, value) => {
-      // Auto-convert fields ending with 'At' to Date objects
       if (key.endsWith("At")) return new Date(value);
       return value;
     });
@@ -26,5 +23,4 @@ export const publicKyInstance = ky.create({
     methods: ["get"],
     statusCodes: [408, 413, 429, 500, 502, 503, 504],
   },
-  // No hooks that access cookies - safe for 'use cache'
 });

@@ -1,15 +1,16 @@
-'use server';
+"use server";
 
-import { kyInstance } from '@/lib/kyInstance/ky';
+import { kyInstance } from "@/lib/kyInstance/ky";
+import { kyPublicInstance } from "@/lib/kyInstance/kyPublic";
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from "@/lib/types/interfaces/apis/api.interfaces";
 import type {
   IProductQuestion,
   IProductQuestionWithProduct,
   IProductQuestionFilters,
-} from '@/lib/types/interfaces/apis/product-question.interfaces';
+} from "@/lib/types/interfaces/apis/product-question.interfaces";
 
 // Helper: loại bỏ undefined trước khi truyền vào searchParams
 const buildSearchParams = (
@@ -24,7 +25,7 @@ export const getAllQuestionsAPI = async (
   params: IProductQuestionFilters = {},
 ) =>
   kyInstance
-    .get('product-question', {
+    .get("product-question", {
       searchParams: buildSearchParams({
         page: params.page,
         limit: params.limit,
@@ -38,11 +39,9 @@ export const getAllQuestionsAPI = async (
     .json<IApiPaginationResponseWrapperType<IProductQuestion>>();
 
 // ============ Get My Questions (User - yêu cầu auth JWT) ============
-export const getMyQuestionsAPI = async (
-  params: IProductQuestionFilters = {},
-) =>
+export const getMyQuestionsAPI = async (params: IProductQuestionFilters = {}) =>
   kyInstance
-    .get('product-question/my-questions', {
+    .get("product-question/my-questions", {
       searchParams: buildSearchParams({
         page: params.page,
         limit: params.limit,
@@ -64,7 +63,7 @@ export const getPublicProductQuestionsAPI = async (
   productId: string,
   params: IProductQuestionFilters = {},
 ) =>
-  kyInstance
+  kyPublicInstance
     .get(`product-question/public/product/${productId}`, {
       searchParams: buildSearchParams({
         page: params.page,

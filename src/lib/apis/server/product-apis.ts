@@ -1,17 +1,17 @@
-'use server';
-import { DEFAULT_CACHE_TIME } from '@/constants/cache';
-import { publicKyInstance } from '@/lib/kyInstance/publicKy';
+"use server";
+import { DEFAULT_CACHE_TIME } from "@/constants/cache";
+import { publicKyInstance } from "@/lib/kyInstance/publicKy";
 import type {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from "@/lib/types/interfaces/apis/api.interfaces";
 import type {
   IFilterCategoryDataType,
   IProductDataType,
   IProductStatsDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
-import { cacheLife, cacheTag } from 'next/cache';
+} from "@/lib/types/interfaces/apis/product.interfaces";
+import { cacheLife, cacheTag } from "next/cache";
 
 export interface IProductQueryParams extends IApiPaginationParams {
   search?: string;
@@ -20,8 +20,8 @@ export interface IProductQueryParams extends IApiPaginationParams {
   isFeatured?: boolean;
   minPrice?: number;
   maxPrice?: number;
-  sortBy?: 'name' | 'basePrice' | 'createdAt' | 'updatedAt';
-  order?: 'asc' | 'desc';
+  sortBy?: "name" | "basePrice" | "createdAt" | "updatedAt";
+  order?: "asc" | "desc";
 }
 
 /** Params for the filter-categories server API */
@@ -53,11 +53,11 @@ const buildSearchParams = (
 export const getProductsAPI = async (
   options: IProductQueryParams = { page: 1, limit: 10 },
 ) => {
-  'use cache';
+  "use cache";
   cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag('products');
+  cacheTag("products");
   return publicKyInstance
-    .get('product', {
+    .get("product", {
       searchParams: buildSearchParams({
         page: options.page,
         limit: options.limit,
@@ -81,11 +81,11 @@ export const getProductsAPI = async (
 export const getFilterCategoriesAPI = async (
   options: IFilterCategoriesQueryParams = {},
 ) => {
-  'use cache';
+  "use cache";
   cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag('filter-categories');
+  cacheTag("filter-categories");
   return publicKyInstance
-    .get('product/public/filter-categories', {
+    .get("product/public/filter-categories", {
       searchParams: buildSearchParams({
         brandId: options.brandId,
         categoryId: options.categoryId,
@@ -107,9 +107,9 @@ export const getFilterCategoriesAPI = async (
  * Uses publicKyInstance with Bearer token — no user auth required.
  */
 export const getProductBySlugAPI = async (slug: string) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`product-${slug}`);
+  // 'use cache';
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`product-${slug}`);
   return publicKyInstance
     .get(`product/slug/${slug}`)
     .json<IApiResponseWrapperType<IProductDataType>>();
@@ -118,11 +118,11 @@ export const getProductBySlugAPI = async (slug: string) => {
 export const getProductStatsAPI = async (
   options: IProductStatsQueryParams = {},
 ) => {
-  'use cache';
+  "use cache";
   cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag('product-stats');
+  cacheTag("product-stats");
   return publicKyInstance
-    .get('product/public/stats', {
+    .get("product/public/stats", {
       searchParams: buildSearchParams({
         brandId: options.brandId,
         categoryId: options.categoryId,
@@ -142,11 +142,11 @@ export const getProductsByBrandAPI = async (
   excludeSlug?: string,
   limit = 8,
 ) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`products-brand-${brandId}`);
+  // "use cache";
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`products-brand-${brandId}`);
   const response = await publicKyInstance
-    .get('product', {
+    .get("product", {
       searchParams: buildSearchParams({ brandId, limit }),
     })
     .json<IApiPaginationResponseWrapperType<IProductDataType>>();
@@ -169,11 +169,11 @@ export const getRelatedProductsAPI = async (
   excludeSlug?: string,
   limit = 8,
 ) => {
-  'use cache';
-  cacheLife(DEFAULT_CACHE_TIME);
-  cacheTag(`products-category-${categoryId}`);
+  // "use cache";
+  // cacheLife(DEFAULT_CACHE_TIME);
+  // cacheTag(`products-category-${categoryId}`);
   const response = await publicKyInstance
-    .get('product', {
+    .get("product", {
       searchParams: buildSearchParams({ categoryId, limit }),
     })
     .json<IApiPaginationResponseWrapperType<IProductDataType>>();
