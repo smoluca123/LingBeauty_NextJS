@@ -2,7 +2,7 @@
 
 import { Star } from 'lucide-react';
 import { IReviewSummaryDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 
 interface ReviewSummaryProps {
   summary: IReviewSummaryDataType | null;

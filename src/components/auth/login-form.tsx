@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginValues } from '@/lib/zod-schemas/auth.schema';
+import { loginSchema } from '@/lib/schemas';
+import type { LoginFormValues } from '@/lib/types/forms';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -26,7 +27,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
   const loginMutation = useLoginMutation();
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<LoginValues>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       usernameOrEmail: '',
@@ -35,7 +36,7 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     mode: 'onTouched',
   });
 
-  async function onSubmit(data: LoginValues) {
+  async function onSubmit(data: LoginFormValues) {
     setError(null);
     loginMutation.mutate(
       {

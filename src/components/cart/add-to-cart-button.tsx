@@ -7,7 +7,7 @@ import type { IProductDataType } from '@/lib/types/interfaces/apis/product.inter
 import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation';
 import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog';
 import { useIsAuthenticated } from '@/hooks/use-auth';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { getIsOutOfStock } from '@/lib/utils/product-stock.utils';
 
 interface AddToCartButtonProps {

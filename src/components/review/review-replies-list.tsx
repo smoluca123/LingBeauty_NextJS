@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { ReplyMoreActions } from './reply-more-actions';
 import InfiniteScrollContainer from '@/components/InfiniteScrollContainer';
-import { hasAdminRole } from '@/lib/utils/utils';
+import { hasAdminRole } from '@/lib/utils';
 
 interface ReviewRepliesListProps {
   replies: IReviewReplyDataType[];

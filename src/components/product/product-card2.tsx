@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import { Package } from 'lucide-react';
 
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import {
   IProductDataType,

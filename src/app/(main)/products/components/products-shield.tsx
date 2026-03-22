@@ -6,7 +6,7 @@ import { ProductsInfo } from '@/app/(main)/products/components/products-info';
 import { AllProducts } from '@/app/(main)/products/components/all-products';
 import { queryClient } from '@/lib/query-client/query-client';
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { formatCount } from '@/lib/utils/utils';
+import { formatCount } from '@/lib/utils';
 import { connection } from 'next/server';
 import { getProductListingQueryKey } from '@/hooks/querys/product-listing.query';
 import { notFound } from 'next/navigation';

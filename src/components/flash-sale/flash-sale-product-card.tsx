@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { isSoldOut } from '@/lib/utils/flash-sale-utils';
 import { ProductCard2 } from '@/components/product/product-card2';
 import type { IFlashSaleProductDataType } from '@/lib/types/interfaces/apis/flash-sale.interfaces';

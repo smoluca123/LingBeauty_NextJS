@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { beautyBoxCategories, getArticlesByCategory } from './data';
 import { Button } from '@/components/ui/button';
 import { SectionHeadingCenter } from '@/components/home/section-heading';

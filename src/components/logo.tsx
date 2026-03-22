@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 
 interface ILogoProps extends IPropsWithClassName {
   classNames?: {

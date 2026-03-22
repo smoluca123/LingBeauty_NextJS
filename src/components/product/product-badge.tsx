@@ -1,5 +1,5 @@
 import { ProductBadgeVariantType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 
 type ProductBadgeProps = {
   label: string;

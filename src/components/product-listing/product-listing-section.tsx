@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { PRICE_RANGES, PRODUCTS_PER_PAGE } from './constants';
 import { FilterSidebar, FilterState, FilterDrawer } from './filter';
 import { getActiveFiltersCount } from './filter/filter-utils';

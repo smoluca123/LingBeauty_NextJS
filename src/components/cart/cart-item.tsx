@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { formatCurrency } from '@/lib/utils/utils';
+import { formatCurrency } from '@/lib/utils';
 import { useState } from 'react';
 import type { ICartItemType } from '@/lib/types/interfaces/cart.interfaces';
 

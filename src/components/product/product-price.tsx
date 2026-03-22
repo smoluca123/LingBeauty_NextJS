@@ -1,4 +1,4 @@
-import { formatCurrency } from '@/lib/utils/utils';
+import { formatCurrency } from '@/lib/utils';
 
 type ProductPriceProps = {
   basePrice: number;

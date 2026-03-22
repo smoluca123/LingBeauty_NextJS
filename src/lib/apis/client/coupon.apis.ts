@@ -8,7 +8,7 @@ import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
 } from '@/lib/types/interfaces/apis/api.interfaces';
-import { extractErrorMessage } from '@/lib/utils/utils';
+import { extractErrorMessage } from '@/lib/utils';
 
 /** POST /api/coupon/apply — validate and calculate discount for a coupon code */
 export const applyCouponAPI = async (

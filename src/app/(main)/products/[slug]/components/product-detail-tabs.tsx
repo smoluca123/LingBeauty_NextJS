@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
 import { ProductDetailDescriptionTab } from './product-detail-description-tab';
 import { ProductDetailReviewTab } from './product-detail-review-tab';
-import { ProductDetailCommentsTab } from './product-detail-comments-tab';
+import { ProductDetailQnaTab } from './product-detail-qna-tab';
 
-type TabId = 'description' | 'reviews' | 'comments';
+type TabId = 'description' | 'reviews' | 'qna';
 
 interface Tab {
   id: TabId;
@@ -17,7 +17,7 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'description', label: 'Mô tả' },
   { id: 'reviews', label: 'Đánh giá' },
-  { id: 'comments', label: 'Hỏi & Đáp' },
+  { id: 'qna', label: 'Hỏi & Đáp' },
 ];
 
 interface ProductDetailTabsProps {
@@ -69,7 +69,12 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
             productName={product.name}
           />
         )}
-        {activeTab === 'comments' && <ProductDetailCommentsTab />}
+        {activeTab === 'qna' && (
+          <ProductDetailQnaTab
+            productId={product.id}
+            productName={product.name}
+          />
+        )}
       </div>
     </div>
   );

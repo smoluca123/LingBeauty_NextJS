@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Star } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { cn, formatCurrency } from '@/lib/utils/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
 import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
 export type Product = {

@@ -1,7 +1,7 @@
 import { ChangePasswordDialog } from '@/components/change-password/change-password-dialog';
 import { Button } from '@/components/ui/button';
 import { ButtonProps } from '@/lib/types/interfaces/utils.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 import { KeyRound } from 'lucide-react';
 import { useState } from 'react';
 

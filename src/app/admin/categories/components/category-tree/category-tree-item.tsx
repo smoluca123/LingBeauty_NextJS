@@ -12,7 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
-import { cn } from '@/lib/utils/utils';
+import { cn } from '@/lib/utils';
 
 interface CategoryTreeItemProps {
   category: IAdminCategoryDataType;
