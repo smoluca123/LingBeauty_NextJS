@@ -1,18 +1,18 @@
-'use server';
+"use server";
 
-import { kyInstance } from '@/lib/kyInstance/ky';
-import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
-import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
+import { kyInstance } from "@/lib/kyInstance/ky";
+import type { IAddressDataType } from "@/lib/types/interfaces/apis/address.interfaces";
+import type { IApiResponseWrapperType } from "@/lib/types/interfaces/apis/api.interfaces";
 import type {
   AddressFormValues,
-  UpdateAddressValues,
-} from '@/lib/zod-schemas/addresses.schema';
+  UpdateAddressFormValues,
+} from "@/lib/types/forms";
 
 // Let HTTPError bubble up naturally — proxyRoute in route handlers handles forwarding.
 
 export const addMyAddressAPI = async (data: AddressFormValues) =>
   kyInstance
-    .post('user/address', { json: data })
+    .post("user/address", { json: data })
     .json<IApiResponseWrapperType<IAddressDataType>>();
 
 export const deleteMyAddressAPI = async (id: string) =>
@@ -25,7 +25,7 @@ export const updateMyAddressAPI = async ({
   data,
 }: {
   id: string;
-  data: UpdateAddressValues;
+  data: UpdateAddressFormValues;
 }) =>
   kyInstance
     .patch(`user/address/${id}`, { json: data })

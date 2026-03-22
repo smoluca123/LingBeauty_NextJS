@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useGetMyAddressesQuery } from '@/hooks/querys/address.query';
 import { useAddMyAddress } from '@/hooks/mutations/address.mutation';
-import { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
+import type { AddressFormValues } from '@/lib/types/forms';
 import { AddressCard } from './address-card';
 import { AddressCardSkeleton } from './address-card-skeleton';
 import { AddressFormDialog } from './components';

@@ -1,13 +1,13 @@
-import { addMyAddressAPI } from '@/lib/apis/server/actions/addresses.actions';
-import { getMyAddressesAPI } from '@/lib/apis/server/addresses.apis';
-import { proxyRoute } from '@/lib/proxy-route';
-import type { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
+import { addMyAddressAPI } from "@/lib/apis/server/actions/addresses.actions";
+import { getMyAddressesAPI } from "@/lib/apis/server/addresses.apis";
+import { proxyRoute } from "@/lib/proxy-route";
+import type { AddressFormValues } from "@/lib/types/forms";
 
 export const GET = (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const limit = searchParams.get('limit');
-  const page = searchParams.get('page');
-  const search = searchParams.get('search');
+  const limit = searchParams.get("limit");
+  const page = searchParams.get("page");
+  const search = searchParams.get("search");
   return proxyRoute(() =>
     getMyAddressesAPI({
       limit: limit ? Number(limit) : undefined,

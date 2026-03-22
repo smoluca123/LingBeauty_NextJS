@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
-import { useUpdateMyAddress } from '@/hooks/mutations/address.mutation';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
-import { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { useUpdateMyAddress } from "@/hooks/mutations/address.mutation";
+import { IAddressDataType } from "@/lib/types/interfaces/apis/address.interfaces";
+import type { AddressFormValues } from "@/lib/types/forms";
 
 /**
  * Hook to manage edit address action
@@ -41,13 +41,13 @@ export function useEditAddress() {
             onError: (error) => {
               toast.error(
                 error.message ||
-                  'Không thể cập nhật địa chỉ. Vui lòng thử lại.',
+                  "Không thể cập nhật địa chỉ. Vui lòng thử lại.",
               );
             },
           },
         );
       } catch {
-        toast.error('Không thể cập nhật địa chỉ. Vui lòng thử lại.');
+        toast.error("Không thể cập nhật địa chỉ. Vui lòng thử lại.");
       }
     },
     [address, mutation, close],
