@@ -1,15 +1,16 @@
-import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces';
-import { clsx, type ClassValue } from 'clsx';
-import { HTTPError } from 'ky';
-import { twMerge } from 'tailwind-merge';
+import { ICategoryDataType } from "@/lib/types/interfaces/apis/header.interfaces";
+import { clsx, type ClassValue } from "clsx";
+import { HTTPError } from "ky";
+import { twMerge } from "tailwind-merge";
+import { IUserRoleDataType } from "./types/interfaces/apis/user.interfaces";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const currencyFormatter = new Intl.NumberFormat('vi-VN', {
-  style: 'currency',
-  currency: 'VND',
+const currencyFormatter = new Intl.NumberFormat("vi-VN", {
+  style: "currency",
+  currency: "VND",
   maximumFractionDigits: 0,
 });
 
@@ -40,8 +41,8 @@ export function findCategoryBySlug(
  * Format number to readable string (e.g. 1700 -> "1.7K")
  */
 
-const countFormatter = new Intl.NumberFormat('en-US', {
-  notation: 'compact',
+const countFormatter = new Intl.NumberFormat("en-US", {
+  notation: "compact",
   maximumFractionDigits: 1,
 });
 
@@ -71,7 +72,7 @@ export async function extractErrorMessage(
 }
 
 // Roles allowed to access admin panel
-const ADMIN_ROLES = ['Quản trị viên', 'Quản lý'] as const;
+const ADMIN_ROLES = ["ADMINISTRATOR", "MANAGER"] as const;
 type AdminRole = (typeof ADMIN_ROLES)[number];
 export function hasAdminRole(
   roleAssignments?: { role: { name: string } }[],

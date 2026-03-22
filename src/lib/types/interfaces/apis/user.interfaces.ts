@@ -1,4 +1,4 @@
-import { IMediaDataType } from './image.interfaces';
+import { IMediaDataType } from "./image.interfaces";
 
 // ============ User Interfaces ============
 export interface IUserDataType {
@@ -38,7 +38,7 @@ export interface IUserDataType {
 
 export interface IUserRoleDataType {
   id: string;
-  name: string;
+  name: "ADMINISTRATOR" | "AGENCY" | "AGENCY" | "CLIENT";
   createdAt: string;
   updatedAt: string;
 }
