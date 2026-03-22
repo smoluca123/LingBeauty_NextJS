@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import { connection } from 'next/server';
 import {
   getProductBySlugAPI,
   getProductsByBrandAPI,
@@ -24,8 +23,6 @@ interface ProductDetailShieldProps {
  * Promise.allSettled ensures one failure doesn't block the page.
  */
 export async function ProductDetailShield({ slug }: ProductDetailShieldProps) {
-  await connection();
-
   let product;
   try {
     const response = await getProductBySlugAPI(slug);
