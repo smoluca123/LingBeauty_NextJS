@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { TiptapEditor } from '@/components/tiptap-editor';
+import { RichTextField } from '@/components/form/rich-text-field';
 import type { IBrandFormData } from '@/lib/types/interfaces/apis/admin-brand.interfaces';
 
 interface BrandFormProps {
@@ -65,22 +65,12 @@ export function BrandForm({
       />
 
       {/* Description */}
-      <FormField
+      <RichTextField
         control={form.control}
         name='description'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Mô tả</FormLabel>
-            <FormControl>
-              <TiptapEditor
-                value={field.value || ''}
-                onChange={field.onChange}
-                placeholder='Mô tả thương hiệu (tuỳ chọn)'
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='Mô tả'
+        placeholder='Mô tả thương hiệu (tuỳ chọn)'
+        availableHashtags={['thương hiệu', 'brand', 'chính hãng', 'uy tín']}
       />
 
       {/* Website */}

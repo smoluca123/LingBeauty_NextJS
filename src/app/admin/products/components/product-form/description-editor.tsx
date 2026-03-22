@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { TiptapEditor } from '@/components/tiptap-editor';
+import { EditorWithPreview } from '@/components/tiptap-editor';
 import { Label } from '@/components/ui/label';
 
 // ============ Types ============
@@ -37,30 +37,32 @@ const SUGGESTED_HASHTAGS = [
 
 // ============ Component ============
 export function DescriptionEditor({ value, onChange }: DescriptionEditorProps) {
-  // Image upload handler - upload to your server
+  // Image upload handler - upload to general image endpoint
   const handleImageUpload = useCallback(async (file: File): Promise<string> => {
     // Create form data
     const formData = new FormData();
     formData.append('file', file);
 
-    // Upload to your API endpoint
-    const response = await fetch('/api/upload', {
+    // Upload to general image API endpoint
+    const response = await fetch('/api/upload/general-image', {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      throw new Error('Failed to upload image');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to upload image');
     }
 
     const data = await response.json();
-    return data.url;
+    // Backend returns: { type: 'response', message: '...', data: { url: '...' } }
+    return data.data.url;
   }, []);
 
   return (
     <div className='space-y-2'>
       <Label>Mô tả chi tiết</Label>
-      <TiptapEditor
+      <EditorWithPreview
         value={value}
         onChange={onChange}
         placeholder='Nhập mô tả chi tiết sản phẩm với định dạng đẹp, hình ảnh và hashtag...'
@@ -68,7 +70,7 @@ export function DescriptionEditor({ value, onChange }: DescriptionEditorProps) {
         onImageUpload={handleImageUpload}
       />
       <p className='text-xs text-muted-foreground'>
-        Hỗ trợ định dạng văn bản, thêm hình ảnh, hashtag và liên kết
+        Hỗ trợ định dạng văn bản, thêm hình ảnh (tải lên, dán hoặc kéo thả), hashtag và liên kết
       </p>
     </div>
   );

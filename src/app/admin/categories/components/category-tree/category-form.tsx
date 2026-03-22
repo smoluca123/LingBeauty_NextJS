@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { TiptapEditor } from '@/components/tiptap-editor';
+import { RichTextField } from '@/components/form/rich-text-field';
 import {
   useAdminBrandsQuery,
   useAdminCategoriesQuery,
@@ -128,22 +128,18 @@ export function CategoryForm({
       />
 
       {/* Description */}
-      <FormField
+      <RichTextField
         control={form.control}
         name='description'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Mô tả</FormLabel>
-            <FormControl>
-              <TiptapEditor
-                value={field.value || ''}
-                onChange={field.onChange}
-                placeholder='Mô tả danh mục (tuỳ chọn)'
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='Mô tả'
+        placeholder='Mô tả danh mục (tuỳ chọn)'
+        availableHashtags={[
+          'danh mục',
+          'category',
+          'sản phẩm',
+          'hot',
+          'trending',
+        ]}
       />
 
       {/* Parent Category Select – luôn hiển thị */}
