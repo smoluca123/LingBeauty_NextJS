@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { TiptapEditor } from '@/components/tiptap-editor';
+import { EditorWithPreview } from '@/components/tiptap-editor';
 import { Label } from '@/components/ui/label';
 
 // ============ Types ============
@@ -62,7 +62,7 @@ export function DescriptionEditor({ value, onChange }: DescriptionEditorProps) {
   return (
     <div className='space-y-2'>
       <Label>Mô tả chi tiết</Label>
-      <TiptapEditor
+      <EditorWithPreview
         value={value}
         onChange={onChange}
         placeholder='Nhập mô tả chi tiết sản phẩm với định dạng đẹp, hình ảnh và hashtag...'

@@ -1,4 +1,5 @@
 'use client';
+'use no memo'
 
 import { useCallback, useState, useRef } from 'react';
 import { useEditor, EditorContent, type Editor } from '@tiptap/react';
@@ -75,12 +76,17 @@ function ToolbarButton({
       disabled={disabled}
       title={title}
       className={cn(
-        'h-8 w-8 p-0 hover:bg-muted',
-        isActive &&
-          'bg-primary-pink/10 text-primary-pink hover:bg-primary-pink/20',
+        'h-8 w-8 p-0 transition-all relative',
+        isActive
+          ? 'bg-primary-pink text-white hover:bg-primary-pink/90 shadow-sm ring-1 ring-primary-pink/20'
+          : 'hover:bg-muted text-muted-foreground hover:text-foreground',
+        disabled && 'opacity-50 cursor-not-allowed',
       )}
     >
       {children}
+      {isActive && (
+        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-white rounded-full" />
+      )}
     </Button>
   );
 }
@@ -195,35 +201,35 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
-          title="In đậm (Ctrl+B)"
+          title="In đậm (Ctrl+B) - Click để bật/tắt"
         >
           <Bold className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
-          title="In nghiêng (Ctrl+I)"
+          title="In nghiêng (Ctrl+I) - Click để bật/tắt"
         >
           <Italic className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           isActive={editor.isActive('underline')}
-          title="Gạch chân (Ctrl+U)"
+          title="Gạch chân (Ctrl+U) - Click để bật/tắt"
         >
           <UnderlineIcon className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleStrike().run()}
           isActive={editor.isActive('strike')}
-          title="Gạch ngang"
+          title="Gạch ngang - Click để bật/tắt"
         >
           <Strikethrough className="h-4 w-4" />
         </ToolbarButton>
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHighlight().run()}
           isActive={editor.isActive('highlight')}
-          title="Đánh dấu"
+          title="Đánh dấu - Click để bật/tắt"
         >
           <Highlighter className="h-4 w-4" />
         </ToolbarButton>
@@ -313,7 +319,12 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted"
+              className={cn(
+                'h-8 w-8 p-0 transition-all',
+                isImagePopoverOpen
+                  ? 'bg-primary-pink text-white hover:bg-primary-pink/90'
+                  : 'hover:bg-muted text-muted-foreground hover:text-foreground',
+              )}
               title="Thêm hình ảnh"
             >
               <ImageIcon className="h-4 w-4" />
@@ -390,7 +401,12 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-muted text-primary-pink"
+              className={cn(
+                'h-8 w-8 p-0 transition-all',
+                isHashtagPopoverOpen
+                  ? 'bg-primary-pink text-white hover:bg-primary-pink/90'
+                  : 'text-primary-pink hover:bg-primary-pink/10',
+              )}
               title="Thêm hashtag"
             >
               <Hash className="h-4 w-4" />
@@ -603,6 +619,9 @@ export function TiptapEditor({
         </div>
       )}
       <EditorContent editor={editor} />
+      <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30 border-t">
+        💡 Tip: Nút toolbar sáng = có định dạng trong vùng chọn. Click để bật/tắt.
+      </div>
     </div>
   );
 }

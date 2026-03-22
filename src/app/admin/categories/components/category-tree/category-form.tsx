@@ -11,7 +11,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -21,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { RichTextField } from '@/components/form/rich-text-field';
 import {
   useAdminBrandsQuery,
   useAdminCategoriesQuery,
@@ -121,23 +121,12 @@ export function CategoryForm({
       />
 
       {/* Description */}
-      <FormField
+      <RichTextField
         control={form.control}
         name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Mô tả</FormLabel>
-            <FormControl>
-              <Textarea
-                placeholder="Mô tả danh mục (tuỳ chọn)"
-                className="resize-none"
-                rows={3}
-                {...field}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label="Mô tả"
+        placeholder="Mô tả danh mục (tuỳ chọn)"
+        availableHashtags={['danh mục', 'category', 'sản phẩm', 'hot', 'trending']}
       />
 
       {/* Parent Category Select – luôn hiển thị */}
