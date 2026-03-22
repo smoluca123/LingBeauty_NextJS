@@ -9,6 +9,7 @@ import { ProductDetailGallery } from './product-detail-gallery';
 import { ProductDetailInfo } from './product-detail-info';
 import { ProductDetailTabs } from './product-detail-tabs';
 import { ProductSectionCarousel } from './product-section-carousel';
+import { EmptyRelatedProducts } from './empty-related-products';
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -115,20 +116,33 @@ export async function ProductDetailShield({ slug }: ProductDetailShieldProps) {
         <Separator />
 
         {/* Section: Sản phẩm liên quan */}
-        {filteredRelated.length > 0 && (
-          <ProductSectionCarousel
-            title="Sản phẩm liên quan"
-            subtitle={
-              firstCategory
-                ? `Các sản phẩm khác trong danh mục ${firstCategory.name}`
-                : 'Bạn có thể cũng thích'
-            }
-            products={filteredRelated}
-            viewAllHref={
-              categoryId ? `/products?categoryId=${categoryId}` : '/products'
-            }
-          />
-        )}
+        <div>
+          <h2 className="mb-2 text-2xl font-bold">Sản phẩm liên quan</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            {firstCategory
+              ? `Các sản phẩm khác trong danh mục ${firstCategory.name}`
+              : 'Bạn có thể cũng thích'}
+          </p>
+          {filteredRelated.length > 0 ? (
+            <ProductSectionCarousel
+              title=""
+              subtitle=""
+              products={filteredRelated}
+              viewAllHref={
+                categoryId ? `/products?categoryId=${categoryId}` : '/products'
+              }
+            />
+          ) : (
+            <EmptyRelatedProducts
+              title="Chưa có sản phẩm liên quan"
+              description={
+                firstCategory
+                  ? `Hiện tại chưa có sản phẩm nào khác trong danh mục ${firstCategory.name}. Hãy khám phá các danh mục khác.`
+                  : 'Hiện tại chưa có sản phẩm liên quan nào. Hãy khám phá các sản phẩm khác của chúng tôi.'
+              }
+            />
+          )}
+        </div>
       </div>
     </div>
   );
