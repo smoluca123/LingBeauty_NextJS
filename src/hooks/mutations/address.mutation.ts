@@ -1,14 +1,14 @@
-import { addMyAddressAPI } from '@/lib/apis/client/actions/address.actions';
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { queryClient } from '@/lib/query-client/query-client';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
+import { addMyAddressAPI } from "@/lib/apis/client/actions/address.actions";
+import { kyNextInstance } from "@/lib/kyInstance/kyNext";
+import { queryClient } from "@/lib/query-client/query-client";
+import { IAddressDataType } from "@/lib/types/interfaces/apis/address.interfaces";
 import {
   IApiResponseWrapperType,
   INextApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
-import { AddressFormValues } from '@/lib/zod-schemas/addresses.schema';
-import { useMutation } from '@tanstack/react-query';
-import { toast } from 'sonner';
+} from "@/lib/types/interfaces/apis/api.interfaces";
+import type { AddressFormValues } from "@/lib/types/forms";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const useAddMyAddress = () => {
   // const queryClient = useQueryClient();
@@ -30,10 +30,10 @@ export const useAddMyAddress = () => {
       // });
 
       // Show success toast
-      toast.success(data.message || 'Thêm địa chỉ thành công!');
+      toast.success(data.message || "Thêm địa chỉ thành công!");
     },
     onError: (error) => {
-      toast.error(error.message || 'Thêm địa chỉ thất bại!');
+      toast.error(error.message || "Thêm địa chỉ thất bại!");
     },
   });
 };
@@ -59,7 +59,7 @@ export const useUpdateMyAddress = () => {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Failed to update address');
+      throw new Error("Failed to update address");
     }
   };
 
@@ -72,13 +72,13 @@ export const useUpdateMyAddress = () => {
       // });
 
       await queryClient.invalidateQueries({
-        queryKey: ['addresses'],
+        queryKey: ["addresses"],
       });
       // Show success toast
-      toast.success(data.message || 'Cập nhật địa chỉ thành công!');
+      toast.success(data.message || "Cập nhật địa chỉ thành công!");
     },
     onError: (error) => {
-      toast.error(error.message || 'Cập nhật địa chỉ thất bại!');
+      toast.error(error.message || "Cập nhật địa chỉ thất bại!");
     },
   });
 };
@@ -98,7 +98,7 @@ export const useDeleteMyAddress = () => {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Failed to delete address');
+      throw new Error("Failed to delete address");
     }
   };
 
@@ -111,13 +111,13 @@ export const useDeleteMyAddress = () => {
       // });
 
       await queryClient.invalidateQueries({
-        queryKey: ['addresses'],
+        queryKey: ["addresses"],
       });
 
-      toast.success('Địa chỉ đã được xóa thành công');
+      toast.success("Địa chỉ đã được xóa thành công");
     },
     onError: (error) => {
-      toast.error(error.message || 'Xóa địa chỉ thất bại!');
+      toast.error(error.message || "Xóa địa chỉ thất bại!");
     },
   });
 };
@@ -139,7 +139,7 @@ export const useSetDefaultMyAddress = () => {
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Failed to delete address');
+      throw new Error("Failed to delete address");
     }
   };
 
@@ -148,14 +148,14 @@ export const useSetDefaultMyAddress = () => {
     onSuccess: async () => {
       // Invalidate queries to refetch addresses
       await queryClient.invalidateQueries({
-        queryKey: ['addresses'],
+        queryKey: ["addresses"],
       });
 
       // Show success toast
-      toast.success('Đặt làm địa chỉ mặc định thành công!');
+      toast.success("Đặt làm địa chỉ mặc định thành công!");
     },
     onError: (error) => {
-      toast.error(error.message || 'Đặt làm địa chỉ mặc định thất bại!');
+      toast.error(error.message || "Đặt làm địa chỉ mặc định thất bại!");
     },
   });
 };

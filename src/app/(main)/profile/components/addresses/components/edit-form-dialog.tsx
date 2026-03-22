@@ -40,8 +40,8 @@ import {
 import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 import {
   addressFormSchema,
-  AddressFormValues,
 } from '@/lib/zod-schemas/addresses.schema';
+import type { AddressFormValues } from '@/lib/types/forms';
 
 interface EditFormDialogProps {
   open: boolean;

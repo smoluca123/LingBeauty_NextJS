@@ -1,9 +1,9 @@
 import {
   deleteMyAddressAPI,
   updateMyAddressAPI,
-} from '@/lib/apis/server/actions/addresses.actions';
-import { proxyRoute } from '@/lib/proxy-route';
-import type { UpdateAddressValues } from '@/lib/zod-schemas/addresses.schema';
+} from "@/lib/apis/server/actions/addresses.actions";
+import { proxyRoute } from "@/lib/proxy-route";
+import type { UpdateAddressFormValues } from "@/lib/types/forms";
 
 export const DELETE = (
   _request: Request,
@@ -19,7 +19,7 @@ export const PATCH = async (
   { params }: { params: Promise<{ addressId: string }> },
 ) => {
   const [body, { addressId }] = await Promise.all([
-    request.json() as Promise<UpdateAddressValues>,
+    request.json() as Promise<UpdateAddressFormValues>,
     params,
   ]);
   return proxyRoute(() => updateMyAddressAPI({ id: addressId, data: body }));

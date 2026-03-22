@@ -14,7 +14,7 @@ export interface AddressFormValues {
   province: string;
   postalCode: string;
   type: AddressType;
-  isDefault?: boolean;
+  isDefault: boolean;
 }
 
 export interface UpdateAddressFormValues {
