@@ -1,8 +1,9 @@
-import { IProductImageDataType } from "./product.interfaces";
+import { IProductImageDataType } from './product.interfaces';
+import { IMediaDataType } from './image.interfaces';
 
 export enum ProductQuestionStatus {
-  PENDING = "PENDING",
-  ANSWERED = "ANSWERED",
+  PENDING = 'PENDING',
+  ANSWERED = 'ANSWERED',
 }
 
 export interface IUserBasic {
@@ -10,6 +11,7 @@ export interface IUserBasic {
   firstName: string;
   lastName: string;
   fullName?: string;
+  avatarMedia?: IMediaDataType | null;
 }
 
 export interface IProductBasic {
@@ -54,6 +56,6 @@ export interface IProductQuestionFilters {
   productId?: string;
   userId?: string;
   status?: ProductQuestionStatus;
-  sortBy?: "createdAt" | "updatedAt";
-  order?: "asc" | "desc";
+  sortBy?: 'createdAt' | 'updatedAt';
+  order?: 'asc' | 'desc';
 }
