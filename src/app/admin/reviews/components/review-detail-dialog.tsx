@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Trash2,
   MoreVertical,
+  AlertCircle,
 } from 'lucide-react';
 import {
   Dialog,
@@ -39,10 +40,11 @@ import type {
   IReviewWithProductDataType,
   IReviewReplyDataType,
 } from '@/lib/types/interfaces/apis/review.interfaces';
-import { useReviewRepliesQuery } from '@/hooks/querys/admin-review.query';
+import { useInfiniteReviewRepliesQuery } from '@/hooks/querys/admin-review.query';
 import { useAdminProductByIdQuery } from '@/hooks/querys/admin-product.query';
 import { DeleteReviewDialog } from './delete-review-dialog';
 import { DeleteReplyDialog } from './delete-reply-dialog';
+import InfiniteScrollContainer from '@/components/InfiniteScrollContainer';
 
 interface ReviewDetailDialogProps {
   review: IReviewWithProductDataType | null;
@@ -64,22 +66,28 @@ export function ReviewDetailDialog({
   const [selectedReply, setSelectedReply] =
     useState<IReviewReplyDataType | null>(null);
 
+  // ── Infinite Query for Replies ─────────────────────────────────────────────
   const {
-    data: repliesData,
+    data: repliesInfiniteData,
     isLoading: isLoadingReplies,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     refetch,
-  } = useReviewRepliesQuery(open ? (review?.id ?? null) : null);
+    error: repliesError,
+  } = useInfiniteReviewRepliesQuery(open ? (review?.id ?? null) : null, {
+    pageSize: 10,
+  });
 
   const { data: productData, isLoading: isLoadingProduct } =
     useAdminProductByIdQuery(open ? (review?.productId ?? null) : null);
 
   const product = productData?.data;
 
-  // All replies from query
+  // All replies from infinite query (flatten pages)
   const allReplies = useMemo<IReviewReplyDataType[]>(
-    () =>
-      Array.isArray(repliesData?.data?.items) ? repliesData.data.items : [],
-    [repliesData],
+    () => repliesInfiniteData?.pages.flatMap((page) => page.data.items) ?? [],
+    [repliesInfiniteData],
   );
 
   // Filter replies client-side
@@ -120,7 +128,7 @@ export function ReviewDetailDialog({
       case 'admin':
         return 'Quản trị viên';
       case 'user':
-        return 'Người dùng';
+        return 'Ngườii dùng';
       default:
         return 'Tất cả phản hồi';
     }
@@ -137,7 +145,7 @@ export function ReviewDetailDialog({
 
   const userName = review.user
     ? `${review.user.firstName ?? ''} ${review.user.lastName ?? ''}`.trim()
-    : 'Người dùng ẩn danh';
+    : 'Ngườii dùng ẩn danh';
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -195,7 +203,7 @@ export function ReviewDetailDialog({
                     </span>
                     <span className='flex items-center gap-1.5'>
                       <ThumbsUp className='h-3.5 w-3.5 opacity-70' />
-                      {review.helpfulCount} người thấy hữu ích
+                      {review.helpfulCount} ngườii thấy hữu ích
                     </span>
                   </div>
                 </div>
@@ -289,10 +297,7 @@ export function ReviewDetailDialog({
                 ) : (
                   <div className='h-20 w-20 rounded-xl overflow-hidden border border-border/40 bg-muted shrink-0 relative'>
                     <Image
-                      src={
-                        product?.primaryImage?.media?.url ||
-                        ''
-                      }
+                      src={product?.primaryImage?.media?.url || ''}
                       alt={product?.name || 'Product'}
                       fill
                       className='object-cover'
@@ -328,9 +333,7 @@ export function ReviewDetailDialog({
                           {new Intl.NumberFormat('vi-VN', {
                             style: 'currency',
                             currency: 'VND',
-                          }).format(
-                            Number(product?.basePrice || 0),
-                          )}
+                          }).format(Number(product?.basePrice || 0))}
                         </span>
                       </div>
                     </>
@@ -345,7 +348,10 @@ export function ReviewDetailDialog({
                 <h4 className='font-bold text-[10px] text-muted-foreground flex items-center gap-2 uppercase tracking-widest'>
                   <MessageSquare className='h-3.5 w-3.5' />
                   Lịch sử phản hồi
-                  <Badge variant='secondary' className='h-4 px-1.5 text-[9px] min-w-[18px] justify-center'>
+                  <Badge
+                    variant='secondary'
+                    className='h-4 px-1.5 text-[9px] min-w-[18px] justify-center'
+                  >
                     {allReplies.length}
                   </Badge>
                 </h4>
@@ -365,13 +371,20 @@ export function ReviewDetailDialog({
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant='outline' size='sm' className='h-8 gap-2 rounded-full px-4 text-xs font-semibold border-border/60'>
+                      <Button
+                        variant='outline'
+                        size='sm'
+                        className='h-8 gap-2 rounded-full px-4 text-xs font-semibold border-border/60'
+                      >
                         <Filter className='h-3 w-3' />
                         {getFilterLabel(replyFilter)}
                         <ChevronDown className='h-3 w-3 opacity-50' />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align='end' className='min-w-[180px] p-1.5 rounded-xl'>
+                    <DropdownMenuContent
+                      align='end'
+                      className='min-w-[180px] p-1.5 rounded-xl'
+                    >
                       <DropdownMenuItem
                         onClick={() => handleFilterChange('all')}
                         className={`rounded-lg px-3 py-2 ${replyFilter === 'all' ? 'bg-primary/5 text-primary font-bold' : ''}`}
@@ -387,7 +400,10 @@ export function ReviewDetailDialog({
                       >
                         <span className='flex-1'>Quản trị viên</span>
                         {adminReplyCount > 0 && (
-                          <Badge variant='secondary' className='h-4 px-1 rounded text-[9px]'>
+                          <Badge
+                            variant='secondary'
+                            className='h-4 px-1 rounded text-[9px]'
+                          >
                             {adminReplyCount}
                           </Badge>
                         )}
@@ -396,9 +412,12 @@ export function ReviewDetailDialog({
                         onClick={() => handleFilterChange('user')}
                         className={`rounded-lg px-3 py-2 ${replyFilter === 'user' ? 'bg-primary/5 text-primary font-bold' : ''}`}
                       >
-                        <span className='flex-1'>Người dùng</span>
+                        <span className='flex-1'>Ngườii dùng</span>
                         {userReplyCount > 0 && (
-                          <Badge variant='secondary' className='h-4 px-1 rounded text-[9px]'>
+                          <Badge
+                            variant='secondary'
+                            className='h-4 px-1 rounded text-[9px]'
+                          >
                             {userReplyCount}
                           </Badge>
                         )}
@@ -416,87 +435,136 @@ export function ReviewDetailDialog({
                     {isPending ? 'Đang lọc...' : 'Đang tải phản hồi...'}
                   </span>
                 </div>
+              ) : repliesError ? (
+                <div className='flex flex-col items-center justify-center py-8 gap-3'>
+                  <AlertCircle className='h-8 w-8 text-destructive/60' />
+                  <p className='text-sm text-muted-foreground text-center'>
+                    {repliesError instanceof Error
+                      ? repliesError.message
+                      : 'Không thể tải phản hồi. Vui lòng thử lại.'}
+                  </p>
+                  <Button
+                    variant='outline'
+                    size='sm'
+                    onClick={() => refetch()}
+                    className='mt-2'
+                  >
+                    <RefreshCcw className='h-3.5 w-3.5 mr-2' />
+                    Thử lại
+                  </Button>
+                </div>
               ) : filteredReplies.length === 0 ? (
                 <div className='text-center py-12 bg-muted/10 rounded-2xl border border-dashed border-border/60'>
-                  <MessageSquare className='h-10 w-10 mx-auto mb-3 opacity-20' strokeWidth={1} />
+                  <MessageSquare
+                    className='h-10 w-10 mx-auto mb-3 opacity-20'
+                    strokeWidth={1}
+                  />
                   <p className='text-xs font-bold uppercase tracking-widest text-muted-foreground'>
                     {replyFilter === 'all'
                       ? 'Chưa có phản hồi nào'
                       : replyFilter === 'admin'
                         ? 'Không có từ quản trị'
-                        : 'Không có từ người dùng'}
+                        : 'Không có từ ngườii dùng'}
                   </p>
                 </div>
               ) : (
-                <div className='space-y-6 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border/50 before:bg-linear-to-b before:from-transparent before:via-border/50 before:to-transparent'>
-                  {filteredReplies.map((reply: IReviewReplyDataType) => (
-                    <div key={reply.id} className='relative pl-10 group'>
-                      <div className='absolute left-2.5 top-0 w-5 h-5 rounded-full border-4 border-background bg-border/80 ring-2 ring-background z-10 transition-colors group-hover:bg-primary/60' />
-                      
-                      <div
-                        className={`rounded-2xl p-4 border transition-all ${
-                          reply.isAdmin
-                            ? 'bg-primary/5 border-primary/10 shadow-sm'
-                            : 'bg-muted/10 border-border/40'
-                        }`}
-                      >
-                        <div className='flex flex-wrap items-center justify-between gap-3 mb-3'>
-                          <div className='flex items-center gap-2.5'>
-                            <Avatar className='h-8 w-8 border ring-2 ring-background shadow-sm'>
-                              <AvatarImage src={reply.user?.avatarMedia?.url ?? ''} />
-                              <AvatarFallback className='text-[10px] bg-muted font-bold'>
-                                {getInitials(reply.user?.firstName, reply.user?.lastName)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className='flex flex-col'>
-                              <span className='font-bold text-sm leading-none flex items-center gap-2'>
-                                {reply.user?.firstName} {reply.user?.lastName}
-                                {reply.isAdmin && (
-                                  <Badge
-                                    className='text-[9px] uppercase font-black tracking-tighter h-4 px-1 border-none bg-primary text-primary-foreground'
-                                    variant='default'
-                                  >
-                                    <ShieldCheck className='w-2.5 h-2.5 mr-0.5' />
-                                    Admin
-                                  </Badge>
-                                )}
-                              </span>
-                              <span className='text-[10px] text-muted-foreground font-medium opacity-70'>
-                                {formatDate(reply.createdAt)}
-                              </span>
+                <InfiniteScrollContainer
+                  onBottomReached={() => {
+                    if (hasNextPage && !isFetchingNextPage) {
+                      fetchNextPage();
+                    }
+                  }}
+                  isShowInViewElement={hasNextPage && !isFetchingNextPage}
+                  rootMargin='100px'
+                >
+                  <div className='space-y-6 relative before:absolute before:left-5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border/50 before:bg-linear-to-b before:from-transparent before:via-border/50 before:to-transparent'>
+                    {filteredReplies.map((reply: IReviewReplyDataType) => (
+                      <div key={reply.id} className='relative pl-10 group'>
+                        <div className='absolute left-2.5 top-0 w-5 h-5 rounded-full border-4 border-background bg-border/80 ring-2 ring-background z-10 transition-colors group-hover:bg-primary/60' />
+
+                        <div
+                          className={`rounded-2xl p-4 border transition-all ${
+                            reply.isAdmin
+                              ? 'bg-primary/5 border-primary/10 shadow-sm'
+                              : 'bg-muted/10 border-border/40'
+                          }`}
+                        >
+                          <div className='flex flex-wrap items-center justify-between gap-3 mb-3'>
+                            <div className='flex items-center gap-2.5'>
+                              <Avatar className='h-8 w-8 border ring-2 ring-background shadow-sm'>
+                                <AvatarImage
+                                  src={reply.user?.avatarMedia?.url ?? ''}
+                                />
+                                <AvatarFallback className='text-[10px] bg-muted font-bold'>
+                                  {getInitials(
+                                    reply.user?.firstName,
+                                    reply.user?.lastName,
+                                  )}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className='flex flex-col'>
+                                <span className='font-bold text-sm leading-none flex items-center gap-2'>
+                                  {reply.user?.firstName} {reply.user?.lastName}
+                                  {reply.isAdmin && (
+                                    <Badge
+                                      className='text-[9px] uppercase font-black tracking-tighter h-4 px-1 border-none bg-primary text-primary-foreground'
+                                      variant='default'
+                                    >
+                                      <ShieldCheck className='w-2.5 h-2.5 mr-0.5' />
+                                      Admin
+                                    </Badge>
+                                  )}
+                                </span>
+                                <span className='text-[10px] text-muted-foreground font-medium opacity-70'>
+                                  {formatDate(reply.createdAt)}
+                                </span>
+                              </div>
                             </div>
+
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant='ghost'
+                                  size='icon'
+                                  className='h-7 w-7 rounded-full transition-opacity opacity-0 group-hover:opacity-100 hover:bg-muted'
+                                >
+                                  <MoreVertical className='h-3.5 w-3.5' />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent
+                                align='end'
+                                className='rounded-xl p-1.5'
+                              >
+                                <DropdownMenuItem
+                                  className='text-destructive focus:text-destructive focus:bg-destructive/5 rounded-lg'
+                                  onClick={() => {
+                                    setSelectedReply(reply);
+                                    setDeleteReplyDialogOpen(true);
+                                  }}
+                                >
+                                  <Trash2 className='h-3.5 w-3.5 mr-2' />
+                                  Xóa phản hồi
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                          
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant='ghost'
-                                size='icon'
-                                className='h-7 w-7 rounded-full transition-opacity opacity-0 group-hover:opacity-100 hover:bg-muted'
-                              >
-                                <MoreVertical className='h-3.5 w-3.5' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end' className='rounded-xl p-1.5'>
-                              <DropdownMenuItem
-                                className='text-destructive focus:text-destructive focus:bg-destructive/5 rounded-lg'
-                                onClick={() => {
-                                  setSelectedReply(reply);
-                                  setDeleteReplyDialogOpen(true);
-                                }}
-                              >
-                                <Trash2 className='h-3.5 w-3.5 mr-2' />
-                                Xóa phản hồi
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <p className='text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed px-0.5'>
+                            {reply.content}
+                          </p>
                         </div>
-                        <p className='text-sm text-foreground/80 whitespace-pre-wrap leading-relaxed px-0.5'>
-                          {reply.content}
-                        </p>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </InfiniteScrollContainer>
+              )}
+
+              {/* Loading More Indicator */}
+              {isFetchingNextPage && (
+                <div className='flex flex-col items-center justify-center py-6 gap-2'>
+                  <Loader2 className='h-5 w-5 animate-spin text-primary/50' />
+                  <span className='text-xs text-muted-foreground'>
+                    Đang tải thêm...
+                  </span>
                 </div>
               )}
             </div>

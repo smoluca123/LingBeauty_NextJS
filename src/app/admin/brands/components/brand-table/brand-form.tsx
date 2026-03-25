@@ -24,7 +24,12 @@ interface BrandFormProps {
   onLogoRemove: () => void;
 }
 
-export function BrandForm({ form, logoPreview, onLogoChange, onLogoRemove }: BrandFormProps) {
+export function BrandForm({
+  form,
+  logoPreview,
+  onLogoChange,
+  onLogoRemove,
+}: BrandFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,16 +48,16 @@ export function BrandForm({ form, logoPreview, onLogoChange, onLogoRemove }: Bra
   };
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {/* Name */}
       <FormField
         control={form.control}
-        name="name"
+        name='name'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tên thương hiệu *</FormLabel>
             <FormControl>
-              <Input placeholder="Nhập tên thương hiệu" {...field} />
+              <Input placeholder='Nhập tên thương hiệu' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -62,25 +67,21 @@ export function BrandForm({ form, logoPreview, onLogoChange, onLogoRemove }: Bra
       {/* Description */}
       <RichTextField
         control={form.control}
-        name="description"
-        label="Mô tả"
-        placeholder="Mô tả thương hiệu (tuỳ chọn)"
+        name='description'
+        label='Mô tả'
+        placeholder='Mô tả thương hiệu (tuỳ chọn)'
         availableHashtags={['thương hiệu', 'brand', 'chính hãng', 'uy tín']}
       />
 
       {/* Website */}
       <FormField
         control={form.control}
-        name="website"
+        name='website'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Website</FormLabel>
             <FormControl>
-              <Input
-                type="url"
-                placeholder="https://example.com"
-                {...field}
-              />
+              <Input type='url' placeholder='https://example.com' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -90,44 +91,46 @@ export function BrandForm({ form, logoPreview, onLogoChange, onLogoRemove }: Bra
       {/* Logo upload */}
       <FormItem>
         <FormLabel>Logo thương hiệu</FormLabel>
-        <div className="space-y-2">
+        <div className='space-y-2'>
           {logoPreview ? (
-            <div className="relative w-24 h-24 rounded-md overflow-hidden border">
+            <div className='relative w-24 h-24 rounded-md overflow-hidden border'>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={logoPreview}
-                alt="Logo preview"
-                className="w-full h-full object-cover"
+                alt='Logo preview'
+                className='w-full h-full object-cover'
               />
               <button
-                type="button"
+                type='button'
                 onClick={handleRemoveLogo}
-                className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5"
+                className='absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5'
               >
-                <X className="h-3 w-3" />
+                <X className='h-3 w-3' />
               </button>
             </div>
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors"
+              className='flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed rounded-md cursor-pointer hover:border-primary/50 transition-colors'
             >
-              <ImageIcon className="h-6 w-6 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground mt-1">Chọn ảnh</span>
+              <ImageIcon className='h-6 w-6 text-muted-foreground' />
+              <span className='text-xs text-muted-foreground mt-1'>
+                Chọn ảnh
+              </span>
             </div>
           )}
           <input
             ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
+            type='file'
+            accept='image/*'
+            className='hidden'
             onChange={handleFileChange}
           />
           {!logoPreview && (
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
+              type='button'
+              variant='outline'
+              size='sm'
               onClick={() => fileInputRef.current?.click()}
             >
               Tải logo lên
@@ -139,12 +142,12 @@ export function BrandForm({ form, logoPreview, onLogoChange, onLogoRemove }: Bra
       {/* isActive */}
       <FormField
         control={form.control}
-        name="isActive"
+        name='isActive'
         render={({ field }) => (
-          <FormItem className="flex items-center justify-between rounded-lg border p-3">
+          <FormItem className='flex items-center justify-between rounded-lg border p-3'>
             <div>
-              <FormLabel className="text-sm font-medium">Kích hoạt</FormLabel>
-              <p className="text-xs text-muted-foreground">
+              <FormLabel className='text-sm font-medium'>Kích hoạt</FormLabel>
+              <p className='text-xs text-muted-foreground'>
                 Bật để hiển thị thương hiệu trên website
               </p>
             </div>
