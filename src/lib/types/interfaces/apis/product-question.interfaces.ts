@@ -1,4 +1,5 @@
 import { IProductImageDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces'
 
 export enum ProductQuestionStatus {
   PENDING = 'PENDING',
@@ -10,6 +11,10 @@ export interface IUserBasic {
   firstName: string
   lastName: string
   fullName?: string
+  avatarMedia?: {
+    id: string
+    url: string
+  }
 }
 
 export interface IProductBasic {
@@ -17,6 +22,14 @@ export interface IProductBasic {
   name: string
   slug: string
   images: IProductImageDataType[]
+  description?: string
+  price?: number
+  sku?: string
+  stock?: number
+  brand?: {
+    id: string
+    name: string
+  }
 }
 
 export interface IProductQuestion {
@@ -30,7 +43,7 @@ export interface IProductQuestion {
   isPublic: boolean
   createdAt: string
   updatedAt: string
-  user: IUserBasic
+  user: IUserDataType
   answeredByUser: IUserBasic | null
 }
 
