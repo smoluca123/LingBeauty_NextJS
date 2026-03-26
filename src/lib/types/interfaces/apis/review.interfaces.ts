@@ -92,3 +92,52 @@ export interface IUpdateReviewDataType {
 export interface IUpdateReviewReplyDataType {
   content: string;
 }
+
+// ============ Admin Review Interfaces ============
+
+export interface IReviewProductDataType {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface IReviewWithProductDataType extends IReviewDataType {
+  product: IReviewProductDataType;
+}
+
+export interface IAdminReviewFilters {
+  page?: number;
+  limit?: number;
+  productId?: string;
+  userId?: string;
+  rating?: number;
+  isApproved?: boolean;
+  sortBy?: 'rating' | 'helpfulCount' | 'createdAt';
+  order?: 'asc' | 'desc';
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface IAdminReviewStatsDataType {
+  totalReviews: number;
+  approvedReviews: number;
+  pendingReviews: number;
+  averageRating: number;
+  ratingDistribution: {
+    1: number;
+    2: number;
+    3: number;
+    4: number;
+    5: number;
+  };
+  recentReviewsTrend: {
+    date: string;
+    count: number;
+    approvedCount: number;
+  }[];
+}
+
+export interface IAdminApproveReviewDataType {
+  isApproved: boolean;
+}

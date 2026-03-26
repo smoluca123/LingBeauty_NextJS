@@ -40,16 +40,16 @@ export function BrandForm({
   }
 
   return (
-    <div className="space-y-4">
+    <div className='space-y-4'>
       {/* Name */}
       <FormField
         control={form.control}
-        name="name"
+        name='name'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tên thương hiệu *</FormLabel>
             <FormControl>
-              <Input placeholder="Nhập tên thương hiệu" {...field} />
+              <Input placeholder='Nhập tên thương hiệu' {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -59,16 +59,16 @@ export function BrandForm({
       {/* Description */}
       <RichTextField
         control={form.control}
-        name="description"
-        label="Mô tả"
-        placeholder="Mô tả thương hiệu (tuỳ chọn)"
+        name='description'
+        label='Mô tả'
+        placeholder='Mô tả thương hiệu (tuỳ chọn)'
         availableHashtags={['thương hiệu', 'brand', 'chính hãng', 'uy tín']}
       />
 
       {/* Website */}
       <FormField
         control={form.control}
-        name="website"
+        name='website'
         render={({ field }) => (
           <FormItem>
             <FormLabel>Website</FormLabel>
@@ -92,12 +92,12 @@ export function BrandForm({
       {/* isActive */}
       <FormField
         control={form.control}
-        name="isActive"
+        name='isActive'
         render={({ field }) => (
-          <FormItem className="flex items-center justify-between rounded-lg border p-3">
+          <FormItem className='flex items-center justify-between rounded-lg border p-3'>
             <div>
-              <FormLabel className="text-sm font-medium">Kích hoạt</FormLabel>
-              <p className="text-xs text-muted-foreground">
+              <FormLabel className='text-sm font-medium'>Kích hoạt</FormLabel>
+              <p className='text-xs text-muted-foreground'>
                 Bật để hiển thị thương hiệu trên website
               </p>
             </div>
