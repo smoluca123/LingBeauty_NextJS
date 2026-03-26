@@ -3,7 +3,6 @@
 import { useCallback, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
@@ -35,23 +34,7 @@ import {
   DEFAULT_GRADIENT,
 } from '@/app/admin/banners/constants'
 import { ImageUploadDropzone } from '@/app/admin/components'
-
-const formSchema = z.object({
-  type: z.enum(['TEXT', 'IMAGE']),
-  position: z.enum(['MAIN_CAROUSEL', 'SIDE_TOP', 'SIDE_BOTTOM']),
-  badge: z.string().optional(),
-  title: z.string().min(1, 'Vui lòng nhập tiêu đề'),
-  description: z.string().optional(),
-  highlight: z.string().optional(),
-  ctaText: z.string().optional(),
-  ctaLink: z.string().optional(),
-  subLabel: z.string().optional(),
-  gradientFrom: z.string().optional(),
-  gradientTo: z.string().optional(),
-  isActive: z.boolean(),
-})
-
-type FormValues = z.infer<typeof formSchema>
+import { bannerEditSchema, type BannerEditFormValues } from '@/lib/schemas'
 
 interface BannerEditFormProps {
   banner: IBannerDataType
@@ -71,8 +54,8 @@ export function BannerEditForm({
   const isPending =
     updateMutation.isPending || updateWithUploadMutation.isPending
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BannerEditFormValues>({
+    resolver: zodResolver(bannerEditSchema),
     defaultValues: {
       type: (banner.type as 'TEXT' | 'IMAGE') ?? 'TEXT',
       position:
@@ -95,7 +78,7 @@ export function BannerEditForm({
     setSelectedFile(null)
   }, [])
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: BannerEditFormValues) => {
     if (selectedFile) {
       const formData = new FormData()
       formData.append('type', data.type)

@@ -3,7 +3,6 @@
 
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
@@ -27,19 +26,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { useCreateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation'
 import { generateSlug } from '@/lib/utils'
-
-// ── Schema ───────────────────────────────────────────────────────────────────
-
-const formSchema = z.object({
-  name: z.string().min(1, 'Vui lòng nhập tên nhóm'),
-  slug: z.string().min(1, 'Vui lòng nhập slug'),
-  description: z.string().optional(),
-  isActive: z.boolean(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-})
-
-type FormValues = z.infer<typeof formSchema>
+import { bannerGroupSchema, type BannerGroupFormValues } from '@/lib/schemas'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -75,8 +62,8 @@ export function CreateBannerGroupDialog({
 function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
   const createMutation = useCreateBannerGroupMutation()
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BannerGroupFormValues>({
+    resolver: zodResolver(bannerGroupSchema),
     defaultValues: {
       name: '',
       slug: '',
@@ -98,7 +85,7 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
     }
   }
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: BannerGroupFormValues) => {
     await createMutation.mutateAsync({
       name: data.name,
       slug: data.slug,

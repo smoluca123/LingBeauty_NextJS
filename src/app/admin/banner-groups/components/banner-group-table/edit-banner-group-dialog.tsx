@@ -1,10 +1,9 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react'
+import { Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
   DialogContent,
@@ -12,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -20,35 +19,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useUpdateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation';
-import { useAdminBannerGroupQuery } from '@/hooks/querys/admin-banner.query';
-import type { IBannerGroupDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
-
-// ── Schema ───────────────────────────────────────────────────────────────────
-
-const formSchema = z.object({
-  name: z.string().min(1, 'Vui lòng nhập tên nhóm'),
-  slug: z.string().min(1, 'Vui lòng nhập slug'),
-  description: z.string().optional(),
-  isActive: z.boolean(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+} from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useUpdateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation'
+import { useAdminBannerGroupQuery } from '@/hooks/querys/admin-banner.query'
+import type { IBannerGroupDataType } from '@/lib/types/interfaces/apis/banner.interfaces'
+import { bannerGroupSchema, type BannerGroupFormValues } from '@/lib/schemas'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface EditBannerGroupDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  group: IBannerGroupDataType | null;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  group: IBannerGroupDataType | null
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -58,19 +45,19 @@ export function EditBannerGroupDialog({
   onOpenChange,
   group,
 }: EditBannerGroupDialogProps) {
-  const updateMutation = useUpdateBannerGroupMutation();
+  const updateMutation = useUpdateBannerGroupMutation()
 
   // Fetch fresh group data when dialog opens
   const { data: groupDetailData, isLoading: isLoadingGroupDetail } =
     useAdminBannerGroupQuery(group?.id ?? '', {
       enabled: open && !!group?.id,
-    });
+    })
 
   // Use detailed group data if available, fallback to prop data
-  const groupDetail = groupDetailData?.data ?? group;
+  const groupDetail = groupDetailData?.data ?? group
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BannerGroupFormValues>({
+    resolver: zodResolver(bannerGroupSchema),
     defaultValues: {
       name: '',
       slug: '',
@@ -79,7 +66,7 @@ export function EditBannerGroupDialog({
       startDate: '',
       endDate: '',
     },
-  });
+  })
 
   // Reset form when group changes or when detailed data is loaded
   useEffect(() => {
@@ -93,12 +80,12 @@ export function EditBannerGroupDialog({
           ? groupDetail.startDate.split('T')[0]
           : '',
         endDate: groupDetail.endDate ? groupDetail.endDate.split('T')[0] : '',
-      });
+      })
     }
-  }, [groupDetail, form]);
+  }, [groupDetail, form])
 
-  const onSubmit = async (data: FormValues) => {
-    if (!group) return;
+  const onSubmit = async (data: BannerGroupFormValues) => {
+    if (!group) return
 
     await updateMutation.mutateAsync({
       id: group.id,
@@ -110,20 +97,20 @@ export function EditBannerGroupDialog({
         startDate: data.startDate || undefined,
         endDate: data.endDate || undefined,
       },
-    });
+    })
 
-    onOpenChange(false);
-  };
+    onOpenChange(false)
+  }
 
   const handleClose = () => {
     if (!updateMutation.isPending && !isLoadingGroupDetail) {
-      onOpenChange(false);
+      onOpenChange(false)
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className='sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col'>
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Chỉnh sửa nhóm banner</DialogTitle>
           <DialogDescription>
@@ -135,21 +122,21 @@ export function EditBannerGroupDialog({
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className='flex flex-col flex-1 overflow-hidden'
+            className="flex flex-col flex-1 overflow-hidden"
           >
-            <ScrollArea className='flex-1 pr-4'>
-              <div className='grid gap-4 py-4'>
+            <ScrollArea className="flex-1 pr-4">
+              <div className="grid gap-4 py-4">
                 {/* Name */}
                 <FormField
                   control={form.control}
-                  name='name'
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Tên nhóm <span className='text-destructive'>*</span>
+                        Tên nhóm <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='VD: Banner Tết 2026' />
+                        <Input {...field} placeholder="VD: Banner Tết 2026" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -159,14 +146,14 @@ export function EditBannerGroupDialog({
                 {/* Slug */}
                 <FormField
                   control={form.control}
-                  name='slug'
+                  name="slug"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Slug <span className='text-destructive'>*</span>
+                        Slug <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder='VD: tet-2026' />
+                        <Input {...field} placeholder="VD: tet-2026" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -176,14 +163,14 @@ export function EditBannerGroupDialog({
                 {/* Description */}
                 <FormField
                   control={form.control}
-                  name='description'
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Mô tả</FormLabel>
                       <FormControl>
                         <Textarea
                           {...field}
-                          placeholder='Mô tả về nhóm banner này...'
+                          placeholder="Mô tả về nhóm banner này..."
                           rows={3}
                         />
                       </FormControl>
@@ -193,15 +180,15 @@ export function EditBannerGroupDialog({
                 />
 
                 {/* Date Range */}
-                <div className='grid grid-cols-2 gap-4'>
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
-                    name='startDate'
+                    name="startDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Ngày bắt đầu</FormLabel>
                         <FormControl>
-                          <Input {...field} type='date' />
+                          <Input {...field} type="date" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -209,12 +196,12 @@ export function EditBannerGroupDialog({
                   />
                   <FormField
                     control={form.control}
-                    name='endDate'
+                    name="endDate"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Ngày kết thúc</FormLabel>
                         <FormControl>
-                          <Input {...field} type='date' />
+                          <Input {...field} type="date" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -225,12 +212,12 @@ export function EditBannerGroupDialog({
                 {/* Active Status */}
                 <FormField
                   control={form.control}
-                  name='isActive'
+                  name="isActive"
                   render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2'>
-                      <div className='space-y-0.5'>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                      <div className="space-y-0.5">
                         <FormLabel>Kích hoạt</FormLabel>
-                        <div className='text-sm text-muted-foreground'>
+                        <div className="text-sm text-muted-foreground">
                           Nhóm banner sẽ được hiển thị trên website
                         </div>
                       </div>
@@ -246,23 +233,23 @@ export function EditBannerGroupDialog({
               </div>
             </ScrollArea>
 
-            <DialogFooter className='pt-4 border-t mt-4'>
+            <DialogFooter className="pt-4 border-t mt-4">
               <Button
-                type='button'
-                variant='outline'
+                type="button"
+                variant="outline"
                 onClick={handleClose}
                 disabled={updateMutation.isPending || isLoadingGroupDetail}
               >
                 Hủy
               </Button>
               <Button
-                type='submit'
-                variant='primary-pink'
+                type="submit"
+                variant="primary-pink"
                 disabled={updateMutation.isPending || isLoadingGroupDetail}
               >
                 {updateMutation.isPending || isLoadingGroupDetail ? (
                   <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     {isLoadingGroupDetail ? 'Đang tải...' : 'Đang cập nhật...'}
                   </>
                 ) : (
@@ -274,5 +261,5 @@ export function EditBannerGroupDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

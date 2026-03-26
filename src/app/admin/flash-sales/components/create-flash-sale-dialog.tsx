@@ -4,7 +4,6 @@
 import { useEffect } from 'react'
 import { Loader2, Zap } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
@@ -37,63 +36,14 @@ import {
 import { useCreateFlashSaleMutation } from '@/hooks/querys/admin-flash-sale.query'
 import {
   FLASH_SALE_STATUS_OPTIONS,
-  FLASH_SALE_VALIDATION,
   DEFAULT_FLASH_SALE_VALUES,
 } from '@/app/admin/flash-sales/constants'
 import { toast } from 'sonner'
 import { generateSlug } from '@/lib/utils'
-
-// ── Schema ───────────────────────────────────────────────────────────────────
-
-const formSchema = z.object({
-  name: z
-    .string()
-    .min(
-      FLASH_SALE_VALIDATION.NAME_MIN_LENGTH,
-      `Tên phải có ít nhất ${FLASH_SALE_VALIDATION.NAME_MIN_LENGTH} ký tự`,
-    )
-    .max(
-      FLASH_SALE_VALIDATION.NAME_MAX_LENGTH,
-      `Tên không được quá ${FLASH_SALE_VALIDATION.NAME_MAX_LENGTH} ký tự`,
-    ),
-  description: z
-    .string()
-    .max(
-      FLASH_SALE_VALIDATION.DESCRIPTION_MAX_LENGTH,
-      `Mô tả không được quá ${FLASH_SALE_VALIDATION.DESCRIPTION_MAX_LENGTH} ký tự`,
-    )
-    .optional(),
-  slug: z
-    .string()
-    .min(
-      FLASH_SALE_VALIDATION.SLUG_MIN_LENGTH,
-      `Slug phải có ít nhất ${FLASH_SALE_VALIDATION.SLUG_MIN_LENGTH} ký tự`,
-    )
-    .max(
-      FLASH_SALE_VALIDATION.SLUG_MAX_LENGTH,
-      `Slug không được quá ${FLASH_SALE_VALIDATION.SLUG_MAX_LENGTH} ký tự`,
-    )
-    .regex(
-      /^[a-z0-9-]+$/,
-      'Slug chỉ được chứa chữ thường, số và dấu gạch ngang',
-    ),
-  startTime: z.string().min(1, 'Vui lòng chọn thời gian bắt đầu'),
-  endTime: z.string().min(1, 'Vui lòng chọn thời gian kết thúc'),
-  status: z.enum(['UPCOMING', 'ACTIVE', 'ENDED']),
-  isActive: z.boolean(),
-  sortOrder: z.coerce.number().int().min(0),
-})
-
-type FormValues = {
-  name: string
-  description?: string
-  slug: string
-  startTime: string
-  endTime: string
-  status: 'UPCOMING' | 'ACTIVE' | 'ENDED'
-  isActive: boolean
-  sortOrder: number
-}
+import {
+  flashSaleCreateSchema,
+  type FlashSaleCreateFormValues,
+} from '@/lib/schemas'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -122,9 +72,13 @@ export function CreateFlashSaleDialog({
   const createMutation = useCreateFlashSaleMutation()
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const form = useForm<FormValues, any, FormValues>({
+  const form = useForm<
+    FlashSaleCreateFormValues,
+    any,
+    FlashSaleCreateFormValues
+  >({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resolver: zodResolver(formSchema) as any,
+    resolver: zodResolver(flashSaleCreateSchema) as any,
     defaultValues: {
       name: '',
       description: '',
@@ -163,7 +117,7 @@ export function CreateFlashSaleDialog({
     }
   }, [open, form])
 
-  const onSubmit = async (values: FormValues) => {
+  const onSubmit = async (values: FlashSaleCreateFormValues) => {
     try {
       // Validate date range
       if (new Date(values.endTime) <= new Date(values.startTime)) {

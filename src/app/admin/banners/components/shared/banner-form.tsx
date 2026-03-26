@@ -3,7 +3,6 @@
 import { useCallback, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
@@ -35,25 +34,7 @@ import {
   DEFAULT_GRADIENT,
 } from '@/app/admin/banners/constants'
 import { ImageUploadDropzone } from '@/app/admin/components'
-
-const formSchema = z.object({
-  groupId: z.string().min(1, 'Vui lòng chọn nhóm banner').optional(),
-  type: z.enum(['TEXT', 'IMAGE']),
-  position: z.enum(['MAIN_CAROUSEL', 'SIDE_TOP', 'SIDE_BOTTOM']),
-  badge: z.string().optional(),
-  title: z.string().min(1, 'Vui lòng nhập tiêu đề'),
-  description: z.string().optional(),
-  highlight: z.string().optional(),
-  ctaText: z.string().optional(),
-  ctaLink: z.string().optional(),
-  subLabel: z.string().optional(),
-  gradientFrom: z.string().optional(),
-  gradientTo: z.string().optional(),
-  sortOrder: z.coerce.number<number>().min(0),
-  isActive: z.boolean(),
-})
-
-type FormValues = z.infer<typeof formSchema>
+import { bannerSchema, type BannerFormValues } from '@/lib/schemas'
 
 interface BannerFormProps {
   /** Nếu có groups thì hiển thị select, nếu không thì dùng fixedGroupId */
@@ -80,8 +61,8 @@ export function BannerForm({
   const isPending =
     createMutation.isPending || createWithUploadMutation.isPending
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BannerFormValues>({
+    resolver: zodResolver(bannerSchema),
     defaultValues: {
       groupId: fixedGroupId || defaultGroupId || '',
       type: 'TEXT',
@@ -104,7 +85,7 @@ export function BannerForm({
     setSelectedFile(null)
   }, [])
 
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = async (data: BannerFormValues) => {
     const targetGroupId = fixedGroupId || data.groupId
 
     if (selectedFile) {
