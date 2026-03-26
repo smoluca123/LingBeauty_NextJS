@@ -1,4 +1,4 @@
-import { EventsContent } from '../components';
+import { EventsContent } from '@/app/(main)/profile/components';
 
 export default function EventsPage() {
   return (

@@ -42,12 +42,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useProductImagesQuery } from '@/hooks/querys/admin-product.query';
 import {
-  useProductImagesQuery,
   useUploadProductImageMutation,
   useUpdateProductImageMutation,
   useDeleteProductImageMutation,
-} from '@/hooks/querys/admin-product.query';
+} from '@/hooks/mutations/admin-product.mutation';
 import { toast } from 'sonner';
 import type { IAdminProductImage } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 

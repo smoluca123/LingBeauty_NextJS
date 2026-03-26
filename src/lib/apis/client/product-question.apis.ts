@@ -1,15 +1,15 @@
-import { kyNextInstance } from "@/lib/kyInstance/kyNext";
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from "@/lib/types/interfaces/apis/api.interfaces";
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IProductQuestion,
   IProductQuestionWithProduct,
   ICreateQuestionPayload,
   IProductQuestionFilters,
-} from "@/lib/types/interfaces/apis/product-question.interfaces";
-import { HTTPError } from "ky";
+} from '@/lib/types/interfaces/apis/product-question.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 
 /**
  * Fetch public questions for a product (client-side)
@@ -17,29 +17,27 @@ import { HTTPError } from "ky";
  */
 export const getPublicProductQuestionsAPI = async (
   productId: string,
-  params: Omit<IProductQuestionFilters, "productId"> = {},
+  params: Omit<IProductQuestionFilters, 'productId'> = {},
 ) => {
   try {
-    const searchParams: Record<string, string | number> = {};
+    const searchParams: Record<string, string | number> = {}
 
-    if (params.page) searchParams.page = params.page;
-    if (params.limit) searchParams.limit = params.limit;
-    if (params.status) searchParams.status = params.status;
-    if (params.sortBy) searchParams.sortBy = params.sortBy;
-    if (params.order) searchParams.order = params.order;
+    if (params.page) searchParams.page = params.page
+    if (params.limit) searchParams.limit = params.limit
+    if (params.status) searchParams.status = params.status
+    if (params.sortBy) searchParams.sortBy = params.sortBy
+    if (params.order) searchParams.order = params.order
 
     const response = await kyNextInstance
       .get(`product-question/public/product/${productId}`, { searchParams })
-      .json<IApiPaginationResponseWrapperType<IProductQuestion>>();
-    return response;
+      .json<IApiPaginationResponseWrapperType<IProductQuestion>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || "Failed to fetch questions");
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch questions'),
+    )
   }
-};
+}
 
 /**
  * Fetch user's own questions (client-side)
@@ -49,27 +47,24 @@ export const getMyQuestionsAPI = async (
   params: IProductQuestionFilters = {},
 ) => {
   try {
-    const searchParams: Record<string, string | number> = {};
+    const searchParams: Record<string, string | number> = {}
 
-    if (params.page) searchParams.page = params.page;
-    if (params.limit) searchParams.limit = params.limit;
-    if (params.status) searchParams.status = params.status;
-    if (params.sortBy) searchParams.sortBy = params.sortBy;
-    if (params.order) searchParams.order = params.order;
+    if (params.page) searchParams.page = params.page
+    if (params.limit) searchParams.limit = params.limit
+    if (params.status) searchParams.status = params.status
+    if (params.sortBy) searchParams.sortBy = params.sortBy
+    if (params.order) searchParams.order = params.order
 
     const response = await kyNextInstance
-      .get("product-question/my-questions", { searchParams })
-      .json<IApiPaginationResponseWrapperType<IProductQuestionWithProduct>>();
-    console.log(response);
-    return response;
+      .get('product-question/my-questions', { searchParams })
+      .json<IApiPaginationResponseWrapperType<IProductQuestionWithProduct>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || "Failed to fetch my questions");
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch my questions'),
+    )
   }
-};
+}
 
 /**
  * Create a new question
@@ -78,17 +73,15 @@ export const getMyQuestionsAPI = async (
 export const createQuestionAPI = async (data: ICreateQuestionPayload) => {
   try {
     const response = await kyNextInstance
-      .post("product-question", { json: data })
-      .json<IApiResponseWrapperType<IProductQuestion>>();
-    return response;
+      .post('product-question', { json: data })
+      .json<IApiResponseWrapperType<IProductQuestion>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || "Failed to create question");
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to create question'),
+    )
   }
-};
+}
 
 /**
  * Delete a question
@@ -98,16 +91,14 @@ export const deleteQuestionAPI = async (questionId: string) => {
   try {
     const response = await kyNextInstance
       .delete(`product-question/${questionId}`)
-      .json<IApiResponseWrapperType<{ message: string }>>();
-    return response;
+      .json<IApiResponseWrapperType<{ message: string }>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || "Failed to delete question");
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete question'),
+    )
   }
-};
+}
 
 /**
  * Update a question
@@ -120,13 +111,11 @@ export const updateQuestionAPI = async (
   try {
     const response = await kyNextInstance
       .patch(`product-question/${questionId}`, { json: data })
-      .json<IApiResponseWrapperType<IProductQuestion>>();
-    return response;
+      .json<IApiResponseWrapperType<IProductQuestion>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || "Failed to update question");
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update question'),
+    )
   }
-};
+}

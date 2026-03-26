@@ -1,6 +1,7 @@
-import { Package, PackageX, TrendingDown, Layers } from 'lucide-react';
-import { AlertTriangle } from 'lucide-react';
-import { StatCard } from '../../components';
+import { Package, PackageX, TrendingDown, Layers, AlertTriangle } from 'lucide-react';
+
+import { StatCard } from '@/app/admin/components';
+
 import type { IInventoryOverview } from '@/lib/types/interfaces/apis/admin-inventory.interfaces';
 
 interface InventoryStatsProps {

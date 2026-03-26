@@ -1,5 +1,5 @@
-import { HTTPError } from 'ky';
-import { NextResponse } from 'next/server';
+import { HTTPError } from "ky";
+import { NextResponse } from "next/server";
 
 /**
  * Wraps a server action for use in a Next.js proxy route handler.
@@ -32,7 +32,7 @@ export async function proxyRoute<T>(
 
     // Fallback for unexpected errors
     return NextResponse.json(
-      { success: false, message: 'Internal server error' },
+      { success: false, message: "Internal server error" },
       { status: 500 },
     );
   }

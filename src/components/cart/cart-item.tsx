@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { Minus, Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { formatCurrency } from '@/lib/utils';
-import { useState } from 'react';
-import type { ICartItemType } from '@/lib/types/interfaces/cart.interfaces';
+import Image from 'next/image'
+import { Minus, Plus, Trash2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useState } from 'react'
+import type { ICartItemType } from '@/lib/types/interfaces/cart.interfaces'
+import { formatCurrency } from '@/lib/utils/format-utils'
 
 interface CartItemProps {
-  item: ICartItemType;
-  onUpdateQuantity: (itemId: string, newQuantity: number) => void;
-  onRemove: (itemId: string) => void;
-  isUpdating?: boolean;
-  isRemoving?: boolean;
+  item: ICartItemType
+  onUpdateQuantity: (itemId: string, newQuantity: number) => void
+  onRemove: (itemId: string) => void
+  isUpdating?: boolean
+  isRemoving?: boolean
 }
 
 export function CartItem({
@@ -26,66 +26,66 @@ export function CartItem({
   // Price: use variant price if available, otherwise product basePrice
   const price = item.variant
     ? Number(item.variant.price)
-    : Number(item.product.basePrice);
-  const lineTotal = Number(item.lineTotal);
-  const imageUrl = item.product.thumbnailImage?.media?.url;
+    : Number(item.product.basePrice)
+  const lineTotal = Number(item.lineTotal)
+  const imageUrl = item.product.thumbnailImage?.media?.url
 
   // Local state for input value to handle typing without triggering API on every keystroke
-  const [inputValue, setInputValue] = useState(item.quantity.toString());
+  const [inputValue, setInputValue] = useState(item.quantity.toString())
 
   // Track the previous quantity to sync input when quantity changes from external source
-  const [prevQuantity, setPrevQuantity] = useState(item.quantity);
+  const [prevQuantity, setPrevQuantity] = useState(item.quantity)
   if (prevQuantity !== item.quantity) {
-    setPrevQuantity(item.quantity);
-    setInputValue(item.quantity.toString());
+    setPrevQuantity(item.quantity)
+    setInputValue(item.quantity.toString())
   }
 
   const handleIncrement = () => {
-    onUpdateQuantity(item.id, item.quantity + 1);
-  };
+    onUpdateQuantity(item.id, item.quantity + 1)
+  }
 
   const handleDecrement = () => {
     if (item.quantity > 1) {
-      onUpdateQuantity(item.id, item.quantity - 1);
+      onUpdateQuantity(item.id, item.quantity - 1)
     }
-  };
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+    const value = e.target.value
     if (value === '') {
-      setInputValue('');
-      return;
+      setInputValue('')
+      return
     }
     if (/^\d+$/.test(value)) {
-      setInputValue(value);
+      setInputValue(value)
     }
-  };
+  }
 
   const handleInputBlur = () => {
-    const numValue = parseInt(inputValue, 10);
+    const numValue = parseInt(inputValue, 10)
     if (isNaN(numValue) || numValue < 1) {
-      setInputValue(item.quantity.toString());
+      setInputValue(item.quantity.toString())
     } else if (numValue !== item.quantity) {
-      onUpdateQuantity(item.id, numValue);
+      onUpdateQuantity(item.id, numValue)
     }
-  };
+  }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.currentTarget.blur();
+      e.currentTarget.blur()
     }
-  };
+  }
 
   // ── Stock logic: always use item.stockInfo (never item.variant) ──────────────
-  const { stockQuantity, minStockQuantity, stockStatus } = item.stockInfo;
+  const { stockQuantity, minStockQuantity, stockStatus } = item.stockInfo
 
   // canAddMore: adding one more must not push projected stock below the backorder floor
-  const canAddMore = stockQuantity - (item.quantity + 1) >= minStockQuantity;
+  const canAddMore = stockQuantity - (item.quantity + 1) >= minStockQuantity
 
   // How many more units can still be ordered (may be > stockQuantity when in backorder)
-  const remainingOrderable = stockQuantity - minStockQuantity - item.quantity;
+  const remainingOrderable = stockQuantity - minStockQuantity - item.quantity
 
-  const isDisabled = isUpdating || isRemoving;
+  const isDisabled = isUpdating || isRemoving
 
   return (
     <div className="flex gap-4 p-4 rounded-xl border bg-card hover:shadow-md transition-shadow">
@@ -220,5 +220,5 @@ export function CartItem({
         </div>
       </div>
     </div>
-  );
+  )
 }

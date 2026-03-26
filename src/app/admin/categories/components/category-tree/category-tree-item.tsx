@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Plus,
   ChevronRight,
@@ -8,18 +8,18 @@ import {
   Pencil,
   Trash2,
   GripVertical,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces'
+import { cn } from '@/lib/utils/style-utils'
 
 interface CategoryTreeItemProps {
-  category: IAdminCategoryDataType;
-  level: number;
-  onEdit: (category: IAdminCategoryDataType) => void;
-  onDelete: (category: IAdminCategoryDataType) => void;
-  onAddChild: (category: IAdminCategoryDataType) => void;
+  category: IAdminCategoryDataType
+  level: number
+  onEdit: (category: IAdminCategoryDataType) => void
+  onDelete: (category: IAdminCategoryDataType) => void
+  onAddChild: (category: IAdminCategoryDataType) => void
 }
 
 export function CategoryTreeItem({
@@ -29,8 +29,8 @@ export function CategoryTreeItem({
   onDelete,
   onAddChild,
 }: CategoryTreeItemProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
-  const hasChildren = category.children && category.children.length > 0;
+  const [isExpanded, setIsExpanded] = useState(true)
+  const hasChildren = category.children && category.children.length > 0
 
   return (
     <div className="min-w-0">
@@ -162,5 +162,5 @@ export function CategoryTreeItem({
         </div>
       )}
     </div>
-  );
+  )
 }

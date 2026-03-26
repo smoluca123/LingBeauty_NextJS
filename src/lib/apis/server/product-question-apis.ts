@@ -1,31 +1,37 @@
-"use server";
+'use server'
 
-import { kyInstance } from "@/lib/kyInstance/ky";
-import { kyPublicInstance } from "@/lib/kyInstance/kyPublic";
+import { kyInstance } from '@/lib/kyInstance/ky'
+import { kyPublicInstance } from '@/lib/kyInstance/kyPublic'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from "@/lib/types/interfaces/apis/api.interfaces";
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IProductQuestion,
   IProductQuestionWithProduct,
   IProductQuestionFilters,
-} from "@/lib/types/interfaces/apis/product-question.interfaces";
-
+} from '@/lib/types/interfaces/apis/product-question.interfaces'
 // Helper: loại bỏ undefined trước khi truyền vào searchParams
 const buildSearchParams = (
   options: Record<string, string | number | boolean | undefined>,
 ): Record<string, string | number | boolean> =>
   Object.fromEntries(
     Object.entries(options).filter(([, v]) => v !== undefined),
-  ) as Record<string, string | number | boolean>;
+  ) as Record<string, string | number | boolean>
 
 // ============ Get All Questions (Admin - yêu cầu auth JWT) ============
+
+/**
+ * Get all product questions (Admin - requires JWT auth)
+ * @param params - Filter and pagination parameters
+ * @returns Paginated product question list
+ * @throws Error with backend message if request fails
+ */
 export const getAllQuestionsAPI = async (
   params: IProductQuestionFilters = {},
 ) =>
   kyInstance
-    .get("product-question", {
+    .get('product-question', {
       searchParams: buildSearchParams({
         page: params.page,
         limit: params.limit,
@@ -36,12 +42,19 @@ export const getAllQuestionsAPI = async (
         order: params.order,
       }),
     })
-    .json<IApiPaginationResponseWrapperType<IProductQuestion>>();
+    .json<IApiPaginationResponseWrapperType<IProductQuestion>>()
 
 // ============ Get My Questions (User - yêu cầu auth JWT) ============
+
+/**
+ * Get current user's product questions (User - requires JWT auth)
+ * @param params - Filter and pagination parameters
+ * @returns Paginated product question list
+ * @throws Error with backend message if request fails
+ */
 export const getMyQuestionsAPI = async (params: IProductQuestionFilters = {}) =>
   kyInstance
-    .get("product-question/my-questions", {
+    .get('product-question/my-questions', {
       searchParams: buildSearchParams({
         page: params.page,
         limit: params.limit,
@@ -50,15 +63,30 @@ export const getMyQuestionsAPI = async (params: IProductQuestionFilters = {}) =>
         order: params.order,
       }),
     })
-    .json<IApiPaginationResponseWrapperType<IProductQuestion>>();
+    .json<IApiPaginationResponseWrapperType<IProductQuestion>>()
 
 // ============ Get Question By ID ============
+
+/**
+ * Get product question by ID
+ * @param questionId - Question ID
+ * @returns Product question with product data
+ * @throws Error with backend message if request fails
+ */
 export const getQuestionByIdAPI = async (questionId: string) =>
   kyInstance
     .get(`product-question/${questionId}`)
-    .json<IApiResponseWrapperType<IProductQuestionWithProduct>>();
+    .json<IApiResponseWrapperType<IProductQuestionWithProduct>>()
 
 // ============ Get Public Product Questions (No auth) ============
+
+/**
+ * Get public product questions (No auth required)
+ * @param productId - Product ID to fetch questions for
+ * @param params - Filter and pagination parameters
+ * @returns Paginated product question list
+ * @throws Error with backend message if request fails
+ */
 export const getPublicProductQuestionsAPI = async (
   productId: string,
   params: IProductQuestionFilters = {},
@@ -73,4 +101,4 @@ export const getPublicProductQuestionsAPI = async (
         order: params.order,
       }),
     })
-    .json<IApiPaginationResponseWrapperType<IProductQuestion>>();
+    .json<IApiPaginationResponseWrapperType<IProductQuestion>>()

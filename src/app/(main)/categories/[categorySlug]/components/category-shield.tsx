@@ -1,31 +1,31 @@
-import { notFound } from 'next/navigation';
-import { getCategoriesServerAPI } from '@/lib/apis/server/category-apis';
-import { getProductStatsAPI } from '@/lib/apis/server/product-apis';
-import { CategoryBanner } from './category-banner';
-import { CategoryInfo } from './category-info';
-import { CategoryProducts } from './category-products';
-import { findCategoryBySlug } from '@/lib/utils';
+import { notFound } from 'next/navigation'
+import { getCategoriesServerAPI } from '@/lib/apis/server/category-apis'
+import { getProductStatsAPI } from '@/lib/apis/server/product-apis'
+import { CategoryBanner } from './category-banner'
+import { CategoryInfo } from './category-info'
+import { CategoryProducts } from './category-products'
+import { findCategoryBySlug } from '@/lib/utils/category-utils'
 
 export async function CategoryShield({
   params,
 }: {
-  params: Promise<{ categorySlug: string }>;
+  params: Promise<{ categorySlug: string }>
 }) {
-  const { categorySlug } = await params;
+  const { categorySlug } = await params
 
   // Fetch all categories to find the one by slug
-  const categories = await getCategoriesServerAPI();
+  const categories = await getCategoriesServerAPI()
 
   // Find the category by slug (search in top-level and children)
-  const category = findCategoryBySlug(categories, categorySlug);
+  const category = findCategoryBySlug(categories, categorySlug)
 
   // If category not found, show 404
   if (!category) {
-    notFound();
+    notFound()
   }
 
   // Fetch lightweight stats instead of fetching all products
-  const statsResponse = await getProductStatsAPI({ categoryId: category.id });
+  const statsResponse = await getProductStatsAPI({ categoryId: category.id })
 
   return (
     <div className="space-y-6 py-4 md:py-6 container">
@@ -43,7 +43,7 @@ export async function CategoryShield({
       {/* Products Section — categories are auto-fetched by ProductListingSection */}
       <CategoryProducts categoryId={category.id} />
     </div>
-  );
+  )
 }
 
 /**
@@ -51,7 +51,7 @@ export async function CategoryShield({
  */
 function formatCount(count: number): string {
   if (count >= 1000) {
-    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+    return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}K`
   }
-  return count.toString();
+  return count.toString()
 }

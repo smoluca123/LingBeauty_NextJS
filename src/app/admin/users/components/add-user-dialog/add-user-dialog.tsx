@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { X } from 'lucide-react';
+
 import {
   Dialog,
   DialogContent,
@@ -11,10 +12,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
-import { BasicInfoTab } from '../edit-user-dialog/basic-info-tab';
-import { RolesTab } from '../edit-user-dialog/roles-tab';
+import { BasicInfoTab } from '@/app/admin/users/components/edit-user-dialog/basic-info-tab';
+import { RolesTab } from '@/app/admin/users/components/edit-user-dialog/roles-tab';
 import { SettingsTab } from './settings-tab';
-import { UserFormData } from '../edit-user-dialog/edit-user-dialog';
+
+import { UserFormData } from '@/app/admin/users/components/edit-user-dialog/edit-user-dialog';
 
 // ============ Types ============
 interface AddUserDialogProps {

@@ -1,15 +1,15 @@
-'use server';
-import { env } from '@/lib/env.config';
-import { kyInstance } from '@/lib/kyInstance/ky';
-import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import { IValidateTokenResponseType } from '@/lib/types/interfaces/apis/auth.interfaces';
+'use server'
+import { env } from '@/lib/env.config'
+import { kyInstance } from '@/lib/kyInstance/ky'
+import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
+import { IValidateTokenResponseType } from '@/lib/types/interfaces/apis/auth.interfaces'
 import {
   IUserDataType,
   IUserDataWithAccessTokenType,
-} from '@/lib/types/interfaces/apis/user.interfaces';
-import { UpdateUserInfomationValues } from '@/lib/zod-schemas/user-schema';
-import ky from 'ky';
-import { cookies } from 'next/headers';
+} from '@/lib/types/interfaces/apis/user.interfaces'
+import { type UpdateUserInfoValues } from '@/lib/schemas/user.schema'
+import ky from 'ky'
+import { cookies } from 'next/headers'
 
 // export const signInApi = async (
 //   credentials: LoginValues,
@@ -95,24 +95,30 @@ import { cookies } from 'next/headers';
 //   }
 // };
 
+/**
+ * Validate access token
+ * @param payload - Optional access token to validate
+ * @returns Validation result with user data or error message
+ * @throws Error with backend message if request fails
+ */
 export const validateAccessTokenApi = async (payload?: {
-  accessToken?: string;
+  accessToken?: string
 }): Promise<
   | {
-      success: true;
-      data: IApiResponseWrapperType<IValidateTokenResponseType>;
+      success: true
+      data: IApiResponseWrapperType<IValidateTokenResponseType>
     }
   | { success: false; message: string }
 > => {
   try {
-    const cookieStore = await cookies();
-    const accessTokenCookie = cookieStore.get('accessToken');
+    const cookieStore = await cookies()
+    const accessTokenCookie = cookieStore.get('accessToken')
 
     if (!payload?.accessToken && !accessTokenCookie) {
       return {
         success: false,
         message: 'No access token found',
-      };
+      }
     }
 
     const data = await kyInstance
@@ -122,28 +128,34 @@ export const validateAccessTokenApi = async (payload?: {
           accessToken: payload?.accessToken || accessTokenCookie?.value,
         },
       })
-      .json<IApiResponseWrapperType<IValidateTokenResponseType>>();
+      .json<IApiResponseWrapperType<IValidateTokenResponseType>>()
     return {
       success: true,
       data: data,
-    };
+    }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // throw error;
     return {
       success: false,
       message: error.message,
-    };
+    }
   }
-};
+}
 
+/**
+ * Refresh access token
+ * @param payload - Optional access token to refresh
+ * @returns New access token and user data
+ * @throws Error with backend message if request fails
+ */
 export const refreshAccessTokenApi = async (payload?: {
-  accessToken?: string;
+  accessToken?: string
 }) => {
-  const cookieStore = await cookies();
-  const accessTokenCookie = cookieStore.get('accessToken');
+  const cookieStore = await cookies()
+  const accessTokenCookie = cookieStore.get('accessToken')
   if (!accessTokenCookie) {
-    throw new Error('No access token found');
+    throw new Error('No access token found')
   }
 
   try {
@@ -159,35 +171,46 @@ export const refreshAccessTokenApi = async (payload?: {
         IApiResponseWrapperType<
           IUserDataWithAccessTokenType & { accessToken: string }
         >
-      >();
-    return data;
+      >()
+    return data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
+      const errorData = await error.response.json()
+      throw errorData.message
     }
-    throw error.message;
+    throw error.message
   }
-};
+}
 
+/**
+ * Update current user information
+ * @param userData - User data to update
+ * @returns Updated user data with access token
+ * @throws Error with backend message if request fails
+ */
 export const updateMyInformationAPI = async (
-  userData: UpdateUserInfomationValues,
+  userData: UpdateUserInfoValues,
 ) => {
   // Let HTTPError bubble up naturally — proxyRoute in the route handler
   // will forward the exact BE response (status + body) to the client.
   return kyInstance
     .patch(`user/me`, { json: userData })
-    .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>();
-};
+    .json<IApiResponseWrapperType<IUserDataWithAccessTokenType>>()
+}
 
-// ============ Upload Avatar (Server Action) ============
+/**
+ * Upload avatar (Server Action)
+ * @param file - Avatar image file to upload
+ * @returns Updated user data with new avatar
+ * @throws Error with backend message if request fails
+ */
 export const uploadAvatarServerApi = async (
   file: File,
 ): Promise<IApiResponseWrapperType<IUserDataType>> => {
-  const formData = new FormData();
-  formData.append('file', file);
+  const formData = new FormData()
+  formData.append('file', file)
   return kyInstance
     .post('user/upload/avatar', { body: formData })
-    .json<IApiResponseWrapperType<IUserDataType>>();
-};
+    .json<IApiResponseWrapperType<IUserDataType>>()
+}

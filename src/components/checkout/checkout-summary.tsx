@@ -1,28 +1,28 @@
-'use client';
+'use client'
 
-import { useApplyCouponMutation } from '@/hooks/mutations/coupon.mutation';
-import { useCartStore } from '@/stores/cart.store';
-import { formatCurrency } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import Image from 'next/image';
-import Link from 'next/link';
-import { ICartDataType } from '@/lib/types/interfaces/cart.interfaces';
+import { useApplyCouponMutation } from '@/hooks/mutations/coupon.mutation'
+import { useCartStore } from '@/stores/cart.store'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Input } from '@/components/ui/input'
+import Image from 'next/image'
+import Link from 'next/link'
+import { ICartDataType } from '@/lib/types/interfaces/cart.interfaces'
+import { formatCurrency } from '@/lib/utils/format-utils'
 
 interface CheckoutSummaryProps {
-  cartData: ICartDataType;
+  cartData: ICartDataType
 }
 
 export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
-  const applyCouponMutation = useApplyCouponMutation();
+  const applyCouponMutation = useApplyCouponMutation()
   const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } =
-    useCartStore();
-  const subtotal = Number(cartData.summary.subtotal);
+    useCartStore()
+  const subtotal = Number(cartData.summary.subtotal)
 
   const handleApplyCoupon = () => {
-    if (!couponCode.trim()) return;
+    if (!couponCode.trim()) return
 
     applyCouponMutation.mutate(
       {
@@ -35,11 +35,11 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
             code: data.coupon.code,
             discountAmount: data.calculatedDiscount,
             finalTotal: data.finalTotal,
-          });
+          })
         },
       },
-    );
-  };
+    )
+  }
 
   return (
     <Card className="p-6 border-none shadow-sm sticky top-24">
@@ -187,5 +187,5 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         của chúng tôi.
       </p>
     </Card>
-  );
+  )
 }

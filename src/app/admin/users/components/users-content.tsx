@@ -13,11 +13,13 @@ import {
 import {
   useAdminUsersQuery,
   useAdminUserRolesQuery,
+} from '@/hooks/querys/admin-user.query';
+import {
   useBanUserMutation,
   useBanUserBulkMutation,
   useUpdateUserByAdminMutation,
   useCreateUserMutation,
-} from '@/hooks/querys/admin-user.query';
+} from '@/hooks/mutations/admin-user.mutation';
 import { UsersFilters } from './users-filters';
 import { UsersTable } from './users-table';
 import { DeleteUserDialog } from './delete-user-dialog';

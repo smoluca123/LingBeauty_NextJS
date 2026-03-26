@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { IReviewReplyDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { ReplyMoreActions } from './reply-more-actions';
-import InfiniteScrollContainer from '@/components/InfiniteScrollContainer';
-import { hasAdminRole } from '@/lib/utils';
+import { IReviewReplyDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { ReplyMoreActions } from './reply-more-actions'
+import InfiniteScrollContainer from '@/components/InfiniteScrollContainer'
+import { hasAdminRole } from '@/lib/utils/validation-utils'
 
 interface ReviewRepliesListProps {
-  replies: IReviewReplyDataType[];
-  reviewId: string;
-  onLoadMore?: () => void;
-  hasMore?: boolean;
-  isLoadingMore?: boolean;
+  replies: IReviewReplyDataType[]
+  reviewId: string
+  onLoadMore?: () => void
+  hasMore?: boolean
+  isLoadingMore?: boolean
 }
 
 export function ReviewRepliesList({
@@ -23,23 +23,23 @@ export function ReviewRepliesList({
   isLoadingMore = false,
 }: ReviewRepliesListProps) {
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  }
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    });
-  };
+    })
+  }
 
   return (
     <div className='space-y-4'>
       <InfiniteScrollContainer
         onBottomReached={() => {
           if (hasMore && !isLoadingMore && onLoadMore) {
-            onLoadMore();
+            onLoadMore()
           }
         }}
         isShowInViewElement={hasMore && !isLoadingMore}
@@ -89,5 +89,5 @@ export function ReviewRepliesList({
         </div>
       )}
     </div>
-  );
+  )
 }

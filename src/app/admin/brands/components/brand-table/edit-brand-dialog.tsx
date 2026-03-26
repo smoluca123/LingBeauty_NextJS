@@ -16,7 +16,7 @@ import type {
   IAdminBrandDataType,
   IBrandFormData,
 } from '@/lib/types/interfaces/apis/admin-brand.interfaces';
-import { useUpdateBrandMutation } from '@/hooks/querys/admin-category-brand.query';
+import { useUpdateBrandMutation } from '@/hooks/mutations/admin-category-brand.mutation';
 import { BrandForm } from './brand-form';
 
 interface EditBrandDialogProps {

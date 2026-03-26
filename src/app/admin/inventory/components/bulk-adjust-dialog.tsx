@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useBulkAdjustInventoryMutation } from '@/hooks/querys/admin-inventory.query';
+import { useBulkAdjustInventoryMutation } from '@/hooks/mutations/admin-inventory.mutation';
 import type { InventoryRow } from './inventory-table';
 import { isVariantRow } from './inventory-table/helpers';
 

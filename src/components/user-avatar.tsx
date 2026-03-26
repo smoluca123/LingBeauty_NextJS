@@ -1,10 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { cn } from '@/lib/utils';
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils/style-utils'
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
 
 interface IProps extends IPropsWithClassName {
-  fallbackName?: string;
-  avatarUrl?: string;
+  fallbackName?: string
+  avatarUrl?: string
 }
 
 export default function UserAvatar({
@@ -21,5 +21,5 @@ export default function UserAvatar({
         alt={fallbackName}
       />
     </Avatar>
-  );
+  )
 }

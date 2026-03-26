@@ -1,33 +1,34 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { Star } from 'lucide-react';
+import Image from 'next/image'
+import { Star } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { cn, formatCurrency } from '@/lib/utils';
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
-import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
+import { Button } from '@/components/ui/button'
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
+import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar'
+import { cn } from '@/lib/utils/style-utils'
+import { formatCurrency } from '@/lib/utils/format-utils'
 export type Product = {
-  id: string;
-  name: string;
-  brand: string;
-  price: number;
-  originalPrice?: number;
-  rankLabel?: string;
-  dealLabel?: string;
-  image: string;
-  badges?: ProductBadgeProps[];
-  rating?: number;
-  reviewCount?: number;
-  variants?: { id: string; name: string; thumbnail?: string; color?: string }[];
-};
+  id: string
+  name: string
+  brand: string
+  price: number
+  originalPrice?: number
+  rankLabel?: string
+  dealLabel?: string
+  image: string
+  badges?: ProductBadgeProps[]
+  rating?: number
+  reviewCount?: number
+  variants?: { id: string; name: string; thumbnail?: string; color?: string }[]
+}
 
 type ProductCardProps = {
-  product: Product;
-  showStock?: boolean;
-  soldQuantity?: number;
-  maxQuantity?: number;
-} & IPropsWithClassName;
+  product: Product
+  showStock?: boolean
+  soldQuantity?: number
+  maxQuantity?: number
+} & IPropsWithClassName
 
 export function ProductCard({
   product,
@@ -47,12 +48,12 @@ export function ProductCard({
     badges,
     rating,
     reviewCount,
-  } = product;
+  } = product
 
   const discountPercent =
     originalPrice && originalPrice > price
       ? Math.round(((originalPrice - price) / originalPrice) * 100)
-      : null;
+      : null
 
   return (
     <article
@@ -121,28 +122,37 @@ export function ProductCard({
       {product.variants && product.variants.length > 0 && (
         <div className="hidden group-hover/product:block">
           <div className="mt-3 flex items-center gap-1.5 ">
-            {product.variants.slice(0, 4).map((variant: { id: string; name: string; thumbnail?: string; color?: string }) => (
-              <div
-                key={variant.id}
-                className="relative h-6 w-6 overflow-hidden rounded-full border border-muted ring-1 ring-transparent transition-all hover:scale-110 hover:ring-primary-pink/50"
-                title={variant.name}
-              >
-                {variant.thumbnail ? (
-                  <Image
-                    src={variant.thumbnail}
-                    alt={variant.name}
-                    fill
-                    className="object-cover"
-                    sizes="24px"
-                  />
-                ) : variant.color ? (
+            {product.variants
+              .slice(0, 4)
+              .map(
+                (variant: {
+                  id: string
+                  name: string
+                  thumbnail?: string
+                  color?: string
+                }) => (
                   <div
-                    className="h-full w-full"
-                    style={{ backgroundColor: variant.color }}
-                  />
-                ) : null}
-              </div>
-            ))}
+                    key={variant.id}
+                    className="relative h-6 w-6 overflow-hidden rounded-full border border-muted ring-1 ring-transparent transition-all hover:scale-110 hover:ring-primary-pink/50"
+                    title={variant.name}
+                  >
+                    {variant.thumbnail ? (
+                      <Image
+                        src={variant.thumbnail}
+                        alt={variant.name}
+                        fill
+                        className="object-cover"
+                        sizes="24px"
+                      />
+                    ) : variant.color ? (
+                      <div
+                        className="h-full w-full"
+                        style={{ backgroundColor: variant.color }}
+                      />
+                    ) : null}
+                  </div>
+                ),
+              )}
             {product.variants.length > 4 && (
               <span className="text-[10px] font-medium text-muted-foreground">
                 +{product.variants.length - 4}
@@ -174,13 +184,13 @@ export function ProductCard({
       {/*   Product rating */}
       <RatingStars rating={rating} reviewCount={reviewCount} />
     </article>
-  );
+  )
 }
 
 type ProductBadgeProps = {
-  label: string;
-  variant?: 'primary' | 'info' | 'neutral';
-};
+  label: string
+  variant?: 'primary' | 'info' | 'neutral'
+}
 
 export function ProductBadge({
   label,
@@ -192,7 +202,7 @@ export function ProductBadge({
         'bg-primary-pink/10 text-primary-pink border border-primary-pink/30',
       info: 'bg-sky-100 text-sky-700 border border-sky-200',
       neutral: 'bg-muted text-foreground border border-muted-foreground/10',
-    };
+    }
 
   return (
     <span
@@ -203,13 +213,13 @@ export function ProductBadge({
     >
       {label}
     </span>
-  );
+  )
 }
 
 type RatingStarsProps = {
-  rating?: number;
-  reviewCount?: number;
-};
+  rating?: number
+  reviewCount?: number
+}
 
 export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
   if (!rating) {
@@ -220,7 +230,7 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
           reviewCount > 0 &&
           ` (${reviewCount})`}
       </p>
-    );
+    )
   }
 
   return (
@@ -241,5 +251,5 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
         <span className="text-xs text-muted-foreground">({reviewCount})</span>
       )}
     </div>
-  );
+  )
 }

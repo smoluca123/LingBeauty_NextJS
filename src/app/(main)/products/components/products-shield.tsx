@@ -1,18 +1,18 @@
-import { getProductsAPI } from '@/lib/apis/server/product-apis';
-import { getProductStatsAPI } from '@/lib/apis/server/product-apis';
-import { PRODUCTS_PER_PAGE } from '@/components/product-listing/constants';
-import { ProductsBanner } from '@/app/(main)/products/components/products-banner';
-import { ProductsInfo } from '@/app/(main)/products/components/products-info';
-import { AllProducts } from '@/app/(main)/products/components/all-products';
-import { queryClient } from '@/lib/query-client/query-client';
-import { dehydrate, HydrationBoundary } from '@tanstack/react-query';
-import { formatCount } from '@/lib/utils';
-import { connection } from 'next/server';
-import { getProductListingQueryKey } from '@/hooks/querys/product-listing.query';
-import { notFound } from 'next/navigation';
+import { getProductsAPI } from '@/lib/apis/server/product-apis'
+import { getProductStatsAPI } from '@/lib/apis/server/product-apis'
+import { PRODUCTS_PER_PAGE } from '@/constants/product-listing'
+import { ProductsBanner } from '@/app/(main)/products/components/products-banner'
+import { ProductsInfo } from '@/app/(main)/products/components/products-info'
+import { AllProducts } from '@/app/(main)/products/components/all-products'
+import { queryClient } from '@/lib/query-client/query-client'
+import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
+import { connection } from 'next/server'
+import { getProductListingQueryKey } from '@/hooks/querys/product-listing.query'
+import { notFound } from 'next/navigation'
+import { formatCount } from '@/lib/utils/format-utils'
 
 interface ProductsShieldProps {
-  page: number;
+  page: number
 }
 
 /**
@@ -20,9 +20,9 @@ interface ProductsShieldProps {
  * Product data is included in the HTML on first render, then React Query takes over.
  */
 export async function ProductsShield({ page }: ProductsShieldProps) {
-  await connection();
+  await connection()
 
-  const initialParams = { page, limit: PRODUCTS_PER_PAGE };
+  const initialParams = { page, limit: PRODUCTS_PER_PAGE }
 
   // Prefetch products for the current page & stats in parallel
   const [, statsResponse] = await Promise.all([
@@ -31,15 +31,15 @@ export async function ProductsShield({ page }: ProductsShieldProps) {
       queryFn: () => getProductsAPI(initialParams),
     }),
     getProductStatsAPI({}),
-  ]);
+  ])
 
   // Validate page is within range
   const productsData = queryClient.getQueryData<
     Awaited<ReturnType<typeof getProductsAPI>>
-  >(getProductListingQueryKey(initialParams));
+  >(getProductListingQueryKey(initialParams))
 
   if (productsData && page > 1 && productsData.data.totalPage < page) {
-    notFound();
+    notFound()
   }
 
   return (
@@ -55,5 +55,5 @@ export async function ProductsShield({ page }: ProductsShieldProps) {
         <AllProducts initialPage={page} />
       </div>
     </HydrationBoundary>
-  );
+  )
 }

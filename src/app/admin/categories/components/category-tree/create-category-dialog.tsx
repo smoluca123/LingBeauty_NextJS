@@ -16,7 +16,7 @@ import { ICategoryFormData } from '@/lib/types/interfaces/apis/admin-category.in
 import {
   useCreateCategoryMutation,
   useCreateSubCategoryMutation,
-} from '@/hooks/querys/admin-category-brand.query';
+} from '@/hooks/mutations/admin-category-brand.mutation';
 import { CategoryForm } from './category-form';
 
 interface CreateCategoryDialogProps {

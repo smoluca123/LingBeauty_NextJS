@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import useEmblaCarousel from 'embla-carousel-react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import useEmblaCarousel from 'embla-carousel-react'
+import Link from 'next/link'
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces';
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils/style-utils'
+import { IBannerDataType } from '@/lib/types/interfaces/apis/banner.interfaces'
 
 type HomeCarouselClientProps = {
-  banners: IBannerDataType[];
-};
+  banners: IBannerDataType[]
+}
 
-const AUTOPLAY_INTERVAL = 5000;
+const AUTOPLAY_INTERVAL = 5000
 
 // Fallback data
 const FALLBACK_CAROUSEL: CarouselSlide[] = [
@@ -31,7 +31,7 @@ const FALLBACK_CAROUSEL: CarouselSlide[] = [
     gradientFrom: '#ffe4f0',
     gradientTo: '#fff5fb',
   },
-];
+]
 
 const FALLBACK_SIDE_TOP: SideBannerItem[] = [
   {
@@ -45,7 +45,7 @@ const FALLBACK_SIDE_TOP: SideBannerItem[] = [
     gradientFrom: '#e5f6ff',
     gradientTo: '#ffffff',
   },
-];
+]
 
 const FALLBACK_SIDE_BOTTOM: SideBannerItem[] = [
   {
@@ -59,14 +59,13 @@ const FALLBACK_SIDE_BOTTOM: SideBannerItem[] = [
     gradientFrom: '#fdf4ff',
     gradientTo: '#ffffff',
   },
-];
+]
 
 export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
   // Transform and filter banners
   const { carouselSlides, sideTopBanners, sideBottomBanners } = useMemo(() => {
     const carouselBanners: CarouselSlide[] = banners
       .filter((b) => b.position === 'MAIN_CAROUSEL' && b.isActive)
-      .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((b) => ({
         id: b.id,
         type: b.type,
@@ -80,11 +79,10 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         gradientFrom: b.gradientFrom || '#ffffff',
         gradientTo: b.gradientTo || '#f9fafb',
         imageUrl: b.imageMedia?.url,
-      }));
+      }))
 
     const sideTopBannersList: SideBannerItem[] = banners
       .filter((b) => b.position === 'SIDE_TOP' && b.isActive)
-      .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((b) => ({
         id: b.id,
         type: b.type,
@@ -96,11 +94,10 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         gradientFrom: b.gradientFrom || '#ffffff',
         gradientTo: b.gradientTo || '#f9fafb',
         imageUrl: b.imageMedia?.url,
-      }));
+      }))
 
     const sideBottomBannersList: SideBannerItem[] = banners
       .filter((b) => b.position === 'SIDE_BOTTOM' && b.isActive)
-      .sort((a, b) => a.sortOrder - b.sortOrder)
       .map((b) => ({
         id: b.id,
         type: b.type,
@@ -112,7 +109,7 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         gradientFrom: b.gradientFrom || '#ffffff',
         gradientTo: b.gradientTo || '#f9fafb',
         imageUrl: b.imageMedia?.url,
-      }));
+      }))
 
     return {
       carouselSlides:
@@ -123,11 +120,11 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         sideBottomBannersList.length > 0
           ? sideBottomBannersList
           : FALLBACK_SIDE_BOTTOM,
-    };
-  }, [banners]);
+    }
+  }, [banners])
 
   const { emblaRef, activeIndex, scrollNext, scrollPrev, scrollTo } =
-    useHeroCarousel(carouselSlides.length);
+    useHeroCarousel(carouselSlides.length)
 
   return (
     <section aria-label="Flash sale banner" className="w-full">
@@ -151,45 +148,45 @@ export function HomeCarouselClient({ banners }: HomeCarouselClientProps) {
         />
       </div>
     </section>
-  );
+  )
 }
 
 function useHeroCarousel(slideCount: number) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true })
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi) return
 
     const onSelect = () => {
-      setActiveIndex(emblaApi.selectedScrollSnap());
-    };
+      setActiveIndex(emblaApi.selectedScrollSnap())
+    }
 
-    emblaApi.on('select', onSelect);
-    onSelect();
+    emblaApi.on('select', onSelect)
+    onSelect()
 
     return () => {
-      emblaApi.off('select', onSelect);
-    };
-  }, [emblaApi]);
+      emblaApi.off('select', onSelect)
+    }
+  }, [emblaApi])
 
   useEffect(() => {
-    if (!emblaApi || slideCount <= 1) return;
+    if (!emblaApi || slideCount <= 1) return
 
     const autoplayId = setInterval(() => {
-      if (!emblaApi) return;
+      if (!emblaApi) return
 
       if (emblaApi.canScrollNext()) {
-        emblaApi.scrollNext();
+        emblaApi.scrollNext()
       } else {
-        emblaApi.scrollTo(0);
+        emblaApi.scrollTo(0)
       }
-    }, AUTOPLAY_INTERVAL);
+    }, AUTOPLAY_INTERVAL)
 
     return () => {
-      clearInterval(autoplayId);
-    };
-  }, [emblaApi, slideCount]);
+      clearInterval(autoplayId)
+    }
+  }, [emblaApi, slideCount])
 
   return {
     emblaRef,
@@ -197,31 +194,31 @@ function useHeroCarousel(slideCount: number) {
     scrollNext: () => emblaApi?.scrollNext(),
     scrollPrev: () => emblaApi?.scrollPrev(),
     scrollTo: (index: number) => emblaApi?.scrollTo(index),
-  };
+  }
 }
 
 type CarouselSlide = {
-  id: string;
-  type: 'TEXT' | 'IMAGE';
-  badge: string;
-  title: string;
-  description: string;
-  ctaText: string;
-  ctaLink: string;
-  highlight?: string;
-  subLabel?: string;
-  gradientFrom: string;
-  gradientTo: string;
-  imageUrl?: string;
-};
+  id: string
+  type: 'TEXT' | 'IMAGE'
+  badge: string
+  title: string
+  description: string
+  ctaText: string
+  ctaLink: string
+  highlight?: string
+  subLabel?: string
+  gradientFrom: string
+  gradientTo: string
+  imageUrl?: string
+}
 
 type CarouselControlsProps = {
-  slides: CarouselSlide[];
-  activeIndex: number;
-  onNext: () => void;
-  onPrev: () => void;
-  onSelect: (index: number) => void;
-};
+  slides: CarouselSlide[]
+  activeIndex: number
+  onNext: () => void
+  onPrev: () => void
+  onSelect: (index: number) => void
+}
 
 function CarouselControls({
   slides,
@@ -268,13 +265,13 @@ function CarouselControls({
         ))}
       </div>
     </div>
-  );
+  )
 }
 
 type HeroSlidesProps = {
-  slides: CarouselSlide[];
-  emblaRef: (instance: HTMLElement | null) => void;
-};
+  slides: CarouselSlide[]
+  emblaRef: (instance: HTMLElement | null) => void
+}
 
 function HeroSlides({ slides, emblaRef }: HeroSlidesProps) {
   return (
@@ -340,26 +337,26 @@ function HeroSlides({ slides, emblaRef }: HeroSlidesProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 type SideBannerItem = {
-  id: string;
-  type: 'TEXT' | 'IMAGE';
-  badge: string;
-  title: string;
-  description: string;
-  highlight: string;
-  ctaLink: string;
-  gradientFrom: string;
-  gradientTo: string;
-  imageUrl?: string;
-};
+  id: string
+  type: 'TEXT' | 'IMAGE'
+  badge: string
+  title: string
+  description: string
+  highlight: string
+  ctaLink: string
+  gradientFrom: string
+  gradientTo: string
+  imageUrl?: string
+}
 
 type SideBannerGridProps = {
-  topBanners: SideBannerItem[];
-  bottomBanners: SideBannerItem[];
-};
+  topBanners: SideBannerItem[]
+  bottomBanners: SideBannerItem[]
+}
 
 function SideBannerGrid({ topBanners, bottomBanners }: SideBannerGridProps) {
   return (
@@ -367,11 +364,11 @@ function SideBannerGrid({ topBanners, bottomBanners }: SideBannerGridProps) {
       <SideBannerSlider slides={topBanners} />
       <SideBannerSlider slides={bottomBanners} />
     </div>
-  );
+  )
 }
 
 function SideBannerSlider({ slides }: { slides: SideBannerItem[] }) {
-  const { emblaRef, activeIndex, scrollTo } = useHeroCarousel(slides.length);
+  const { emblaRef, activeIndex, scrollTo } = useHeroCarousel(slides.length)
 
   return (
     <div className="relative flex-1 overflow-hidden rounded-xl border group/slide shadow-sm">
@@ -434,5 +431,5 @@ function SideBannerSlider({ slides }: { slides: SideBannerItem[] }) {
         </div>
       )}
     </div>
-  );
+  )
 }

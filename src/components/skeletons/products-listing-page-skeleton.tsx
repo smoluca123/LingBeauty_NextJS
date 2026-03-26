@@ -1,6 +1,6 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { ProductCard2Skeleton } from '@/components/product/product-card2-skeleton';
-import { PRODUCTS_PER_PAGE } from '@/components/product-listing/constants';
+import { Skeleton } from '@/components/ui/skeleton'
+import { ProductCard2Skeleton } from '@/components/product/product-card2-skeleton'
+import { PRODUCTS_PER_PAGE } from '@/constants/product-listing'
 
 export default function ProductsListingPageSkeleton() {
   return (
@@ -59,5 +59,5 @@ export default function ProductsListingPageSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }

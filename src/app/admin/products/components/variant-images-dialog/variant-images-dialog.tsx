@@ -19,11 +19,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useVariantImagesQuery } from '@/hooks/querys/admin-product.query';
 import {
-  useVariantImagesQuery,
   useUploadVariantImageMutation,
   useDeleteVariantImageMutation,
-} from '@/hooks/querys/admin-product.query';
+} from '@/hooks/mutations/admin-product.mutation';
 import type { IAdminProductImage } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 
 // ============ Types ============

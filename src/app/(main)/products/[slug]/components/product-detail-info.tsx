@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   ShoppingCart,
   Heart,
@@ -10,61 +10,62 @@ import {
   Minus,
   Plus,
   CheckCircle2,
-} from 'lucide-react';
-import { cn, formatCurrency } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { RatingStars } from '@/components/product/rating-stars';
-import { ProductBadge } from '@/components/product/product-badge';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { RatingStars } from '@/components/product/rating-stars'
+import { ProductBadge } from '@/components/product/product-badge'
 import {
   IProductDataType,
   IProductVariantDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
-import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation';
-import { useIsAuthenticated } from '@/hooks/use-auth';
+} from '@/lib/types/interfaces/apis/product.interfaces'
+import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation'
+import { useIsAuthenticated } from '@/hooks/use-auth'
+import { formatCurrency } from '@/lib/utils/format-utils'
+import { cn } from '@/lib/utils/style-utils'
 
 interface ProductDetailInfoProps {
-  product: IProductDataType;
+  product: IProductDataType
 }
 
 export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
-  const variants = product.variants ?? [];
-  const hasVariants = variants.length > 0;
+  const variants = product.variants ?? []
+  const hasVariants = variants.length > 0
 
   // Default to first in-stock variant
   const defaultVariant =
     variants.find((v) => v.inventory?.displayStatus !== 'OUT_OF_STOCK') ??
     variants[0] ??
-    null;
+    null
 
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariantDataType | null>(defaultVariant);
-  const [quantity, setQuantity] = useState(1);
+    useState<IProductVariantDataType | null>(defaultVariant)
+  const [quantity, setQuantity] = useState(1)
 
-  const addToCartMutation = useAddToCartMutation();
-  const isAuthenticated = useIsAuthenticated();
+  const addToCartMutation = useAddToCartMutation()
+  const isAuthenticated = useIsAuthenticated()
 
   // Price logic — use selected variant price if available
   const basePrice = selectedVariant
     ? Number(selectedVariant.price)
-    : Number(product.basePrice);
+    : Number(product.basePrice)
   const comparePrice = product.comparePrice
     ? Number(product.comparePrice)
-    : null;
+    : null
   const discountPercent =
     comparePrice && comparePrice > Number(product.basePrice)
       ? Math.round(
           ((comparePrice - Number(product.basePrice)) / comparePrice) * 100,
         )
-      : null;
+      : null
 
   // ─── Inventory resolution ─────────────────────────────────────────────────
   // For products WITH variants: use selectedVariant.inventory
   // For products WITHOUT variants: use product.inventory (product-level stock)
   const activeInventory = hasVariants
     ? selectedVariant?.inventory
-    : product.inventory;
+    : product.inventory
 
-  const maxStock = activeInventory?.quantity ?? 0;
+  const maxStock = activeInventory?.quantity ?? 0
 
   // isOutOfStock: OUT_OF_STOCK status OR quantity is zero
   const isOutOfStock = hasVariants
@@ -79,7 +80,7 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
     : // No-variant product: use product-level inventory
       ((product.inventory?.displayStatus === 'OUT_OF_STOCK' ||
         product.inventory?.quantity === 0) ??
-      false);
+      false)
 
   // isLowStock: quantity > 0 AND quantity <= lowStockThreshold
   // (LOW_STOCK is NOT a DB enum value — derived from runtime values)
@@ -87,57 +88,57 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
     !isOutOfStock &&
     maxStock > 0 &&
     activeInventory?.lowStockThreshold !== undefined &&
-    maxStock <= activeInventory.lowStockThreshold;
+    maxStock <= activeInventory.lowStockThreshold
 
   const avgRating = product.stats?.avgRating
     ? Number(product.stats.avgRating)
-    : undefined;
-  const reviewCount = product.stats?.reviewCount ?? 0;
-  const totalSold = product.stats?.totalSold ?? 0;
+    : undefined
+  const reviewCount = product.stats?.reviewCount ?? 0
+  const totalSold = product.stats?.totalSold ?? 0
 
-  const brandName = product.brand?.name;
+  const brandName = product.brand?.name
   const categoryNames = product.productCategories
     ?.map((pc) => pc.category?.name)
     .filter(Boolean)
-    .join(', ');
+    .join(', ')
 
   // Determine variant label
-  const hasColors = variants.some((v) => v.color);
-  const hasSizes = variants.some((v) => v.size);
+  const hasColors = variants.some((v) => v.color)
+  const hasSizes = variants.some((v) => v.size)
   const variantLabel = hasColors
     ? 'Màu sắc'
     : hasSizes
       ? 'Kích cỡ'
-      : 'Phân loại';
+      : 'Phân loại'
 
   const handleVariantSelect = (variant: IProductVariantDataType) => {
-    setSelectedVariant(variant);
-    setQuantity(1);
-  };
+    setSelectedVariant(variant)
+    setQuantity(1)
+  }
 
-  const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const handleDecrement = () => setQuantity((prev) => Math.max(1, prev - 1))
   const handleIncrement = () =>
-    setQuantity((prev) => Math.min(maxStock, prev + 1));
+    setQuantity((prev) => Math.min(maxStock, prev + 1))
 
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock) return
 
     if (hasVariants) {
       // Variant product: require a selected variant
-      if (!selectedVariant) return;
+      if (!selectedVariant) return
       addToCartMutation.mutate({
         productId: product.id,
         variantId: selectedVariant.id,
         quantity,
-      });
+      })
     } else {
       // No-variant product: omit variantId so BE auto-resolves product-level inventory
       addToCartMutation.mutate({
         productId: product.id,
         quantity,
-      });
+      })
     }
-  };
+  }
 
   return (
     <div className="flex flex-col gap-5">
@@ -250,10 +251,10 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
           </div>
           <div className="flex flex-wrap gap-2">
             {variants.map((variant) => {
-              const isSelected = selectedVariant?.id === variant.id;
+              const isSelected = selectedVariant?.id === variant.id
               const isVariantOutOfStock =
                 variant.inventory?.displayStatus === 'OUT_OF_STOCK' ||
-                variant.inventory?.quantity === 0;
+                variant.inventory?.quantity === 0
 
               return (
                 <button
@@ -288,7 +289,7 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
                     <span className="ml-1 text-[10px]">• Hết</span>
                   )}
                 </button>
-              );
+              )
             })}
           </div>
         </div>
@@ -395,5 +396,5 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -1,9 +1,9 @@
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils/format-utils'
 
 type ProductPriceProps = {
-  basePrice: number;
-  comparePrice?: number | null;
-};
+  basePrice: number
+  comparePrice?: number | null
+}
 
 export function ProductPrice({ basePrice, comparePrice }: ProductPriceProps) {
   return (
@@ -17,5 +17,5 @@ export function ProductPrice({ basePrice, comparePrice }: ProductPriceProps) {
         </p>
       )}
     </div>
-  );
+  )
 }

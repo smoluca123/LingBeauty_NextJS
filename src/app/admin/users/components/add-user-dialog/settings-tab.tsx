@@ -1,9 +1,11 @@
 'use client';
 
 import { UseFormReturn } from 'react-hook-form';
+
 import { FormField, FormItem, FormLabel } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-import { UserFormData } from '../edit-user-dialog/edit-user-dialog';
+
+import { UserFormData } from '@/app/admin/users/components/edit-user-dialog/edit-user-dialog';
 
 // ============ Types ============
 interface SettingsTabProps {

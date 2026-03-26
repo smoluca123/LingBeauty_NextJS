@@ -1,11 +1,11 @@
-import { Star } from 'lucide-react';
+import { Star } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/style-utils'
 
 type RatingStarsProps = {
-  rating?: number;
-  reviewCount?: number;
-};
+  rating?: number
+  reviewCount?: number
+}
 
 export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
   if (!rating) {
@@ -16,7 +16,7 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
           reviewCount > 0 &&
           ` (${reviewCount})`}
       </p>
-    );
+    )
   }
 
   return (
@@ -37,5 +37,5 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
         <span className="text-xs text-muted-foreground">({reviewCount})</span>
       )}
     </div>
-  );
+  )
 }

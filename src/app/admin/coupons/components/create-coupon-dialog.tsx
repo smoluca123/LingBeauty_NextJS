@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { CouponForm, type CouponFormValues } from './coupon-form';
 import { useCreateCouponMutation } from '@/hooks/mutations/admin-coupon.mutation';
+import { CouponType } from '@/lib/types/interfaces/coupon.interfaces';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,7 @@ export function CreateCouponDialog({
     createMutation.mutate(
       {
         code: values.code,
-        type: values.type,
+        type: values.type as CouponType,
         value: values.value,
         minPurchase: values.minPurchase,
         maxDiscount: values.maxDiscount,

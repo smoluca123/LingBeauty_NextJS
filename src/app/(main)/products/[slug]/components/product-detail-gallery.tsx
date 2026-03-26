@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useCallback, useEffect, useState } from 'react';
-import Image from 'next/image';
-import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight, ZoomIn, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
+import { useCallback, useEffect, useState } from 'react'
+import Image from 'next/image'
+import useEmblaCarousel from 'embla-carousel-react'
+import { ChevronLeft, ChevronRight, ZoomIn, X } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
 
 interface ProductDetailGalleryProps {
-  product: IProductDataType;
+  product: IProductDataType
 }
 
 export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
@@ -18,53 +18,53 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
       ? [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
       : product.primaryImage
         ? [product.primaryImage]
-        : [];
+        : []
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
 
   // Main carousel
-  const [mainRef, mainApi] = useEmblaCarousel({ loop: true });
+  const [mainRef, mainApi] = useEmblaCarousel({ loop: true })
 
   // Thumbnail carousel
   const [thumbRef, thumbApi] = useEmblaCarousel({
     containScroll: 'keepSnaps',
     dragFree: true,
-  });
+  })
 
   // Sync selectedIndex when main carousel scrolls
   const onMainSelect = useCallback(() => {
-    if (!mainApi) return;
-    const index = mainApi.selectedScrollSnap();
-    setSelectedIndex(index);
-    thumbApi?.scrollTo(index);
-  }, [mainApi, thumbApi]);
+    if (!mainApi) return
+    const index = mainApi.selectedScrollSnap()
+    setSelectedIndex(index)
+    thumbApi?.scrollTo(index)
+  }, [mainApi, thumbApi])
 
   useEffect(() => {
-    if (!mainApi) return;
-    mainApi.on('select', onMainSelect);
+    if (!mainApi) return
+    mainApi.on('select', onMainSelect)
     return () => {
-      mainApi.off('select', onMainSelect);
-    };
-  }, [mainApi, onMainSelect]);
+      mainApi.off('select', onMainSelect)
+    }
+  }, [mainApi, onMainSelect])
 
   const scrollTo = useCallback(
     (index: number) => {
-      mainApi?.scrollTo(index);
-      setSelectedIndex(index);
+      mainApi?.scrollTo(index)
+      setSelectedIndex(index)
     },
     [mainApi],
-  );
+  )
 
-  const scrollPrev = useCallback(() => mainApi?.scrollPrev(), [mainApi]);
-  const scrollNext = useCallback(() => mainApi?.scrollNext(), [mainApi]);
+  const scrollPrev = useCallback(() => mainApi?.scrollPrev(), [mainApi])
+  const scrollNext = useCallback(() => mainApi?.scrollNext(), [mainApi])
 
   if (images.length === 0) {
     return (
       <div className="aspect-square w-full rounded-2xl bg-muted flex items-center justify-center">
         <p className="text-muted-foreground text-sm">Không có ảnh</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -103,8 +103,8 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
           <>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                scrollPrev();
+                e.stopPropagation()
+                scrollPrev()
               }}
               className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white opacity-0 transition-all hover:bg-black/60 group-hover:opacity-100"
               aria-label="Ảnh trước"
@@ -113,8 +113,8 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
             </button>
             <button
               onClick={(e) => {
-                e.stopPropagation();
-                scrollNext();
+                e.stopPropagation()
+                scrollNext()
               }}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-2 text-white opacity-0 transition-all hover:bg-black/60 group-hover:opacity-100"
               aria-label="Ảnh tiếp theo"
@@ -182,22 +182,22 @@ export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
         />
       )}
     </div>
-  );
+  )
 }
 
 // ─── Lightbox Component ────────────────────────────────────────────────────────
 interface LightboxImage {
-  id: string;
-  alt?: string | null;
-  media?: { url: string };
-  sortOrder?: number;
+  id: string
+  alt?: string | null
+  media?: { url: string }
+  sortOrder?: number
 }
 
 interface LightboxProps {
-  images: LightboxImage[];
-  initialIndex: number;
-  productName: string;
-  onClose: () => void;
+  images: LightboxImage[]
+  initialIndex: number
+  productName: string
+  onClose: () => void
 }
 
 function Lightbox({
@@ -209,32 +209,32 @@ function Lightbox({
   const [lightboxRef, lightboxApi] = useEmblaCarousel({
     startIndex: initialIndex,
     loop: true,
-  });
+  })
 
-  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex)
 
   const onSelect = useCallback(() => {
-    if (!lightboxApi) return;
-    setCurrentIndex(lightboxApi.selectedScrollSnap());
-  }, [lightboxApi]);
+    if (!lightboxApi) return
+    setCurrentIndex(lightboxApi.selectedScrollSnap())
+  }, [lightboxApi])
 
   useEffect(() => {
-    lightboxApi?.on('select', onSelect);
+    lightboxApi?.on('select', onSelect)
     return () => {
-      lightboxApi?.off('select', onSelect);
-    };
-  }, [lightboxApi, onSelect]);
+      lightboxApi?.off('select', onSelect)
+    }
+  }, [lightboxApi, onSelect])
 
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft') lightboxApi?.scrollPrev();
-      if (e.key === 'ArrowRight') lightboxApi?.scrollNext();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxApi, onClose]);
+      if (e.key === 'Escape') onClose()
+      if (e.key === 'ArrowLeft') lightboxApi?.scrollPrev()
+      if (e.key === 'ArrowRight') lightboxApi?.scrollNext()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxApi, onClose])
 
   return (
     <div
@@ -301,5 +301,5 @@ function Lightbox({
         )}
       </div>
     </div>
-  );
+  )
 }

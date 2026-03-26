@@ -1,8 +1,8 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
 import {
   IApiResponseWrapperType,
   INextApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IAuthApiResponse,
   IChangePasswordData,
@@ -11,192 +11,212 @@ import type {
   IGetAuthResponse,
   ILoginCredentials,
   IRegisterData,
-} from '@/lib/types/interfaces/apis/auth.interfaces';
-import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
-import { HTTPError } from 'ky';
+} from '@/lib/types/interfaces/apis/auth.interfaces'
+import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
+import { HTTPError } from 'ky'
 
+/**
+ * Login user with credentials
+ * @param credentials - User login credentials (email and password)
+ * @returns Promise with user data
+ * @throws Error with backend message
+ */
 export async function loginApi(
   credentials: ILoginCredentials,
 ): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/login', { json: credentials })
-      .json<IAuthApiResponse>();
+      .json<IAuthApiResponse>()
 
     if (!data.data?.user) {
-      throw new Error('Invalid response from server');
+      throw new Error('Invalid response from server')
     }
 
-    return data.data.user;
+    return data.data.user
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Login failed');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Login failed'))
   }
 }
 
+/**
+ * Register new user account
+ * @param registerData - User registration data
+ * @returns Promise with user data
+ * @throws Error with backend message
+ */
 export async function registerApi(
   registerData: IRegisterData,
 ): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/register', { json: registerData })
-      .json<IAuthApiResponse>();
+      .json<IAuthApiResponse>()
 
     if (!data.data?.user) {
-      throw new Error('Invalid response from server');
+      throw new Error('Invalid response from server')
     }
 
-    return data.data.user;
+    return data.data.user
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Registration failed');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Registration failed'))
   }
 }
 
+/**
+ * Logout current user
+ * @returns Promise that resolves when logout is complete
+ * @throws Error with backend message
+ */
 export async function logoutApi(): Promise<void> {
   try {
-    await kyNextInstance.post('auth/logout');
+    await kyNextInstance.post('auth/logout')
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Logout failed');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Logout failed'))
   }
 }
 
+/**
+ * Refresh authentication token
+ * @returns Promise with updated user data
+ * @throws Error with backend message
+ */
 export async function refreshTokenApi(): Promise<IUserDataType> {
   try {
     const data = await kyNextInstance
       .post('auth/refresh')
-      .json<IAuthApiResponse>();
+      .json<IAuthApiResponse>()
 
     if (!data.data?.user) {
-      throw new Error('Invalid response from server');
+      throw new Error('Invalid response from server')
     }
 
-    return data.data.user;
+    return data.data.user
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Token refresh failed');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Token refresh failed'))
   }
 }
 
-// export async function getCurrentUserApi(): Promise<GetAuthResponse> {
-//   try {
-//     const data = await kyNextInstance.get('auth/me').json<GetAuthResponse>();
-//     return data;
-//   } catch {
-//     return { isAuthenticated: false, user: null, expiresAt: null };
-//   }
-// }
-
+/**
+ * Validate current authentication token
+ * @returns Promise with authentication status and user data
+ */
 export async function validateTokenApi(): Promise<IGetAuthResponse> {
   try {
     const data = await kyNextInstance
       .get('auth/validate-token')
-      .json<IGetAuthResponse>();
-    return data;
+      .json<IGetAuthResponse>()
+    return data
   } catch {
-    return { isAuthenticated: false, user: null, expiresAt: null };
+    return { isAuthenticated: false, user: null, expiresAt: null }
   }
 }
 
 // ============ Email Verification APIs ============
 
 interface SendOTPResponse {
-  message: string;
-  code?: string; // Only in development mode
+  message: string
+  code?: string // Only in development mode
 }
 
 interface VerifyEmailResponse {
-  message: string;
+  message: string
 }
 
 export interface RateLimitError {
-  message: string;
-  remainingCooldown: number;
+  message: string
+  remainingCooldown: number
 }
 
+/**
+ * Send email verification OTP to user's email
+ * @returns Promise with OTP response (includes code in development mode)
+ * @throws Error with backend message or RateLimitError if rate limited
+ */
 export async function sendEmailVerificationApi(): Promise<SendOTPResponse> {
   try {
     const data = await kyNextInstance
       .post('auth/send-email-verification')
-      .json<{ message: string; data?: SendOTPResponse }>();
+      .json<{ message: string; data?: SendOTPResponse }>()
 
-    return data.data || { message: data.message };
+    return data.data || { message: data.message }
   } catch (error) {
     if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
+      const errorData = await error.response.json()
       // Check for rate limit error (429)
       if (error.response.status === 429) {
         const rateLimitError: RateLimitError = {
           message: errorData.message || 'Too many requests',
           remainingCooldown: errorData.details?.remainingCooldown || 0,
-        };
-        throw rateLimitError;
+        }
+        throw rateLimitError
       }
-      throw new Error(errorData.message || 'Failed to send verification email');
+      throw new Error(errorData.message || 'Failed to send verification email')
     }
-    throw error;
+    throw error
   }
 }
 
+/**
+ * Verify user's email with OTP code
+ * @param code - OTP code received via email
+ * @returns Promise with verification response
+ * @throws Error with backend message
+ */
 export async function verifyEmailApi(
   code: string,
 ): Promise<VerifyEmailResponse> {
   try {
     const data = await kyNextInstance
       .post('auth/verify-email', { json: { code } })
-      .json<{ message: string; data?: VerifyEmailResponse }>();
+      .json<{ message: string; data?: VerifyEmailResponse }>()
 
-    return data.data || { message: data.message };
+    return data.data || { message: data.message }
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to verify email');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to verify email'))
   }
 }
 
+/**
+ * Resend email verification OTP
+ * @returns Promise with OTP response (includes code in development mode)
+ * @throws Error with backend message or RateLimitError if rate limited
+ */
 export async function resendEmailVerificationApi(): Promise<SendOTPResponse> {
   try {
     const data = await kyNextInstance
       .post('auth/resend-email-verification')
-      .json<{ message: string; data?: SendOTPResponse }>();
+      .json<{ message: string; data?: SendOTPResponse }>()
 
-    return data.data || { message: data.message };
+    return data.data || { message: data.message }
   } catch (error) {
     if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
+      const errorData = await error.response.json()
       // Check for rate limit error (429)
       if (error.response.status === 429) {
         const rateLimitError: RateLimitError = {
           message: errorData.message || 'Too many requests',
           remainingCooldown: errorData.details?.remainingCooldown || 0,
-        };
-        throw rateLimitError;
+        }
+        throw rateLimitError
       }
       throw new Error(
         errorData.message || 'Failed to resend verification email',
-      );
+      )
     }
-    throw error;
+    throw error
   }
 }
 
 // ============ Change Password API ============
 
+/**
+ * Change user's password
+ * @param data - Change password data (current password and new password)
+ * @returns Promise with change password response
+ * @throws Error with backend message
+ */
 export async function changePasswordAPI(
   data: IChangePasswordData,
 ): Promise<
@@ -209,15 +229,15 @@ export async function changePasswordAPI(
         INextApiResponseWrapperType<
           IApiResponseWrapperType<IChangePasswordResponse>
         >
-      >();
+      >()
 
-    return response;
+    return response
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error instanceof HTTPError) {
-      const errorData = (await error.response.json()) as IChangePasswordError;
-      throw errorData.message;
+      const errorData = (await error.response.json()) as IChangePasswordError
+      throw errorData.message
     }
-    throw error.message;
+    throw error.message
   }
 }

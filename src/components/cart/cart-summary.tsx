@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { formatCurrency } from '@/lib/utils';
-import type { ICartSummaryType } from '@/lib/types/interfaces/cart.interfaces';
+import type { ICartSummaryType } from '@/lib/types/interfaces/cart.interfaces'
+import { formatCurrency } from '@/lib/utils/format-utils'
 
 /** Free shipping threshold in VND */
-const FREE_SHIPPING_THRESHOLD = 500_000;
+const FREE_SHIPPING_THRESHOLD = 500_000
 /** Flat shipping fee in VND */
-const SHIPPING_FEE = 30_000;
+const SHIPPING_FEE = 30_000
 
 interface CartSummaryProps {
-  summary: ICartSummaryType;
+  summary: ICartSummaryType
 }
 
 export function CartSummary({ summary }: CartSummaryProps) {
-  const subtotal = Number(summary.subtotal);
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const total = subtotal + shipping;
+  const subtotal = Number(summary.subtotal)
+  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE
+  const total = subtotal + shipping
 
   return (
     <div className="space-y-3 p-4 rounded-xl border bg-muted/30">
@@ -64,5 +64,5 @@ export function CartSummary({ summary }: CartSummaryProps) {
         </p>
       )}
     </div>
-  );
+  )
 }

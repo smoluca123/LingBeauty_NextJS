@@ -1,24 +1,25 @@
-'use client';
+'use client'
 
-import { SlidersHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { SlidersHorizontal } from 'lucide-react'
+
+import { cn } from '@/lib/utils/style-utils'
+import { Button } from '@/components/ui/button'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { SORT_OPTIONS, SortOption } from '../constants';
+} from '@/components/ui/select'
+import { SORT_OPTIONS, SortOption } from '@/constants/product-listing'
 
 interface ProductsHeaderProps {
-  totalResults: number;
-  selectedSort: string;
-  onSortChange: (sortValue: string) => void;
-  onFilterClick?: () => void;
-  activeFiltersCount?: number;
-  className?: string;
+  totalResults: number
+  selectedSort: string
+  onSortChange: (sortValue: string) => void
+  onFilterClick?: () => void
+  activeFiltersCount?: number
+  className?: string
 }
 
 export function ProductsHeader({
@@ -31,7 +32,7 @@ export function ProductsHeader({
 }: ProductsHeaderProps) {
   const selectedOption = SORT_OPTIONS.find(
     (option) => option.value === selectedSort,
-  );
+  )
 
   return (
     <div
@@ -92,5 +93,5 @@ export function ProductsHeader({
         </Select>
       </div>
     </div>
-  );
+  )
 }

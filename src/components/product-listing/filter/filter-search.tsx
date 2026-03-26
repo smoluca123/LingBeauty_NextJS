@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Search } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils/style-utils'
 
 interface FilterSearchProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  className?: string
 }
 
 export function FilterSearch({
@@ -28,5 +28,5 @@ export function FilterSearch({
         className="h-11 pl-10 pr-4 rounded-xl bg-white border-gray-200 text-sm placeholder:text-muted-foreground/60 focus:border-primary-pink focus:ring-2 focus:ring-primary-pink/10 transition-all shadow-sm"
       />
     </div>
-  );
+  )
 }

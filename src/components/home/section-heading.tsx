@@ -1,14 +1,14 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from 'react'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/style-utils'
 
 type SectionHeadingProps = {
-  title: string;
-  subtitle?: string;
-  eyebrow?: string;
-  className?: string;
-  action?: ReactNode;
-};
+  title: string
+  subtitle?: string
+  eyebrow?: string
+  className?: string
+  action?: ReactNode
+}
 
 export function SectionHeading({
   title,
@@ -41,7 +41,7 @@ export function SectionHeading({
       </div>
       {action}
     </div>
-  );
+  )
 }
 
 export function SectionHeadingCenter({
@@ -75,5 +75,5 @@ export function SectionHeadingCenter({
       </div>
       {action}
     </div>
-  );
+  )
 }

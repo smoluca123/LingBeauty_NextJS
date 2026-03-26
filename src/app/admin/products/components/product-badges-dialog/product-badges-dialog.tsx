@@ -31,12 +31,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useProductBadgesQuery } from '@/hooks/querys/admin-product.query';
 import {
-  useProductBadgesQuery,
   useAddProductBadgeMutation,
   useUpdateProductBadgeMutation,
   useDeleteProductBadgeMutation,
-} from '@/hooks/querys/admin-product.query';
+} from '@/hooks/mutations/admin-product.mutation';
 import type {
   IAdminProductBadge,
   ICreateProductBadgePayload,

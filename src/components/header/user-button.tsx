@@ -1,41 +1,43 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { User, ShoppingBag, LogOut, LayoutDashboard } from 'lucide-react';
+import { useState } from 'react'
+import Link from 'next/link'
+import { User, ShoppingBag, LogOut, LayoutDashboard } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { AuthModal } from '@/components/auth/auth-modal';
+import { Button } from '@/components/ui/button'
+import { AuthModal } from '@/components/auth/auth-modal'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   useAuthUser,
   useIsAuthenticated,
   useAuthLoading,
-} from '@/hooks/use-auth';
-import { useLogoutMutation } from '@/hooks/mutations/auth.mutation';
-import { hasAdminRole } from '@/lib/utils';
+} from '@/hooks/use-auth'
+import { useLogoutMutation } from '@/hooks/mutations/auth.mutation'
+import { hasAdminRole } from '@/lib/utils/validation-utils'
 
 export function UserButton() {
-  const [loginOpen, setLoginOpen] = useState(false);
-  const user = useAuthUser();
-  const isAuthenticated = useIsAuthenticated();
-  const isLoading = useAuthLoading();
-  const logoutMutation = useLogoutMutation();
+  const [loginOpen, setLoginOpen] = useState(false)
+  const user = useAuthUser()
+  const isAuthenticated = useIsAuthenticated()
+  const isLoading = useAuthLoading()
+  const logoutMutation = useLogoutMutation()
 
   const handleLogout = () => {
-    logoutMutation.mutate();
-  };
+    logoutMutation.mutate()
+  }
 
-  const isAdmin = user !== null && hasAdminRole(user?.roleAssignments as { role: { name: string } }[]);
+  const isAdmin =
+    user !== null &&
+    hasAdminRole(user?.roleAssignments as { role: { name: string } }[])
 
   if (isLoading) {
-    return <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />;
+    return <div className="h-9 w-20 bg-muted animate-pulse rounded-md" />
   }
 
   if (isAuthenticated && user) {
@@ -66,12 +68,15 @@ export function UserButton() {
               Đơn hàng
             </Link>
           </DropdownMenuItem>
-          
+
           {isAdmin && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/admin" className="cursor-pointer text-primary-pink focus:text-primary-pink focus:bg-primary-pink/10">
+                <Link
+                  href="/admin"
+                  className="cursor-pointer text-primary-pink focus:text-primary-pink focus:bg-primary-pink/10"
+                >
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Quản trị viên
                 </Link>
@@ -89,7 +94,7 @@ export function UserButton() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    );
+    )
   }
 
   return (
@@ -105,5 +110,5 @@ export function UserButton() {
       </Button>
       <AuthModal open={loginOpen} onOpenChange={setLoginOpen} />
     </>
-  );
+  )
 }

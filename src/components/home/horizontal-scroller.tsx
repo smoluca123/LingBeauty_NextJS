@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Children,
@@ -6,27 +6,27 @@ import {
   useEffect,
   useState,
   type ReactNode,
-} from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import useEmblaCarousel from 'embla-carousel-react';
+} from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import useEmblaCarousel from 'embla-carousel-react'
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { SCROLLER_GAP, DEFAULT_SLIDES_PER_VIEW } from '@/constants/ui';
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils/style-utils'
+import { SCROLLER_GAP, DEFAULT_SLIDES_PER_VIEW } from '@/constants/ui'
 
 type SlidesPerView = {
-  mobile?: number;
-  tablet?: number;
-  desktop?: number;
-};
+  mobile?: number
+  tablet?: number
+  desktop?: number
+}
 
 type HorizontalScrollerProps = {
-  children: ReactNode;
-  className?: string;
-  itemClassName?: string;
-  ariaLabel?: string;
-  slidesPerView?: SlidesPerView;
-};
+  children: ReactNode
+  className?: string
+  itemClassName?: string
+  ariaLabel?: string
+  slidesPerView?: SlidesPerView
+}
 
 export function HorizontalScroller({
   children,
@@ -39,37 +39,37 @@ export function HorizontalScroller({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: true,
-  });
+  })
 
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
 
   const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
+    if (!emblaApi) return
+    setCanScrollPrev(emblaApi.canScrollPrev())
+    setCanScrollNext(emblaApi.canScrollNext())
+  }, [emblaApi])
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi) return
 
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
 
     // Initial state sync from external Embla API
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    onSelect();
+    onSelect()
 
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
-    };
-  }, [emblaApi, onSelect]);
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
 
   const getItemWidthStyles = () => {
-    const mobile = slidesPerView.mobile || DEFAULT_SLIDES_PER_VIEW.mobile;
-    const tablet = slidesPerView.tablet || DEFAULT_SLIDES_PER_VIEW.tablet;
-    const desktop = slidesPerView.desktop || DEFAULT_SLIDES_PER_VIEW.desktop;
+    const mobile = slidesPerView.mobile || DEFAULT_SLIDES_PER_VIEW.mobile
+    const tablet = slidesPerView.tablet || DEFAULT_SLIDES_PER_VIEW.tablet
+    const desktop = slidesPerView.desktop || DEFAULT_SLIDES_PER_VIEW.desktop
 
     return {
       '--item-width-mobile': `calc((100% - ${
@@ -81,14 +81,14 @@ export function HorizontalScroller({
       '--item-width-desktop': `calc((100% - ${
         (desktop - 1) * SCROLLER_GAP
       }rem) / ${desktop})`,
-    } as React.CSSProperties;
-  };
+    } as React.CSSProperties
+  }
 
-  const childCount = Children.count(children);
-  const showControls = childCount > 0;
+  const childCount = Children.count(children)
+  const showControls = childCount > 0
 
-  const scrollPrev = () => emblaApi?.scrollPrev();
-  const scrollNext = () => emblaApi?.scrollNext();
+  const scrollPrev = () => emblaApi?.scrollPrev()
+  const scrollNext = () => emblaApi?.scrollNext()
 
   return (
     <div className={cn('relative', className)} aria-label={ariaLabel}>
@@ -126,14 +126,14 @@ export function HorizontalScroller({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 type ScrollButtonProps = {
-  direction: 'prev' | 'next';
-  onClick: () => void;
-  disabled?: boolean;
-};
+  direction: 'prev' | 'next'
+  onClick: () => void
+  disabled?: boolean
+}
 
 function ScrollButton({ direction, onClick, disabled }: ScrollButtonProps) {
   return (
@@ -151,5 +151,5 @@ function ScrollButton({ direction, onClick, disabled }: ScrollButtonProps) {
         <ChevronLeft className="h-4 w-4" />
       )}
     </Button>
-  );
+  )
 }

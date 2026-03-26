@@ -1,14 +1,14 @@
-import { cn } from '@/lib/utils';
-import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
+import { cn } from '@/lib/utils/style-utils'
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react'
 
 // ============ Types ============
 interface StatCardProps {
-  title: string;
-  value: string | number;
-  description?: string;
-  icon: LucideIcon;
-  trend?: 'up' | 'down';
-  className?: string;
+  title: string
+  value: string | number
+  description?: string
+  icon: LucideIcon
+  trend?: 'up' | 'down'
+  className?: string
 }
 
 // ============ Component ============
@@ -62,5 +62,5 @@ export function StatCard({
         </div>
       </div>
     </div>
-  );
+  )
 }

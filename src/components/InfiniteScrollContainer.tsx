@@ -1,14 +1,14 @@
-'use no memo';
+'use no memo'
 
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
-import { cn } from '@/lib/utils';
-import { PropsWithChildren } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
+import { cn } from '@/lib/utils/style-utils'
+import { PropsWithChildren } from 'react'
+import { useInView } from 'react-intersection-observer'
 
 interface IProps extends PropsWithChildren, IPropsWithClassName {
-  onBottomReached: () => void;
-  isShowInViewElement?: boolean;
-  rootMargin?: string;
+  onBottomReached: () => void
+  isShowInViewElement?: boolean
+  rootMargin?: string
 }
 
 export default function InfiniteScrollContainer({
@@ -23,15 +23,15 @@ export default function InfiniteScrollContainer({
     onChange: (inView) => {
       if (inView) {
         // Trigger your infinite scroll logic here
-        onBottomReached();
+        onBottomReached()
       }
     },
-  });
+  })
 
   return (
     <div className={cn('', className)}>
       {children}
       {isShowInViewElement && <div className="" ref={ref}></div>}
     </div>
-  );
+  )
 }

@@ -1,6 +1,6 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils/style-utils'
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
 
 /**
  * Skeleton loading state for ProductCard2 component
@@ -61,5 +61,5 @@ export function ProductCard2Skeleton({ className }: IPropsWithClassName) {
       {/* Action Button */}
       <Skeleton className="mt-4 h-10 w-full rounded-full" />
     </article>
-  );
+  )
 }

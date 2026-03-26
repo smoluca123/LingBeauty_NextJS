@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Star,
   ThumbsUp,
   MessageCircle,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
-import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils/style-utils'
 import {
   useMarkHelpfulMutation,
   useUnmarkHelpfulMutation,
-} from '@/hooks/mutations/review.mutation';
-import { useGetReviewRepliesInfiniteQuery } from '@/hooks/querys/review.query';
-import { ReviewReplyForm } from '@/components/review/review-reply-form';
-import { ReviewRepliesList } from '@/components/review/review-replies-list';
-import { ReviewMoreActions } from './review-more-actions';
-import Image from 'next/image';
+} from '@/hooks/mutations/review.mutation'
+import { useGetReviewRepliesInfiniteQuery } from '@/hooks/querys/review.query'
+import { ReviewReplyForm } from '@/components/review/review-reply-form'
+import { ReviewRepliesList } from '@/components/review/review-replies-list'
+import { ReviewMoreActions } from './review-more-actions'
+import Image from 'next/image'
 
 interface ReviewItemProps {
-  review: IReviewDataType;
-  productId: string;
-  isAuthenticated?: boolean;
+  review: IReviewDataType
+  productId: string
+  isAuthenticated?: boolean
 }
 
 export function ReviewItem({
@@ -33,46 +33,46 @@ export function ReviewItem({
   productId,
   isAuthenticated = false,
 }: ReviewItemProps) {
-  const [showReplies, setShowReplies] = useState(false);
-  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showReplies, setShowReplies] = useState(false)
+  const [showReplyForm, setShowReplyForm] = useState(false)
 
-  const markHelpfulMutation = useMarkHelpfulMutation(review.id, productId);
-  const unmarkHelpfulMutation = useUnmarkHelpfulMutation(review.id, productId);
+  const markHelpfulMutation = useMarkHelpfulMutation(review.id, productId)
+  const unmarkHelpfulMutation = useUnmarkHelpfulMutation(review.id, productId)
   const {
     data: repliesData,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useGetReviewRepliesInfiniteQuery(review.id);
+  } = useGetReviewRepliesInfiniteQuery(review.id)
 
   const fetchedReplies =
-    repliesData?.pages.flatMap((page) => page.data?.items ?? []) || [];
+    repliesData?.pages.flatMap((page) => page.data?.items ?? []) || []
   const hasReplies =
-    fetchedReplies.length > 0 || (review.replies && review.replies.length > 0);
+    fetchedReplies.length > 0 || (review.replies && review.replies.length > 0)
   // Prioritize replies from query (real-time updates) over review.replies (initial data)
   const displayReplies =
-    fetchedReplies.length > 0 ? fetchedReplies : review.replies || [];
+    fetchedReplies.length > 0 ? fetchedReplies : review.replies || []
 
   const handleHelpfulClick = () => {
     if (!isAuthenticated) {
       // Could trigger login modal here
-      return;
+      return
     }
     // For now, always mark as helpful. In a real app, you'd check if already marked
-    markHelpfulMutation.mutate();
-  };
+    markHelpfulMutation.mutate()
+  }
 
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
-  };
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+  }
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
-    });
-  };
+    })
+  }
 
   return (
     <div className="border-b py-6 last:border-b-0">
@@ -200,8 +200,8 @@ export function ReviewItem({
               reviewId={review.id}
               onCancel={() => setShowReplyForm(false)}
               onSuccess={() => {
-                setShowReplyForm(false);
-                setShowReplies(true);
+                setShowReplyForm(false)
+                setShowReplies(true)
               }}
             />
           </div>
@@ -221,5 +221,5 @@ export function ReviewItem({
         )}
       </div>
     </div>
-  );
+  )
 }

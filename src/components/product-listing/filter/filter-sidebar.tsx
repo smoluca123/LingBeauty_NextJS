@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
-import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { FilterSearch } from './filter-search';
-import { FilterPrice } from './filter-price';
-import { FilterCategoryComponent } from './filter-category';
-import { useFilterHandlers } from './use-filter-handlers';
+import { cn } from '@/lib/utils/style-utils'
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { FilterSearch } from './filter-search'
+import { FilterPrice } from './filter-price'
+import { FilterCategoryComponent } from './filter-category'
+import { useFilterHandlers } from './use-filter-handlers'
 
 export interface FilterState {
-  searchQuery: string;
-  priceRanges: string[];
-  categories: string[];
+  searchQuery: string
+  priceRanges: string[]
+  categories: string[]
 }
 
 interface FilterSidebarProps {
-  filters: FilterState;
-  onFiltersChange: (filters: FilterState) => void;
-  categories?: IFilterCategoryDataType[];
-  className?: string;
+  filters: FilterState
+  onFiltersChange: (filters: FilterState) => void
+  categories?: IFilterCategoryDataType[]
+  className?: string
 }
 
 export function FilterSidebar({
@@ -27,7 +27,7 @@ export function FilterSidebar({
   className,
 }: FilterSidebarProps) {
   const { handleSearchChange, handlePriceChange, handleCategoryChange } =
-    useFilterHandlers({ filters, onFiltersChange });
+    useFilterHandlers({ filters, onFiltersChange })
 
   return (
     <aside className={cn('space-y-4', className)}>
@@ -48,5 +48,5 @@ export function FilterSidebar({
         />
       </div>
     </aside>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Star } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Star } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -9,21 +9,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import LoadingButton from '@/components/ui/loading-button';
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils/style-utils'
+import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import LoadingButton from '@/components/ui/loading-button'
 
 interface EditReviewDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: { rating: number; title: string; comment: string }) => void;
-  review: IReviewDataType;
-  isLoading?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onSubmit: (data: { rating: number; title: string; comment: string }) => void
+  review: IReviewDataType
+  isLoading?: boolean
 }
 
 export function EditReviewDialog({
@@ -33,26 +33,26 @@ export function EditReviewDialog({
   review,
   isLoading = false,
 }: EditReviewDialogProps) {
-  const [rating, setRating] = useState(review.rating);
-  const [title, setTitle] = useState(review.title || '');
-  const [comment, setComment] = useState(review.comment || '');
-  const [hoverRating, setHoverRating] = useState(0);
+  const [rating, setRating] = useState(review.rating)
+  const [title, setTitle] = useState(review.title || '')
+  const [comment, setComment] = useState(review.comment || '')
+  const [hoverRating, setHoverRating] = useState(0)
 
   // Reset form when dialog opens - using requestAnimationFrame to avoid cascading renders
   useEffect(() => {
     if (isOpen) {
       requestAnimationFrame(() => {
-        setRating(review.rating);
-        setTitle(review.title || '');
-        setComment(review.comment || '');
-      });
+        setRating(review.rating)
+        setTitle(review.title || '')
+        setComment(review.comment || '')
+      })
     }
-  }, [isOpen, review]);
+  }, [isOpen, review])
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ rating, title, comment });
-  };
+    e.preventDefault()
+    onSubmit({ rating, title, comment })
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,5 +130,5 @@ export function EditReviewDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

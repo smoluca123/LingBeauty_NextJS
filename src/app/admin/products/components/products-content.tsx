@@ -1,78 +1,87 @@
-'use client';
+'use client'
 
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { IAdminProductDataType, IAdminProductFilters } from '@/lib/types/interfaces/apis/admin-product.interfaces';
-import { TablePagination } from '@/app/admin/components';
-import { usePagination } from '@/app/admin/hooks';
-import { AddProductDialog } from './add-product-dialog';
+import { useState, useEffect, useCallback } from 'react'
+import { Plus, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import {
+  IAdminProductDataType,
+  IAdminProductFilters,
+} from '@/lib/types/interfaces/apis/admin-product.interfaces'
+import { TablePagination } from '@/app/admin/components'
+import { usePagination } from '@/hooks/use-pagination'
+import { AddProductDialog } from './add-product-dialog'
 import {
   ProductFilters,
   ProductTable,
   DeleteProductDialog,
-} from './product-table';
-import { useAdminProductsQuery } from '@/hooks/querys/admin-product.query';
-import { useAdminCategoriesQuery, useAdminBrandsQuery } from '@/hooks/querys/admin-category-brand.query';
-import { useDeleteProductMutation } from '@/hooks/querys/admin-product.query';
+} from './product-table'
+import { useAdminProductsQuery } from '@/hooks/querys/admin-product.query'
+import {
+  useAdminCategoriesQuery,
+  useAdminBrandsQuery,
+} from '@/hooks/querys/admin-category-brand.query'
+import { useDeleteProductMutation } from '@/hooks/mutations/admin-product.mutation'
 
 // ── Debounce hook ──────────────────────────────────────────────────────────
 
 function useDebounce<T>(value: T, delay: number): T {
-  const [debounced, setDebounced] = useState(value);
+  const [debounced, setDebounced] = useState(value)
   useEffect(() => {
-    const timer = setTimeout(() => setDebounced(value), delay);
-    return () => clearTimeout(timer);
-  }, [value, delay]);
-  return debounced;
+    const timer = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay])
+  return debounced
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
 export function ProductsContent() {
   // ── Filter states ────────────────────────────────────────────────────────
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('all');
-  const [brandFilter, setBrandFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [featuredFilter, setFeaturedFilter] = useState('all');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [sortValue, setSortValue] = useState('default');
-  const [stockFilter, setStockFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [brandFilter, setBrandFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [featuredFilter, setFeaturedFilter] = useState('all')
+  const [minPrice, setMinPrice] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [sortValue, setSortValue] = useState('default')
+  const [stockFilter, setStockFilter] = useState('all')
 
   // ── Debounced values ─────────────────────────────────────────────────────
-  const debouncedSearch = useDebounce(searchQuery, 300);
-  const debouncedMinPrice = useDebounce(minPrice, 500);
-  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+  const debouncedSearch = useDebounce(searchQuery, 300)
+  const debouncedMinPrice = useDebounce(minPrice, 500)
+  const debouncedMaxPrice = useDebounce(maxPrice, 500)
 
   // ── Pagination ──────────────────────────────────────────────────────────
-  const {
-    currentPage,
-    pageSize,
-    resetPage,
-    getPaginationProps,
-  } = usePagination();
+  const { currentPage, pageSize, resetPage, getPaginationProps } =
+    usePagination()
 
   // ── Dialog states ────────────────────────────────────────────────────────
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<IAdminProductDataType | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [selectedProduct, setSelectedProduct] =
+    useState<IAdminProductDataType | null>(null)
 
   // ── Mutations ────────────────────────────────────────────────────────────
-  const deleteMutation = useDeleteProductMutation();
+  const deleteMutation = useDeleteProductMutation()
 
   // ── Fetch categories & brands ────────────────────────────────────────────
-  const { data: categoriesData } = useAdminCategoriesQuery();
-  const { data: brandsData } = useAdminBrandsQuery();
+  const { data: categoriesData } = useAdminCategoriesQuery()
+  const { data: brandsData } = useAdminBrandsQuery()
 
-  const categories = categoriesData?.data ?? [];
-  const brands = brandsData?.data?.items ?? [];
+  const categories = categoriesData?.data ?? []
+  const brands = brandsData?.data?.items ?? []
 
   // ── Parse sort value ─────────────────────────────────────────────────────
-  const parsedSort = sortValue !== 'default' ? sortValue.split(':') : [];
-  const sortBy = parsedSort.length === 2 ? parsedSort[0] as IAdminProductFilters['sortBy'] : undefined;
-  const order = parsedSort.length === 2 ? parsedSort[1] as IAdminProductFilters['order'] : undefined;
+  const parsedSort = sortValue !== 'default' ? sortValue.split(':') : []
+  const sortBy =
+    parsedSort.length === 2
+      ? (parsedSort[0] as IAdminProductFilters['sortBy'])
+      : undefined
+  const order =
+    parsedSort.length === 2
+      ? (parsedSort[1] as IAdminProductFilters['order'])
+      : undefined
 
   // ── Build query params ──────────────────────────────────────────────────
   const queryParams: IAdminProductFilters = {
@@ -82,32 +91,35 @@ export function ProductsContent() {
     categoryId: categoryFilter !== 'all' ? categoryFilter : undefined,
     brandId: brandFilter !== 'all' ? brandFilter : undefined,
     isActive: statusFilter !== 'all' ? statusFilter === 'true' : undefined,
-    isFeatured: featuredFilter !== 'all' ? featuredFilter === 'true' : undefined,
+    isFeatured:
+      featuredFilter !== 'all' ? featuredFilter === 'true' : undefined,
     minPrice: debouncedMinPrice ? Number(debouncedMinPrice) : undefined,
     maxPrice: debouncedMaxPrice ? Number(debouncedMaxPrice) : undefined,
     sortBy,
     order,
-  };
+  }
 
-  const { data, isLoading, isFetching } = useAdminProductsQuery(queryParams);
+  const { data, isLoading, isFetching } = useAdminProductsQuery(queryParams)
 
-  const products = data?.data?.items ?? [];
-  const totalCount = data?.data?.totalCount ?? 0;
+  const products = data?.data?.items ?? []
+  const totalCount = data?.data?.totalCount ?? 0
 
   // ── Client-side stock filter (BE không hỗ trợ) ──────────────────────────
-  const filteredProducts = stockFilter === 'all'
-    ? products
-    : products.filter((product) => {
-        const stock = product.variants?.reduce(
-          (total, v) => total + (v.inventory?.quantity ?? 0),
-          0,
-        ) ?? 0;
+  const filteredProducts =
+    stockFilter === 'all'
+      ? products
+      : products.filter((product) => {
+          const stock =
+            product.variants?.reduce(
+              (total, v) => total + (v.inventory?.quantity ?? 0),
+              0,
+            ) ?? 0
 
-        if (stockFilter === 'in-stock') return stock >= 10;
-        if (stockFilter === 'low-stock') return stock > 0 && stock < 10;
-        if (stockFilter === 'out-of-stock') return stock === 0;
-        return true;
-      });
+          if (stockFilter === 'in-stock') return stock >= 10
+          if (stockFilter === 'low-stock') return stock > 0 && stock < 10
+          if (stockFilter === 'out-of-stock') return stock === 0
+          return true
+        })
 
   // ── Check if any filter is active ────────────────────────────────────────
   const hasActiveFilters =
@@ -119,81 +131,81 @@ export function ProductsContent() {
     minPrice !== '' ||
     maxPrice !== '' ||
     sortValue !== 'default' ||
-    stockFilter !== 'all';
+    stockFilter !== 'all'
 
   // ── Handlers ─────────────────────────────────────────────────────────────
 
   const handleSearchChange = (value: string) => {
-    setSearchQuery(value);
-    resetPage();
-  };
+    setSearchQuery(value)
+    resetPage()
+  }
 
   const handleCategoryChange = (value: string) => {
-    setCategoryFilter(value);
-    resetPage();
-  };
+    setCategoryFilter(value)
+    resetPage()
+  }
 
   const handleBrandChange = (value: string) => {
-    setBrandFilter(value);
-    resetPage();
-  };
+    setBrandFilter(value)
+    resetPage()
+  }
 
   const handleStatusChange = (value: string) => {
-    setStatusFilter(value);
-    resetPage();
-  };
+    setStatusFilter(value)
+    resetPage()
+  }
 
   const handleFeaturedChange = (value: string) => {
-    setFeaturedFilter(value);
-    resetPage();
-  };
+    setFeaturedFilter(value)
+    resetPage()
+  }
 
   const handleMinPriceChange = (value: string) => {
-    setMinPrice(value);
-    resetPage();
-  };
+    setMinPrice(value)
+    resetPage()
+  }
 
   const handleMaxPriceChange = (value: string) => {
-    setMaxPrice(value);
-    resetPage();
-  };
+    setMaxPrice(value)
+    resetPage()
+  }
 
   const handleSortChange = (value: string) => {
-    setSortValue(value);
-    resetPage();
-  };
+    setSortValue(value)
+    resetPage()
+  }
 
   const handleStockChange = (value: string) => {
-    setStockFilter(value);
-  };
+    setStockFilter(value)
+  }
 
   const handleClearAll = useCallback(() => {
-    setSearchQuery('');
-    setCategoryFilter('all');
-    setBrandFilter('all');
-    setStatusFilter('all');
-    setFeaturedFilter('all');
-    setMinPrice('');
-    setMaxPrice('');
-    setSortValue('default');
-    setStockFilter('all');
-    resetPage();
-  }, [resetPage]);
+    setSearchQuery('')
+    setCategoryFilter('all')
+    setBrandFilter('all')
+    setStatusFilter('all')
+    setFeaturedFilter('all')
+    setMinPrice('')
+    setMaxPrice('')
+    setSortValue('default')
+    setStockFilter('all')
+    resetPage()
+  }, [resetPage])
 
   const handleDelete = (product: IAdminProductDataType) => {
-    setSelectedProduct(product);
-    setDeleteDialogOpen(true);
-  };
+    setSelectedProduct(product)
+    setDeleteDialogOpen(true)
+  }
 
   const confirmDelete = () => {
-    if (!selectedProduct) return;
+    if (!selectedProduct) return
     deleteMutation.mutate(selectedProduct.id, {
       onSuccess: () => {
-        setDeleteDialogOpen(false);
-        setSelectedProduct(null);
+        setDeleteDialogOpen(false)
+        setSelectedProduct(null)
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="flex flex-col h-full gap-4 md:gap-6">
@@ -262,9 +274,7 @@ export function ProductsContent() {
 
       {/* Pagination - server-side (totalCount từ BE) */}
       <div className="shrink-0">
-        <TablePagination
-          {...getPaginationProps(totalCount)}
-        />
+        <TablePagination {...getPaginationProps(totalCount)} />
       </div>
 
       {/* Add Product Dialog */}
@@ -279,5 +289,5 @@ export function ProductsContent() {
         onConfirm={confirmDelete}
       />
     </div>
-  );
+  )
 }

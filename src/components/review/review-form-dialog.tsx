@@ -1,26 +1,27 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Star, X, Upload, Loader2 } from 'lucide-react';
+import { useState } from 'react'
+import { Star, X, Upload, Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { useCreateReviewMutation } from '@/hooks/mutations/review.mutation';
-import { ICreateReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils/style-utils'
+import { useCreateReviewMutation } from '@/hooks/mutations/review.mutation'
+import { ICreateReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import Image from 'next/image'
 
 interface ReviewFormDialogProps {
-  productId: string;
-  productName: string;
-  isOpen: boolean;
-  onClose: () => void;
+  productId: string
+  productName: string
+  isOpen: boolean
+  onClose: () => void
 }
 
 export function ReviewFormDialog({
@@ -29,52 +30,52 @@ export function ReviewFormDialog({
   isOpen,
   onClose,
 }: ReviewFormDialogProps) {
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [title, setTitle] = useState('');
-  const [comment, setComment] = useState('');
-  const [images, setImages] = useState<File[]>([]);
+  const [rating, setRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [title, setTitle] = useState('')
+  const [comment, setComment] = useState('')
+  const [images, setImages] = useState<File[]>([])
 
-  const createReviewMutation = useCreateReviewMutation(productId);
+  const createReviewMutation = useCreateReviewMutation(productId)
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (rating === 0) return;
+    e.preventDefault()
+    if (rating === 0) return
 
     const data: ICreateReviewDataType = {
       productId,
       rating,
       title: title.trim() || undefined,
       comment: comment.trim() || undefined,
-    };
+    }
 
     createReviewMutation.mutate(data, {
       onSuccess: () => {
-        resetForm();
-        onClose();
+        resetForm()
+        onClose()
       },
-    });
-  };
+    })
+  }
 
   const resetForm = () => {
-    setRating(0);
-    setHoverRating(0);
-    setTitle('');
-    setComment('');
-    setImages([]);
-  };
+    setRating(0)
+    setHoverRating(0)
+    setTitle('')
+    setComment('')
+    setImages([])
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const files = e.target.files
     if (files) {
-      const newImages = Array.from(files).slice(0, 5 - images.length);
-      setImages((prev) => [...prev, ...newImages]);
+      const newImages = Array.from(files).slice(0, 5 - images.length)
+      setImages((prev) => [...prev, ...newImages])
     }
-  };
+  }
 
   const removeImage = (index: number) => {
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
+    setImages((prev) => prev.filter((_, i) => i !== index))
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -158,10 +159,11 @@ export function ReviewFormDialog({
                   key={index}
                   className="relative h-20 w-20 rounded-lg overflow-hidden border"
                 >
-                  <img
+                  <Image
                     src={URL.createObjectURL(image)}
                     alt={`Upload ${index + 1}`}
                     className="h-full w-full object-cover"
+                    fill
                   />
                   <button
                     type="button"
@@ -215,5 +217,5 @@ export function ReviewFormDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

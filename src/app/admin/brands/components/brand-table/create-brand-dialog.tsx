@@ -13,7 +13,7 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import type { IBrandFormData } from '@/lib/types/interfaces/apis/admin-brand.interfaces';
-import { useCreateBrandMutation } from '@/hooks/querys/admin-category-brand.query';
+import { useCreateBrandMutation } from '@/hooks/mutations/admin-category-brand.mutation';
 import { BrandForm } from './brand-form';
 
 interface CreateBrandDialogProps {

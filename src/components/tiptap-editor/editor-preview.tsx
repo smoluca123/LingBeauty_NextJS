@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import { Eye } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/dialog'
+import { Eye } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
 
 interface EditorPreviewProps {
-  content: string;
-  triggerClassName?: string;
-  dialogClassName?: string;
+  content: string
+  triggerClassName?: string
+  dialogClassName?: string
 }
 
 /**
@@ -27,7 +27,7 @@ export function EditorPreview({
   triggerClassName,
   dialogClassName,
 }: EditorPreviewProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -54,5 +54,5 @@ export function EditorPreview({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

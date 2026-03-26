@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { ProductDetailDescriptionTab } from './product-detail-description-tab';
-import { ProductDetailReviewTab } from './product-detail-review-tab';
-import { ProductDetailQnaTab } from './product-detail-qna-tab';
+import { useState } from 'react'
+import { cn } from '@/lib/utils/style-utils'
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { ProductDetailDescriptionTab } from './product-detail-description-tab'
+import { ProductDetailReviewTab } from './product-detail-review-tab'
+import { ProductDetailQnaTab } from './product-detail-qna-tab'
 
-type TabId = 'description' | 'reviews' | 'qna';
+type TabId = 'description' | 'reviews' | 'qna'
 
 interface Tab {
-  id: TabId;
-  label: string;
+  id: TabId
+  label: string
 }
 
 const TABS: Tab[] = [
   { id: 'description', label: 'Mô tả' },
   { id: 'reviews', label: 'Đánh giá' },
   { id: 'qna', label: 'Hỏi & Đáp' },
-];
+]
 
 interface ProductDetailTabsProps {
-  product: IProductDataType;
+  product: IProductDataType
 }
 
 export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
-  const [activeTab, setActiveTab] = useState<TabId>('description');
+  const [activeTab, setActiveTab] = useState<TabId>('description')
 
   return (
     <div className="space-y-6">
@@ -77,5 +77,5 @@ export function ProductDetailTabs({ product }: ProductDetailTabsProps) {
         )}
       </div>
     </div>
-  );
+  )
 }

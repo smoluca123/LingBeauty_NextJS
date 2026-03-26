@@ -1,11 +1,14 @@
-import { getAllAdminProductsAPI, createAdminProductAPI } from '@/lib/apis/server/admin-product-apis';
-import { proxyRoute } from '@/lib/proxy-route';
-import type { IAdminProductFilters } from '@/lib/types/interfaces/apis/admin-product.interfaces';
-import type { ICreateProductPayload } from '@/lib/types/interfaces/apis/admin-product.interfaces';
+import {
+  getAllAdminProductsAPI,
+  createAdminProductAPI,
+} from '@/lib/apis/server/admin-product-apis'
+import { proxyRoute } from '@/lib/proxy-route'
+import type { IAdminProductFilters } from '@/lib/types/interfaces/apis/admin-product.interfaces'
+import type { ICreateProductPayload } from '@/lib/types/interfaces/apis/admin-product.interfaces'
 
 // GET /api/admin/products
 export const GET = (req: Request) => {
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url)
 
   const params: IAdminProductFilters = {
     page: searchParams.has('page')
@@ -34,13 +37,13 @@ export const GET = (req: Request) => {
       undefined,
     order:
       (searchParams.get('order') as IAdminProductFilters['order']) ?? undefined,
-  };
+  }
 
-  return proxyRoute(() => getAllAdminProductsAPI(params));
-};
+  return proxyRoute(() => getAllAdminProductsAPI(params))
+}
 
 // POST /api/admin/products
 export const POST = async (req: Request) => {
-  const body = (await req.json()) as ICreateProductPayload;
-  return proxyRoute(() => createAdminProductAPI(body));
-};
+  const body = (await req.json()) as ICreateProductPayload
+  return proxyRoute(() => createAdminProductAPI(body))
+}

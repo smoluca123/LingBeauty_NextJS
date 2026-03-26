@@ -1,8 +1,10 @@
 'use client';
 
 import { MapPin, Phone } from 'lucide-react';
+
+import { getFullAddress } from '@/app/(main)/profile/components/addresses/utils/address.utils';
+
 import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
-import { getFullAddress } from '../utils/address.utils';
 
 interface AddressInfoProps {
   address: IAddressDataType;

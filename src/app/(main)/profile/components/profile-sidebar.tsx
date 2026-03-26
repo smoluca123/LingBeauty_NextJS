@@ -1,13 +1,13 @@
-'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
-import { MembershipCard } from '@/components/membership-card';
+'use client'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { cn } from '@/lib/utils/style-utils'
+import { MembershipCard } from '@/components/membership-card'
 
 // ============ Types ============
 interface NavItem {
-  label: string;
-  href: string;
+  label: string
+  href: string
 }
 
 // ============ Constants ============
@@ -18,11 +18,11 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Ưu đãi của tôi', href: '/profile/offers' },
   { label: 'Câu hỏi của tôi', href: '/profile/questions' },
   { label: 'Sự kiện của tôi', href: '/profile/events' },
-];
+]
 
 // ============ Component ============
 export function ProfileSidebar() {
-  const pathname = usePathname();
+  const pathname = usePathname()
 
   return (
     <aside className="w-full space-y-6">
@@ -32,7 +32,7 @@ export function ProfileSidebar() {
       {/* Navigation Menu */}
       <nav className="space-y-1">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href
 
           return (
             <Link
@@ -47,9 +47,9 @@ export function ProfileSidebar() {
             >
               {item.label}
             </Link>
-          );
+          )
         })}
       </nav>
     </aside>
-  );
+  )
 }

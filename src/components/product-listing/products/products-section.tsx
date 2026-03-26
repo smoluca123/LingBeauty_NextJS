@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { Pagination } from '@/components/pagination';
-import { ProductsHeader } from './products-header';
-import { ProductsGrid } from './products-grid';
+import { cn } from '@/lib/utils/style-utils'
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { Pagination } from '@/components/pagination'
+import { ProductsHeader } from './products-header'
+import { ProductsGrid } from './products-grid'
 
 interface ProductsSectionProps {
-  products: IProductDataType[];
-  totalResults: number;
-  selectedSort: string;
-  onSortChange: (sortValue: string) => void;
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  products: IProductDataType[]
+  totalResults: number
+  selectedSort: string
+  onSortChange: (sortValue: string) => void
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
   /** When provided, pagination renders SEO-friendly <Link> elements */
-  getPageHref?: (page: number) => string;
-  onFilterClick?: () => void;
-  activeFiltersCount?: number;
-  isLoading?: boolean;
-  className?: string;
+  getPageHref?: (page: number) => string
+  onFilterClick?: () => void
+  activeFiltersCount?: number
+  isLoading?: boolean
+  className?: string
 }
 
 export function ProductsSection({
@@ -65,5 +65,5 @@ export function ProductsSection({
         className="mt-8"
       />
     </section>
-  );
+  )
 }

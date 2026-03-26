@@ -10,6 +10,7 @@ import {
 import { CouponForm, type CouponFormValues } from './coupon-form';
 import { useUpdateCouponMutation } from '@/hooks/mutations/admin-coupon.mutation';
 import type { ICouponDataType } from '@/lib/types/interfaces/apis/coupon.interfaces';
+import { CouponType } from '@/lib/types/interfaces/coupon.interfaces';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -35,7 +36,7 @@ export function EditCouponDialog({
       {
         id: coupon.id,
         data: {
-          type: values.type,
+          type: values.type as CouponType,
           value: values.value,
           minPurchase: values.minPurchase,
           maxDiscount: values.maxDiscount,

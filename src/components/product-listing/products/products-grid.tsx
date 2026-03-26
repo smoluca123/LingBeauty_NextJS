@@ -1,15 +1,16 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { ProductCard2 } from '@/components/product/product-card2';
-import { PRODUCTS_PER_PAGE } from '../constants';
-import { ProductCard2Skeleton } from '@/components/product/product-card2-skeleton';
+import { cn } from '@/lib/utils/style-utils'
+import { ProductCard2 } from '@/components/product/product-card2'
+import { ProductCard2Skeleton } from '@/components/product/product-card2-skeleton'
+import { PRODUCTS_PER_PAGE } from '@/constants/product-listing'
+
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
 
 interface ProductsGridProps {
-  products: IProductDataType[];
-  isLoading?: boolean;
-  className?: string;
+  products: IProductDataType[]
+  isLoading?: boolean
+  className?: string
 }
 
 export function ProductsGrid({
@@ -30,7 +31,7 @@ export function ProductsGrid({
           <ProductCard2Skeleton key={i} />
         ))}
       </div>
-    );
+    )
   }
 
   if (products.length === 0) {
@@ -43,7 +44,7 @@ export function ProductsGrid({
           Thử thay đổi bộ lọc để xem thêm sản phẩm
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -57,5 +58,5 @@ export function ProductsGrid({
         <ProductCard2 key={product.id} product={product} />
       ))}
     </div>
-  );
+  )
 }

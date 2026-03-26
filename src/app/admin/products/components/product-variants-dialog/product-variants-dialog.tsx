@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Sliders } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -20,21 +21,22 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useProductVariantsQuery } from '@/hooks/querys/admin-product.query';
 import {
-  useProductVariantsQuery,
   useAddProductVariantMutation,
   useUpdateProductVariantMutation,
   useDeleteProductVariantMutation,
-} from '@/hooks/querys/admin-product.query';
+} from '@/hooks/mutations/admin-product.mutation';
+import { VariantImagesDialog } from '@/app/admin/products/components/variant-images-dialog';
+import { VariantRow } from './variant-row';
+import { AddVariantRow } from './add-variant-row';
+import type { ProductVariantsDialogProps } from './types';
+
 import type {
   IAdminProductVariant,
   ICreateProductVariantPayload,
   IUpdateProductVariantPayload,
 } from '@/lib/types/interfaces/apis/admin-product.interfaces';
-import { VariantImagesDialog } from '../variant-images-dialog';
-import { VariantRow } from './variant-row';
-import { AddVariantRow } from './add-variant-row';
-import type { ProductVariantsDialogProps } from './types';
 
 // ============ ProductVariantsDialog ============
 

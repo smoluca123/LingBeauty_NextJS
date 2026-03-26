@@ -1,10 +1,9 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { Loader2, Percent, Banknote, Calendar } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react'
+import { Loader2, Percent, Banknote, Calendar } from 'lucide-react'
+import { useForm, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
   FormControl,
@@ -13,71 +12,41 @@ import {
   FormLabel,
   FormMessage,
   FormDescription,
-} from '@/components/ui/form';
-import { DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+} from '@/components/ui/form'
+import { DialogFooter } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import type { ICouponDataType } from '@/lib/types/interfaces/apis/coupon.interfaces';
+} from '@/components/ui/select'
+import type { ICouponDataType } from '@/lib/types/interfaces/apis/coupon.interfaces'
 import {
   COUPON_TYPE_OPTIONS,
   COUPON_VALIDATION,
-} from '@/app/admin/coupons/constants';
-
-// ── Schema ───────────────────────────────────────────────────────────────────
-
-const formSchema = z.object({
-  code: z
-    .string()
-    .min(
-      COUPON_VALIDATION.CODE_MIN_LENGTH,
-      `Mã giảm giá phải có ít nhất ${COUPON_VALIDATION.CODE_MIN_LENGTH} ký tự`,
-    )
-    .max(
-      COUPON_VALIDATION.CODE_MAX_LENGTH,
-      `Mã giảm giá không được quá ${COUPON_VALIDATION.CODE_MAX_LENGTH} ký tự`,
-    )
-    .regex(
-      /^[A-Z0-9_]+$/,
-      'Mã giảm giá chỉ được chứa chữ hoa, số và dấu gạch dưới',
-    ),
-  type: z.enum(['FIXED', 'PERCENTAGE']),
-  value: z.coerce
-    .number<number>()
-    .min(COUPON_VALIDATION.MIN_VALUE, 'Giá trị giảm giá phải lớn hơn 0'),
-  minPurchase: z.coerce.number<number>().min(0).optional(),
-  maxDiscount: z.coerce.number<number>().min(0).optional(),
-  usageLimit: z.coerce.number<number>().min(1).optional(),
-  startDate: z.string().min(1, 'Vui lòng chọn ngày bắt đầu'),
-  endDate: z.string().min(1, 'Vui lòng chọn ngày kết thúc'),
-  isActive: z.boolean(),
-});
-
-export type CouponFormValues = z.infer<typeof formSchema>;
+} from '@/app/admin/coupons/constants'
+import { couponSchema, type CouponFormValues } from '@/lib/schemas'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface CouponFormProps {
-  coupon?: ICouponDataType | null;
-  onSubmit: (values: CouponFormValues) => void;
-  onCancel: () => void;
-  isSubmitting?: boolean;
-  submitLabel?: string;
+  coupon?: ICouponDataType | null
+  onSubmit: (values: CouponFormValues) => void
+  onCancel: () => void
+  isSubmitting?: boolean
+  submitLabel?: string
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const formatDateForInput = (date: Date | string): string => {
-  const d = new Date(date);
-  return d.toISOString().split('T')[0];
-};
+  const d = new Date(date)
+  return d.toISOString().split('T')[0]
+}
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
@@ -89,7 +58,7 @@ export function CouponForm({
   submitLabel = 'Lưu',
 }: CouponFormProps) {
   const form = useForm<CouponFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(couponSchema),
     defaultValues: {
       code: '',
       type: 'PERCENTAGE',
@@ -98,7 +67,7 @@ export function CouponForm({
       startDate: '',
       endDate: '',
     },
-  });
+  })
 
   // Reset form when coupon changes (for edit mode)
   useEffect(() => {
@@ -117,7 +86,7 @@ export function CouponForm({
         isActive: coupon.isActive,
         startDate: formatDateForInput(coupon.startDate),
         endDate: formatDateForInput(coupon.endDate),
-      });
+      })
     } else {
       form.reset({
         code: '',
@@ -128,19 +97,19 @@ export function CouponForm({
         endDate: formatDateForInput(
           new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         ),
-      });
+      })
     }
-  }, [coupon, form]);
+  }, [coupon, form])
   const watchType = useWatch({
     control: form.control,
     name: 'type',
-  });
+  })
   // Update maxDiscount validation when type changes
   useEffect(() => {
     if (watchType === 'FIXED') {
-      form.setValue('maxDiscount', undefined);
+      form.setValue('maxDiscount', undefined)
     }
-  }, [watchType, form]);
+  }, [watchType, form])
 
   const handleSubmit = (e: React.FormEvent) => {
     form.handleSubmit((values) => {
@@ -148,8 +117,8 @@ export function CouponForm({
       if (new Date(values.endDate) <= new Date(values.startDate)) {
         form.setError('endDate', {
           message: 'Ngày kết thúc phải sau ngày bắt đầu',
-        });
-        return;
+        })
+        return
       }
 
       // Validate max value based on type
@@ -159,29 +128,29 @@ export function CouponForm({
       ) {
         form.setError('value', {
           message: `Giá trị phần trăm không được vượt quá ${COUPON_VALIDATION.MAX_PERCENTAGE}%`,
-        });
-        return;
+        })
+        return
       }
 
-      onSubmit(values);
-    })(e);
-  };
+      onSubmit(values)
+    })(e)
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit} className='space-y-5'>
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Code */}
         <FormField
           control={form.control}
-          name='code'
+          name="code"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Mã giảm giá *</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  placeholder='VD: WELCOME10'
-                  className='font-mono uppercase'
+                  placeholder="VD: WELCOME10"
+                  className="font-mono uppercase"
                   onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                   disabled={!!coupon}
                 />
@@ -195,10 +164,10 @@ export function CouponForm({
         />
 
         {/* Type and Value Row */}
-        <div className='grid grid-cols-2 gap-4'>
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name='type'
+            name="type"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Loại giảm giá *</FormLabel>
@@ -209,17 +178,17 @@ export function CouponForm({
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder='Chọn loại' />
+                      <SelectValue placeholder="Chọn loại" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
                     {COUPON_TYPE_OPTIONS.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        <div className='flex items-center gap-2'>
+                        <div className="flex items-center gap-2">
                           {option.value === 'PERCENTAGE' ? (
-                            <Percent className='h-4 w-4' />
+                            <Percent className="h-4 w-4" />
                           ) : (
-                            <Banknote className='h-4 w-4' />
+                            <Banknote className="h-4 w-4" />
                           )}
                           {option.label}
                         </div>
@@ -234,13 +203,13 @@ export function CouponForm({
 
           <FormField
             control={form.control}
-            name='value'
+            name="value"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
                   Giá trị giảm *
                   {watchType === 'PERCENTAGE' && (
-                    <span className='text-muted-foreground font-normal ml-1'>
+                    <span className="text-muted-foreground font-normal ml-1">
                       (%)
                     </span>
                   )}
@@ -248,7 +217,7 @@ export function CouponForm({
                 <FormControl>
                   <Input
                     {...field}
-                    type='number'
+                    type="number"
                     min={1}
                     max={
                       watchType === 'PERCENTAGE'
@@ -267,20 +236,20 @@ export function CouponForm({
         </div>
 
         {/* Min Purchase and Max Discount Row */}
-        <div className='grid grid-cols-2 gap-4'>
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name='minPurchase'
+            name="minPurchase"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Đơn hàng tối thiểu</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    type='number'
+                    type="number"
                     min={0}
                     step={1000}
-                    placeholder='VD: 200000'
+                    placeholder="VD: 200000"
                     value={field.value ?? ''}
                     onChange={(e) =>
                       field.onChange(
@@ -299,13 +268,13 @@ export function CouponForm({
 
           <FormField
             control={form.control}
-            name='maxDiscount'
+            name="maxDiscount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
                   Giảm tối đa
                   {watchType === 'FIXED' && (
-                    <span className='text-muted-foreground font-normal ml-1'>
+                    <span className="text-muted-foreground font-normal ml-1">
                       (Chỉ áp dụng cho %)
                     </span>
                   )}
@@ -313,10 +282,10 @@ export function CouponForm({
                 <FormControl>
                   <Input
                     {...field}
-                    type='number'
+                    type="number"
                     min={0}
                     step={1000}
-                    placeholder='VD: 50000'
+                    placeholder="VD: 50000"
                     disabled={watchType === 'FIXED'}
                     value={field.value ?? ''}
                     onChange={(e) =>
@@ -337,16 +306,16 @@ export function CouponForm({
         {/* Usage Limit */}
         <FormField
           control={form.control}
-          name='usageLimit'
+          name="usageLimit"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Giới hạn sử dụng</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  type='number'
+                  type="number"
                   min={1}
-                  placeholder='VD: 100'
+                  placeholder="VD: 100"
                   value={field.value ?? ''}
                   onChange={(e) =>
                     field.onChange(
@@ -366,17 +335,17 @@ export function CouponForm({
         />
 
         {/* Date Range */}
-        <div className='grid grid-cols-2 gap-4'>
+        <div className="grid grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name='startDate'
+            name="startDate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ngày bắt đầu *</FormLabel>
                 <FormControl>
-                  <div className='relative'>
-                    <Input {...field} type='date' className='pl-10' />
-                    <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none' />
+                  <div className="relative">
+                    <Input {...field} type="date" className="pl-10" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -386,14 +355,14 @@ export function CouponForm({
 
           <FormField
             control={form.control}
-            name='endDate'
+            name="endDate"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Ngày kết thúc *</FormLabel>
                 <FormControl>
-                  <div className='relative'>
-                    <Input {...field} type='date' className='pl-10' />
-                    <Calendar className='absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none' />
+                  <div className="relative">
+                    <Input {...field} type="date" className="pl-10" />
+                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </FormControl>
                 <FormMessage />
@@ -405,11 +374,11 @@ export function CouponForm({
         {/* Is Active */}
         <FormField
           control={form.control}
-          name='isActive'
+          name="isActive"
           render={({ field }) => (
-            <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-              <div className='space-y-0.5'>
-                <FormLabel className='text-base'>Kích hoạt</FormLabel>
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Kích hoạt</FormLabel>
                 <FormDescription>
                   Mã giảm giá sẽ có hiệu lực khi được kích hoạt
                 </FormDescription>
@@ -425,21 +394,21 @@ export function CouponForm({
         />
 
         {/* Submit Buttons */}
-        <DialogFooter className='pt-2'>
+        <DialogFooter className="pt-2">
           <Button
-            type='button'
-            variant='outline'
+            type="button"
+            variant="outline"
             onClick={onCancel}
             disabled={isSubmitting}
           >
             Hủy
           </Button>
-          <Button type='submit' variant='primary-pink' disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+          <Button type="submit" variant="primary-pink" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {submitLabel}
           </Button>
         </DialogFooter>
       </form>
     </Form>
-  );
+  )
 }

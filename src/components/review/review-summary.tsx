@@ -1,12 +1,12 @@
-'use client';
+'use client'
 
-import { Star } from 'lucide-react';
-import { IReviewSummaryDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import { cn } from '@/lib/utils';
+import { Star } from 'lucide-react'
+import { IReviewSummaryDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import { cn } from '@/lib/utils/style-utils'
 
 interface ReviewSummaryProps {
-  summary: IReviewSummaryDataType | null;
-  isLoading?: boolean;
+  summary: IReviewSummaryDataType | null
+  isLoading?: boolean
 }
 
 export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
@@ -33,7 +33,7 @@ export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   if (!summary || summary.totalReviews === 0) {
@@ -65,11 +65,11 @@ export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
-  const { averageRating, approvedReviews, ratingDistribution } = summary;
-  const maxCount = Math.max(...Object.values(ratingDistribution));
+  const { averageRating, approvedReviews, ratingDistribution } = summary
+  const maxCount = Math.max(...Object.values(ratingDistribution))
 
   return (
     <div className="flex flex-col gap-6 rounded-2xl border bg-card p-6 sm:flex-row sm:items-center">
@@ -102,8 +102,8 @@ export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
       <div className="flex-1 space-y-2">
         {[5, 4, 3, 2, 1].map((star) => {
           const count =
-            ratingDistribution[star as keyof typeof ratingDistribution] || 0;
-          const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+            ratingDistribution[star as keyof typeof ratingDistribution] || 0
+          const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0
 
           return (
             <div key={star} className="flex items-center gap-2 text-sm">
@@ -121,9 +121,9 @@ export function ReviewSummary({ summary, isLoading }: ReviewSummaryProps) {
                 {count}
               </span>
             </div>
-          );
+          )
         })}
       </div>
     </div>
-  );
+  )
 }
