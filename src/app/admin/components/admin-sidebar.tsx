@@ -12,6 +12,8 @@ import {
   ImageIcon,
   Ticket,
   Zap,
+  MessageSquare,
+  HelpCircle,
 } from 'lucide-react';
 
 import {
@@ -68,6 +70,13 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { icon: Ticket, label: 'Mã giảm giá', href: '/admin/coupons' },
       { icon: Zap, label: 'Flash Sale', href: '/admin/flash-sales' },
+    ],
+  },
+  {
+    title: 'Nội dung',
+    items: [
+      { icon: MessageSquare, label: 'Đánh giá', href: '/admin/reviews' },
+      { icon: HelpCircle, label: 'Câu hỏi sản phẩm', href: '/admin/qanda' },
     ],
   },
   {
