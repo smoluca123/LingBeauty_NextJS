@@ -1,5 +1,5 @@
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils/style-utils'
 
 export function NavigationBarLoading() {
   const randomWidths = [
@@ -11,7 +11,7 @@ export function NavigationBarLoading() {
     'w-28',
     'w-20',
     'w-24',
-  ];
+  ]
 
   return (
     <nav className="relative py-2">
@@ -29,5 +29,5 @@ export function NavigationBarLoading() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

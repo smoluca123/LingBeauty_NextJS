@@ -1,7 +1,7 @@
-export { BasicInfoSection } from './basic-info-section';
-export { CategoryBrandSection } from './category-brand-section';
-export { PricingSection } from './pricing-section';
-export { VariantSection } from './variant-section';
-export { OptionsSection } from './options-section';
-export { DescriptionEditor } from './description-editor';
-export { generateSlug, generateSku } from './product-form-helpers';
+export { BasicInfoSection } from './basic-info-section'
+export { CategoryBrandSection } from './category-brand-section'
+export { PricingSection } from './pricing-section'
+export { VariantSection } from './variant-section'
+export { OptionsSection } from './options-section'
+export { DescriptionEditor } from './description-editor'
+export { generateSku } from './product-form-helpers'

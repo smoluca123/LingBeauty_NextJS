@@ -1,9 +1,9 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { HTTPError } from 'ky';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IAdminProductDataType,
   IAdminProductFilters,
@@ -18,7 +18,7 @@ import type {
   ICreateProductBadgePayload,
   IUpdateProductBadgePayload,
   ICreateMultipleProductBadgesPayload,
-} from '@/lib/types/interfaces/apis/admin-product.interfaces';
+} from '@/lib/types/interfaces/apis/admin-product.interfaces'
 
 // Helper: loại bỏ undefined trước khi truyền vào searchParams
 const buildSearchParams = (
@@ -26,17 +26,14 @@ const buildSearchParams = (
 ): Record<string, string | number | boolean> =>
   Object.fromEntries(
     Object.entries(options).filter(([, v]) => v !== undefined),
-  ) as Record<string, string | number | boolean>;
+  ) as Record<string, string | number | boolean>
 
-const handleError = async (error: unknown) => {
-  if (error instanceof HTTPError) {
-    const data = await error.response.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message || error.message);
-  }
-  throw error;
-};
-
-// ============ Get All Products (Admin) ============
+/**
+ * Fetch all products for admin with filters and pagination
+ * @param params - Product filter parameters
+ * @returns Promise with paginated admin product data
+ * @throws Error with backend message
+ */
 export const getAllAdminProductsClientAPI = async (
   params: IAdminProductFilters = {},
 ) => {
@@ -57,24 +54,39 @@ export const getAllAdminProductsClientAPI = async (
           order: params.order,
         }),
       })
-      .json<IApiPaginationResponseWrapperType<IAdminProductDataType>>();
+      .json<IApiPaginationResponseWrapperType<IAdminProductDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch products'),
+    )
   }
-};
+}
 
-// ============ Create Product (Admin) ============
+/**
+ * Create a new product (Admin)
+ * @param data - Product creation payload
+ * @returns Promise with created product data
+ * @throws Error with backend message
+ */
 export const createProductClientAPI = async (data: ICreateProductPayload) => {
   try {
     return await kyNextInstance
       .post('admin/products', { json: data })
-      .json<IApiResponseWrapperType<IAdminProductDataType>>();
+      .json<IApiResponseWrapperType<IAdminProductDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to create product'),
+    )
   }
-};
+}
 
-// ============ Update Product (Admin) ============
+/**
+ * Update an existing product (Admin)
+ * @param productId - Product ID to update
+ * @param data - Product update payload
+ * @returns Promise with updated product data
+ * @throws Error with backend message
+ */
 export const updateProductClientAPI = async (
   productId: string,
   data: IUpdateProductPayload,
@@ -82,24 +94,57 @@ export const updateProductClientAPI = async (
   try {
     return await kyNextInstance
       .patch(`admin/products/${productId}`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductDataType>>();
+      .json<IApiResponseWrapperType<IAdminProductDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update product'),
+    )
   }
-};
+}
 
-// ============ Get Product Images ============
+/**
+ * Delete product (Admin)
+ * @param productId - Product ID to delete
+ * @returns Promise with deleted product data
+ * @throws Error with backend message
+ */
+export const deleteProductClientAPI = async (productId: string) => {
+  try {
+    return await kyNextInstance
+      .delete(`admin/products/${productId}`)
+      .json<IApiResponseWrapperType<IAdminProductDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete product'),
+    )
+  }
+}
+
+/**
+ * Fetch product images (Admin)
+ * @param productId - Product ID
+ * @returns Promise with product images array
+ * @throws Error with backend message
+ */
 export const getProductImagesClientAPI = async (productId: string) => {
   try {
     return await kyNextInstance
       .get(`admin/products/${productId}/images`)
-      .json<IApiResponseWrapperType<IAdminProductImage[]>>();
+      .json<IApiResponseWrapperType<IAdminProductImage[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch product images'),
+    )
   }
-};
+}
 
-// ============ Upload Product Image (multipart) ============
+/**
+ * Upload product image (Admin)
+ * @param productId - Product ID
+ * @param formData - Form data containing image file
+ * @returns Promise with uploaded image data
+ * @throws Error with backend message
+ */
 export const uploadProductImageClientAPI = async (
   productId: string,
   formData: FormData,
@@ -107,13 +152,22 @@ export const uploadProductImageClientAPI = async (
   try {
     return await kyNextInstance
       .post(`admin/products/${productId}/upload/image`, { body: formData })
-      .json<IApiResponseWrapperType<IAdminProductImage>>();
+      .json<IApiResponseWrapperType<IAdminProductImage>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to upload product image'),
+    )
   }
-};
+}
 
-// ============ Update Product Image (set primary, alt, sortOrder) ============
+/**
+ * Update product image properties (Admin)
+ * @param productId - Product ID
+ * @param imageId - Image ID to update
+ * @param data - Image update payload (primary, alt, sortOrder)
+ * @returns Promise with updated image data
+ * @throws Error with backend message
+ */
 export const updateProductImageClientAPI = async (
   productId: string,
   imageId: string,
@@ -122,13 +176,21 @@ export const updateProductImageClientAPI = async (
   try {
     return await kyNextInstance
       .patch(`admin/products/${productId}/images/${imageId}`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductImage>>();
+      .json<IApiResponseWrapperType<IAdminProductImage>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update product image'),
+    )
   }
-};
+}
 
-// ============ Delete Product Image ============
+/**
+ * Delete product image (Admin)
+ * @param productId - Product ID
+ * @param imageId - Image ID to delete
+ * @returns Promise with success message
+ * @throws Error with backend message
+ */
 export const deleteProductImageClientAPI = async (
   productId: string,
   imageId: string,
@@ -136,13 +198,21 @@ export const deleteProductImageClientAPI = async (
   try {
     return await kyNextInstance
       .delete(`admin/products/${productId}/images/${imageId}`)
-      .json<IApiResponseWrapperType<{ message: string }>>();
+      .json<IApiResponseWrapperType<{ message: string }>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete product image'),
+    )
   }
-};
+}
 
-// ============ Reorder Product Images ============
+/**
+ * Reorder product images (Admin)
+ * @param productId - Product ID
+ * @param imageIds - Array of image IDs in desired order
+ * @returns Promise with reordered images array
+ * @throws Error with backend message
+ */
 export const reorderProductImagesClientAPI = async (
   productId: string,
   imageIds: string[],
@@ -152,35 +222,39 @@ export const reorderProductImagesClientAPI = async (
       .patch(`admin/products/${productId}/images/reorder`, {
         json: { imageIds },
       })
-      .json<IApiResponseWrapperType<IAdminProductImage[]>>();
+      .json<IApiResponseWrapperType<IAdminProductImage[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to reorder product images'),
+    )
   }
-};
+}
 
-// ============ Delete Product (Admin) ============
-export const deleteProductClientAPI = async (productId: string) => {
-  try {
-    return await kyNextInstance
-      .delete(`admin/products/${productId}`)
-      .json<IApiResponseWrapperType<IAdminProductDataType>>();
-  } catch (error) {
-    return handleError(error);
-  }
-};
-
-// ============ Get Product Variants ============
+/**
+ * Fetch product variants (Admin)
+ * @param productId - Product ID
+ * @returns Promise with product variants array
+ * @throws Error with backend message
+ */
 export const getProductVariantsClientAPI = async (productId: string) => {
   try {
     return await kyNextInstance
       .get(`admin/products/${productId}/variants`)
-      .json<IApiResponseWrapperType<IAdminProductVariant[]>>();
+      .json<IApiResponseWrapperType<IAdminProductVariant[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch product variants'),
+    )
   }
-};
+}
 
-// ============ Add Product Variant ============
+/**
+ * Add product variant (Admin)
+ * @param productId - Product ID
+ * @param data - Variant creation payload
+ * @returns Promise with created variant data
+ * @throws Error with backend message
+ */
 export const addProductVariantClientAPI = async (
   productId: string,
   data: ICreateProductVariantPayload,
@@ -188,13 +262,22 @@ export const addProductVariantClientAPI = async (
   try {
     return await kyNextInstance
       .post(`admin/products/${productId}/variants`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductVariant>>();
+      .json<IApiResponseWrapperType<IAdminProductVariant>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to add product variant'),
+    )
   }
-};
+}
 
-// ============ Update Product Variant ============
+/**
+ * Update product variant (Admin)
+ * @param productId - Product ID
+ * @param variantId - Variant ID to update
+ * @param data - Variant update payload
+ * @returns Promise with updated variant data
+ * @throws Error with backend message
+ */
 export const updateProductVariantClientAPI = async (
   productId: string,
   variantId: string,
@@ -202,14 +285,24 @@ export const updateProductVariantClientAPI = async (
 ) => {
   try {
     return await kyNextInstance
-      .patch(`admin/products/${productId}/variants/${variantId}`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductVariant>>();
+      .patch(`admin/products/${productId}/variants/${variantId}`, {
+        json: data,
+      })
+      .json<IApiResponseWrapperType<IAdminProductVariant>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update product variant'),
+    )
   }
-};
+}
 
-// ============ Delete Product Variant ============
+/**
+ * Delete product variant (Admin)
+ * @param productId - Product ID
+ * @param variantId - Variant ID to delete
+ * @returns Promise with success message
+ * @throws Error with backend message
+ */
 export const deleteProductVariantClientAPI = async (
   productId: string,
   variantId: string,
@@ -217,24 +310,39 @@ export const deleteProductVariantClientAPI = async (
   try {
     return await kyNextInstance
       .delete(`admin/products/${productId}/variants/${variantId}`)
-      .json<IApiResponseWrapperType<{ message: string }>>();
+      .json<IApiResponseWrapperType<{ message: string }>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete product variant'),
+    )
   }
-};
+}
 
-// ============ Get Product Badges ============
+/**
+ * Fetch product badges (Admin)
+ * @param productId - Product ID
+ * @returns Promise with product badges array
+ * @throws Error with backend message
+ */
 export const getProductBadgesClientAPI = async (productId: string) => {
   try {
     return await kyNextInstance
       .get(`admin/products/${productId}/badges`)
-      .json<IApiResponseWrapperType<IAdminProductBadge[]>>();
+      .json<IApiResponseWrapperType<IAdminProductBadge[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch product badges'),
+    )
   }
-};
+}
 
-// ============ Add Product Badge (single) ============
+/**
+ * Add single product badge (Admin)
+ * @param productId - Product ID
+ * @param data - Badge creation payload
+ * @returns Promise with created badge data
+ * @throws Error with backend message
+ */
 export const addProductBadgeClientAPI = async (
   productId: string,
   data: ICreateProductBadgePayload,
@@ -242,13 +350,21 @@ export const addProductBadgeClientAPI = async (
   try {
     return await kyNextInstance
       .post(`admin/products/${productId}/badges`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductBadge>>();
+      .json<IApiResponseWrapperType<IAdminProductBadge>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to add product badge'),
+    )
   }
-};
+}
 
-// ============ Add Multiple Product Badges (bulk) ============
+/**
+ * Add multiple product badges in bulk (Admin)
+ * @param productId - Product ID
+ * @param data - Bulk badges creation payload
+ * @returns Promise with created badges array
+ * @throws Error with backend message
+ */
 export const addMultipleProductBadgesClientAPI = async (
   productId: string,
   data: ICreateMultipleProductBadgesPayload,
@@ -256,13 +372,22 @@ export const addMultipleProductBadgesClientAPI = async (
   try {
     return await kyNextInstance
       .post(`admin/products/${productId}/badges/bulk`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductBadge[]>>();
+      .json<IApiResponseWrapperType<IAdminProductBadge[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to add multiple product badges'),
+    )
   }
-};
+}
 
-// ============ Update Product Badge ============
+/**
+ * Update product badge (Admin)
+ * @param productId - Product ID
+ * @param badgeId - Badge ID to update
+ * @param data - Badge update payload
+ * @returns Promise with updated badge data
+ * @throws Error with backend message
+ */
 export const updateProductBadgeClientAPI = async (
   productId: string,
   badgeId: string,
@@ -271,13 +396,21 @@ export const updateProductBadgeClientAPI = async (
   try {
     return await kyNextInstance
       .patch(`admin/products/${productId}/badges/${badgeId}`, { json: data })
-      .json<IApiResponseWrapperType<IAdminProductBadge>>();
+      .json<IApiResponseWrapperType<IAdminProductBadge>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update product badge'),
+    )
   }
-};
+}
 
-// ============ Delete Product Badge ============
+/**
+ * Delete product badge (Admin)
+ * @param productId - Product ID
+ * @param badgeId - Badge ID to delete
+ * @returns Promise with success message
+ * @throws Error with backend message
+ */
 export const deleteProductBadgeClientAPI = async (
   productId: string,
   badgeId: string,
@@ -285,8 +418,10 @@ export const deleteProductBadgeClientAPI = async (
   try {
     return await kyNextInstance
       .delete(`admin/products/${productId}/badges/${badgeId}`)
-      .json<IApiResponseWrapperType<{ message: string }>>();
+      .json<IApiResponseWrapperType<{ message: string }>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete product badge'),
+    )
   }
-};
+}

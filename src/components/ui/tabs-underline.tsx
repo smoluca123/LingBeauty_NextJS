@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as React from 'react'
+import * as TabsPrimitive from '@radix-ui/react-tabs'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/style-utils'
 
 function TabsUnderline({
   className,
@@ -15,7 +15,7 @@ function TabsUnderline({
       className={cn('flex flex-col gap-2', className)}
       {...props}
     />
-  );
+  )
 }
 
 function TabsUnderlineList({
@@ -32,7 +32,7 @@ function TabsUnderlineList({
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TabsUnderlineTrigger({
@@ -48,7 +48,7 @@ function TabsUnderlineTrigger({
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TabsUnderlineContent({
@@ -61,7 +61,7 @@ function TabsUnderlineContent({
       className={cn('mt-6 flex-1 outline-none', className)}
       {...props}
     />
-  );
+  )
 }
 
 export {
@@ -69,4 +69,4 @@ export {
   TabsUnderlineList,
   TabsUnderlineTrigger,
   TabsUnderlineContent,
-};
+}

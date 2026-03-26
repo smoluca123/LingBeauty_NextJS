@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import Image from 'next/image';
-import { cn } from '@/lib/utils';
-import { beautyBoxCategories, getArticlesByCategory } from './data';
-import { Button } from '@/components/ui/button';
-import { SectionHeadingCenter } from '@/components/home/section-heading';
+import { useState, useMemo } from 'react'
+import Image from 'next/image'
+import { cn } from '@/lib/utils/style-utils'
+import { beautyBoxCategories, getArticlesByCategory } from './data'
+import { Button } from '@/components/ui/button'
+import { SectionHeadingCenter } from '@/components/home/section-heading'
 
 export default function BeautyBoxSection() {
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('all')
 
   const filteredArticles = useMemo(
     () => getArticlesByCategory(activeTab),
     [activeTab],
-  );
+  )
 
   return (
     <section className="">
@@ -116,5 +116,5 @@ export default function BeautyBoxSection() {
         </div>
       </div>
     </section>
-  );
+  )
 }

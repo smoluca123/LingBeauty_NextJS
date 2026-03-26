@@ -1,38 +1,35 @@
-'use client';
+'use client'
 
-import { useRef } from 'react';
-import Link from 'next/link';
-import { Package } from 'lucide-react';
+import { useRef } from 'react'
+import Link from 'next/link'
+import { Package } from 'lucide-react'
 
-import { cn } from '@/lib/utils';
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
+import { cn } from '@/lib/utils/style-utils'
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
 import {
   IProductDataType,
   IProductVariantDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
-import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar';
-import { ProductBadges } from '@/components/product/product-badges';
+} from '@/lib/types/interfaces/apis/product.interfaces'
+import { StockProgressBar } from '@/components/flash-sale/stock-progress-bar'
+import { ProductBadges } from '@/components/product/product-badges'
 import {
   ProductImageCarousel,
   ProductImageCarouselRef,
-} from '@/components/product/product-image-carousel';
-import { ProductVariantSelector } from '@/components/product/product-variant-selector';
-import { ProductPrice } from '@/components/product/product-price';
-import { ProductHeader } from '@/components/product/product-header';
-import { RatingStars } from '@/components/product/rating-stars';
-import { useProductImages } from '@/hooks/use-product-images';
-import { AddToCartButton } from '@/components/cart/add-to-cart-button';
-import {
-  getIsLowStock,
-  getIsOutOfStock,
-} from '@/lib/utils/product-stock.utils';
+} from '@/components/product/product-image-carousel'
+import { ProductVariantSelector } from '@/components/product/product-variant-selector'
+import { ProductPrice } from '@/components/product/product-price'
+import { ProductHeader } from '@/components/product/product-header'
+import { RatingStars } from '@/components/product/rating-stars'
+import { useProductImages } from '@/hooks/use-product-images'
+import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { getIsLowStock, getIsOutOfStock } from '@/lib/utils/product-utils'
 
 type ProductCardProps = {
-  product: IProductDataType;
-  showStock?: boolean;
-  soldQuantity?: number;
-  maxQuantity?: number;
-} & IPropsWithClassName;
+  product: IProductDataType
+  showStock?: boolean
+  soldQuantity?: number
+  maxQuantity?: number
+} & IPropsWithClassName
 
 export function ProductCard2({
   product,
@@ -41,41 +38,41 @@ export function ProductCard2({
   soldQuantity,
   maxQuantity,
 }: ProductCardProps) {
-  const { name, brand, primaryImage, stats } = product;
-  const basePrice = Number(product.basePrice);
+  const { name, brand, primaryImage, stats } = product
+  const basePrice = Number(product.basePrice)
   const comparePrice = product.comparePrice
     ? Number(product.comparePrice)
-    : null;
+    : null
 
-  const carouselRef = useRef<ProductImageCarouselRef>(null);
-  const allImages = useProductImages(product);
+  const carouselRef = useRef<ProductImageCarouselRef>(null)
+  const allImages = useProductImages(product)
 
   // ─── Stock status (shared utility — displayStatus is the source of truth) ─────
-  const isOutOfStock = getIsOutOfStock(product);
-  const isLowStock = getIsLowStock(product);
+  const isOutOfStock = getIsOutOfStock(product)
+  const isLowStock = getIsLowStock(product)
 
   const handleVariantClick = (variant: IProductVariantDataType) => {
     // Sync carousel image
     if (variant.images && variant.images.length > 0) {
-      const variantImage = variant.images[0];
+      const variantImage = variant.images[0]
       const imageIndex = allImages.findIndex(
         (img) => img.media.url === variantImage.media.url,
-      );
+      )
       if (imageIndex !== -1) {
-        carouselRef.current?.scrollTo(imageIndex);
+        carouselRef.current?.scrollTo(imageIndex)
       }
     }
-  };
+  }
 
   const discountPercent =
     comparePrice && comparePrice > basePrice
       ? Math.round(((comparePrice - basePrice) / comparePrice) * 100)
-      : null;
+      : null
 
   // Extract stats data with fallbacks
-  const avgRating = stats?.avgRating ? Number(stats.avgRating) : undefined;
-  const reviewCount = stats?.reviewCount ?? 0;
-  const totalSold = stats?.totalSold ?? 0;
+  const avgRating = stats?.avgRating ? Number(stats.avgRating) : undefined
+  const reviewCount = stats?.reviewCount ?? 0
+  const totalSold = stats?.totalSold ?? 0
 
   return (
     <article
@@ -161,5 +158,5 @@ export function ProductCard2({
         </Link>
       )}
     </article>
-  );
+  )
 }

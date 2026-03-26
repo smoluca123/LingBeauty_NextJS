@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+
 import {
   TabsUnderline,
   TabsUnderlineList,
   TabsUnderlineTrigger,
   TabsUnderlineContent,
 } from '@/components/ui/tabs-underline';
-import { EmptyState } from '../empty-state';
-import { type Event, getEventsByStatus } from '../../events/_data/mock-events';
+import { EmptyState } from '@/app/(main)/profile/components/empty-state';
 import { EventCard } from './event-card';
+
+import { type Event, getEventsByStatus } from '@/app/(main)/profile/events/_data/mock-events';
 
 // ============ Types ============
 type EventTab = 'upcoming' | 'completed';

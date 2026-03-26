@@ -1,18 +1,18 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { ShoppingBag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation';
-import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog';
-import { useIsAuthenticated } from '@/hooks/use-auth';
-import { cn } from '@/lib/utils';
-import { getIsOutOfStock } from '@/lib/utils/product-stock.utils';
+import { useState } from 'react'
+import { ShoppingBag } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation'
+import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog'
+import { useIsAuthenticated } from '@/hooks/use-auth'
+import { cn } from '@/lib/utils/style-utils'
+import { getIsOutOfStock } from '@/lib/utils/product-utils'
 
 interface AddToCartButtonProps {
-  product: IProductDataType;
-  className?: string;
+  product: IProductDataType
+  className?: string
 }
 
 /**
@@ -23,34 +23,34 @@ interface AddToCartButtonProps {
  * - Not authenticated: clicking triggers the auth flow (TODO: open login modal).
  */
 export function AddToCartButton({ product, className }: AddToCartButtonProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const isAuthenticated = useIsAuthenticated();
-  const addToCartMutation = useAddToCartMutation();
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const isAuthenticated = useIsAuthenticated()
+  const addToCartMutation = useAddToCartMutation()
 
-  const variants = product.variants ?? [];
-  const hasMultipleVariants = variants.length > 1;
-  const singleVariant = variants.length === 1 ? variants[0] : null;
+  const variants = product.variants ?? []
+  const hasMultipleVariants = variants.length > 1
+  const singleVariant = variants.length === 1 ? variants[0] : null
 
   // Out-of-stock resolution: trust displayStatus managed by server.
   // Use shared utility to stay in sync with product-card and other consumers.
-  const isOutOfStock = getIsOutOfStock(product);
+  const isOutOfStock = getIsOutOfStock(product)
 
   const handleClick = (e: React.MouseEvent) => {
     // Prevent card click / link navigation
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
     if (!isAuthenticated) {
       // TODO: trigger login modal when auth flow is refactored to context
-      return;
+      return
     }
 
-    if (isOutOfStock) return;
+    if (isOutOfStock) return
 
     if (hasMultipleVariants) {
       // Open variant selection dialog
-      setDialogOpen(true);
-      return;
+      setDialogOpen(true)
+      return
     }
 
     if (singleVariant) {
@@ -59,16 +59,16 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
         productId: product.id,
         variantId: singleVariant.id,
         quantity: 1,
-      });
-      return;
+      })
+      return
     }
 
     // No-variant product — omit variantId so BE auto-resolves the first variant
     addToCartMutation.mutate({
       productId: product.id,
       quantity: 1,
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -110,5 +110,5 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
         />
       )}
     </>
-  );
+  )
 }

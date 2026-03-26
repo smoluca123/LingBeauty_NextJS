@@ -1,17 +1,19 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+
 import {
   TabsUnderline,
   TabsUnderlineList,
   TabsUnderlineTrigger,
   TabsUnderlineContent,
 } from '@/components/ui/tabs-underline';
-import { EmptyState } from '../empty-state';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/app/(main)/profile/components/empty-state';
 import { QuestionCard } from './question-card';
 import { useGetMyQuestionsQuery } from '@/hooks/querys/product-question.query';
+
 import { ProductQuestionStatus } from '@/lib/types/interfaces/apis/product-question.interfaces';
-import { Skeleton } from '@/components/ui/skeleton';
 
 // ============ Types ============
 type QuestionTab = 'all' | 'pending' | 'answered';

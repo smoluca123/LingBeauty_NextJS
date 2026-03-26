@@ -1,6 +1,7 @@
 'use client';
 
 import { Package, Loader2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useCreateProductMutation } from '@/hooks/querys/admin-product.query';
+import { useCreateProductMutation } from '@/hooks/mutations/admin-product.mutation';
 import { useAdminCategoriesQuery, useAdminBrandsQuery } from '@/hooks/querys/admin-category-brand.query';
 import { useProductForm } from './use-product-form';
 import {
@@ -19,7 +20,7 @@ import {
   PricingSection,
   VariantSection,
   OptionsSection,
-} from '../product-form';
+} from '@/app/admin/products/components/product-form';
 
 // ============ Types ============
 interface AddProductDialogProps {

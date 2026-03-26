@@ -1,10 +1,10 @@
-import { ProductBadgeVariantType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { cn } from '@/lib/utils';
+import { ProductBadgeVariantType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { cn } from '@/lib/utils/style-utils'
 
 type ProductBadgeProps = {
-  label: string;
-  variant?: ProductBadgeVariantType;
-};
+  label: string
+  variant?: ProductBadgeVariantType
+}
 
 export function ProductBadge({
   label,
@@ -16,7 +16,7 @@ export function ProductBadge({
         'bg-primary-pink/10 text-primary-pink border border-primary-pink/30',
       INFO: 'bg-sky-100 text-sky-700 border border-sky-200',
       NEUTRAL: 'bg-muted text-foreground border border-muted-foreground/10',
-    };
+    }
 
   return (
     <span
@@ -27,5 +27,5 @@ export function ProductBadge({
     >
       {label}
     </span>
-  );
+  )
 }

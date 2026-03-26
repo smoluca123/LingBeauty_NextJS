@@ -1,39 +1,39 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
+import Link from 'next/link'
 
-import { cn } from '@/lib/utils';
-import { isSoldOut } from '@/lib/utils/flash-sale-utils';
-import { ProductCard2 } from '@/components/product/product-card2';
-import type { IFlashSaleProductDataType } from '@/lib/types/interfaces/apis/flash-sale.interfaces';
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
+import { cn } from '@/lib/utils/style-utils'
+import { isSoldOut } from '@/lib/utils/flash-sale-utils'
+import { ProductCard2 } from '@/components/product/product-card2'
+import type { IFlashSaleProductDataType } from '@/lib/types/interfaces/apis/flash-sale.interfaces'
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
 
 interface FlashSaleProductCardProps {
-  product: IFlashSaleProductDataType;
-  className?: string;
+  product: IFlashSaleProductDataType
+  className?: string
 }
 
 export function FlashSaleProductCard({
   product,
   className,
 }: FlashSaleProductCardProps) {
-  const { flashPrice, originalPrice, maxQuantity, soldQuantity } = product;
+  const { flashPrice, originalPrice, maxQuantity, soldQuantity } = product
 
-  const soldOut = isSoldOut(soldQuantity, maxQuantity);
+  const soldOut = isSoldOut(soldQuantity, maxQuantity)
 
   // Parse prices from string to number (BE returns prices as strings)
   const parsedFlashPrice =
-    typeof flashPrice === 'string' ? parseFloat(flashPrice) : flashPrice;
+    typeof flashPrice === 'string' ? parseFloat(flashPrice) : flashPrice
   const parsedOriginalPrice =
     typeof originalPrice === 'string'
       ? parseFloat(originalPrice)
-      : originalPrice;
+      : originalPrice
 
   const productData: IProductDataType = {
     ...product.product,
     basePrice: parsedFlashPrice.toString(),
     comparePrice: parsedOriginalPrice.toString(),
-  };
+  }
 
   const cardContent = (
     <div className={cn('relative h-full', soldOut && 'opacity-75', className)}>
@@ -57,15 +57,15 @@ export function FlashSaleProductCard({
         maxQuantity={maxQuantity}
       />
     </div>
-  );
+  )
 
   if (soldOut) {
-    return <div className="cursor-not-allowed">{cardContent}</div>;
+    return <div className="cursor-not-allowed">{cardContent}</div>
   }
 
   return (
     <Link href={`/products/${product.product.slug}`} className="block h-full">
       {cardContent}
     </Link>
-  );
+  )
 }

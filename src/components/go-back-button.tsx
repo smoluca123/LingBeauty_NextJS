@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
 
 interface GoBackButtonProps {
-  className?: string;
+  className?: string
 }
 
 export function GoBackButton({ className }: GoBackButtonProps) {
-  const router = useRouter();
+  const router = useRouter()
 
   return (
     <button
@@ -23,5 +23,5 @@ export function GoBackButton({ className }: GoBackButtonProps) {
       <ArrowLeft className="size-3.5 transition-transform group-hover:-translate-x-0.5" />
       Quay lại trang trước
     </button>
-  );
+  )
 }

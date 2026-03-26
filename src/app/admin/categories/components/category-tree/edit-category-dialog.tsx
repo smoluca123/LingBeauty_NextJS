@@ -13,7 +13,7 @@ import {
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { IAdminCategoryDataType, ICategoryFormData } from '@/lib/types/interfaces/apis/admin-category.interfaces';
-import { useUpdateCategoryMutation } from '@/hooks/querys/admin-category-brand.query';
+import { useUpdateCategoryMutation } from '@/hooks/mutations/admin-category-brand.mutation';
 import { CategoryForm } from './category-form';
 
 interface EditCategoryDialogProps {

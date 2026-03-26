@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import type { IAdminBrandDataType } from '@/lib/types/interfaces/apis/admin-brand.interfaces';
-import { useDeleteBrandMutation } from '@/hooks/querys/admin-category-brand.query';
+import { useDeleteBrandMutation } from '@/hooks/mutations/admin-category-brand.mutation';
 
 interface DeleteBrandDialogProps {
   open: boolean;

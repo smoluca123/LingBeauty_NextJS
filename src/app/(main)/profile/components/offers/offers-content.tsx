@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+
 import {
   TabsUnderline,
   TabsUnderlineList,
   TabsUnderlineTrigger,
   TabsUnderlineContent,
 } from '@/components/ui/tabs-underline';
-import { EmptyState } from '../empty-state';
-import { type Offer, getOffersByStatus } from '../../offers/_data/mock-offers';
+import { EmptyState } from '@/app/(main)/profile/components/empty-state';
 import { OfferCard } from './offer-card';
+
+import { type Offer, getOffersByStatus } from '@/app/(main)/profile/offers/_data/mock-offers';
 
 // ============ Types ============
 type OfferTab = 'active' | 'used' | 'expired';

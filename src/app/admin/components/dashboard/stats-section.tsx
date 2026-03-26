@@ -1,9 +1,10 @@
 'use client';
 
 import { DollarSign, ShoppingCart, Package, Users } from 'lucide-react';
-import { StatCard } from '../stat-card';
-import { useOverviewStatsQuery } from '@/hooks/querys/stats.query';
+
 import { Skeleton } from '@/components/ui/skeleton';
+import { StatCard } from '@/app/admin/components/stat-card';
+import { useOverviewStatsQuery } from '@/hooks/querys/stats.query';
 
 function StatCardSkeleton() {
   return (

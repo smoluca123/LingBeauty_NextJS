@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import type { Product } from '../../../product/product-card';
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils/style-utils'
+import { HorizontalScroller } from '@/components/home/horizontal-scroller'
+import { ProductCard } from '@/components/product/product-card'
+import { SectionHeading } from '@/components/home/section-heading'
+import { ProductCard2 } from '@/components/product/product-card2'
 
-import { HorizontalScroller } from '../../horizontal-scroller';
-import { ProductCard } from '../../../product/product-card';
-import { SectionHeading } from '../../section-heading';
-import { ProductCard2 } from '@/components/product/product-card2';
-import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
+import type { Product } from '@/components/product/product-card'
+import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
+import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
 
 const topProducts: Product[] = [
   {
@@ -120,14 +120,14 @@ const topProducts: Product[] = [
     rating: 4.8,
     reviewCount: 128,
   },
-];
+]
 
 interface TopProductsProps {
-  initialData: IApiPaginationResponseWrapperType<IProductDataType>;
+  initialData: IApiPaginationResponseWrapperType<IProductDataType>
 }
 
 export const TopProducts = ({ initialData }: TopProductsProps) => {
-  const products = initialData.data.items;
+  const products = initialData.data.items
 
   return (
     <section className="space-y-6">
@@ -172,5 +172,5 @@ export const TopProducts = ({ initialData }: TopProductsProps) => {
         </Button>
       </div>
     </section>
-  );
-};
+  )
+}

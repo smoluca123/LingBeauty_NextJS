@@ -1,11 +1,17 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
-import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
-import { HTTPError } from 'ky';
+} from '@/lib/types/interfaces/apis/api.interfaces'
+import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 
+/**
+ * Fetch brands with pagination
+ * @param params - Pagination parameters
+ * @returns Promise with paginated brand data
+ * @throws Error with backend message
+ */
 export const getBrandsAPI = async (params?: IApiPaginationParams) => {
   try {
     const response = await kyNextInstance
@@ -15,13 +21,9 @@ export const getBrandsAPI = async (params?: IApiPaginationParams) => {
           page: params?.page,
         },
       })
-      .json<IApiPaginationResponseWrapperType<IBrandDataType>>();
-    return response;
+      .json<IApiPaginationResponseWrapperType<IBrandDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch addresses');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to fetch brands'))
   }
-};
+}

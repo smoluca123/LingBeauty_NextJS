@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { cn } from '@/lib/utils';
-import { PRICE_RANGES, PriceRange } from '../constants';
-import { CustomCheckbox } from './custom-checkbox';
+} from '@/components/ui/accordion'
+import { cn } from '@/lib/utils/style-utils'
+import { CustomCheckbox } from './custom-checkbox'
+import { PRICE_RANGES, PriceRange } from '@/constants/product-listing'
 
 interface FilterPriceProps {
-  selectedRanges: string[];
-  onChange: (ranges: string[]) => void;
-  className?: string;
+  selectedRanges: string[]
+  onChange: (ranges: string[]) => void
+  className?: string
 }
 
 export function FilterPrice({
@@ -23,11 +23,11 @@ export function FilterPrice({
 }: FilterPriceProps) {
   const handleCheckboxChange = (rangeId: string, checked: boolean) => {
     if (checked) {
-      onChange([...selectedRanges, rangeId]);
+      onChange([...selectedRanges, rangeId])
     } else {
-      onChange(selectedRanges.filter((id) => id !== rangeId));
+      onChange(selectedRanges.filter((id) => id !== rangeId))
     }
-  };
+  }
 
   return (
     <Accordion
@@ -54,5 +54,5 @@ export function FilterPrice({
         </AccordionContent>
       </AccordionItem>
     </Accordion>
-  );
+  )
 }

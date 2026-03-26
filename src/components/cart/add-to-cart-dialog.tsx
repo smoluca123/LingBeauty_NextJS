@@ -1,26 +1,27 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
-import { useState } from 'react';
-import { Minus, Plus, ShoppingBag } from 'lucide-react';
+import Image from 'next/image'
+import { useState } from 'react'
+import { Minus, Plus, ShoppingBag } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { cn, formatCurrency } from '@/lib/utils';
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
 import type {
   IProductDataType,
   IProductVariantDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
-import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation';
+} from '@/lib/types/interfaces/apis/product.interfaces'
+import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation'
+import { formatCurrency } from '@/lib/utils/format-utils'
+import { cn } from '@/lib/utils/style-utils'
 
 interface AddToCartDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  product: IProductDataType;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  product: IProductDataType
 }
 
 export function AddToCartDialog({
@@ -28,39 +29,39 @@ export function AddToCartDialog({
   onOpenChange,
   product,
 }: AddToCartDialogProps) {
-  const variants = product.variants ?? [];
+  const variants = product.variants ?? []
 
   // Default to first in-stock variant
   const defaultVariant =
     variants.find((v) => v.inventory?.displayStatus !== 'OUT_OF_STOCK') ??
-    variants[0];
+    variants[0]
 
   const [selectedVariant, setSelectedVariant] =
-    useState<IProductVariantDataType | null>(defaultVariant ?? null);
-  const [quantity, setQuantity] = useState(1);
+    useState<IProductVariantDataType | null>(defaultVariant ?? null)
+  const [quantity, setQuantity] = useState(1)
 
-  const addToCartMutation = useAddToCartMutation();
+  const addToCartMutation = useAddToCartMutation()
 
-  const maxStock = selectedVariant?.inventory?.quantity ?? 0;
+  const maxStock = selectedVariant?.inventory?.quantity ?? 0
   const isOutOfStock =
-    selectedVariant?.inventory?.displayStatus === 'OUT_OF_STOCK';
+    selectedVariant?.inventory?.displayStatus === 'OUT_OF_STOCK'
 
   const handleVariantSelect = (variant: IProductVariantDataType) => {
-    setSelectedVariant(variant);
+    setSelectedVariant(variant)
     // Reset quantity when variant changes so we don't exceed new stock
-    setQuantity(1);
-  };
+    setQuantity(1)
+  }
 
   const handleDecrement = () => {
-    setQuantity((prev) => Math.max(1, prev - 1));
-  };
+    setQuantity((prev) => Math.max(1, prev - 1))
+  }
 
   const handleIncrement = () => {
-    setQuantity((prev) => Math.min(maxStock, prev + 1));
-  };
+    setQuantity((prev) => Math.min(maxStock, prev + 1))
+  }
 
   const handleAddToCart = () => {
-    if (!selectedVariant) return;
+    if (!selectedVariant) return
     addToCartMutation.mutate(
       {
         productId: product.id,
@@ -69,31 +70,30 @@ export function AddToCartDialog({
       },
       {
         onSuccess: () => {
-          onOpenChange(false);
+          onOpenChange(false)
           // Reset state for next open
-          setQuantity(1);
+          setQuantity(1)
         },
       },
-    );
-  };
+    )
+  }
 
   // Resolve image for the selected variant or fall back to product primary
   const displayImageUrl =
-    selectedVariant?.images?.[0]?.media?.url ??
-    product.primaryImage?.media?.url;
+    selectedVariant?.images?.[0]?.media?.url ?? product.primaryImage?.media?.url
 
   const displayPrice = selectedVariant
     ? Number(selectedVariant.price)
-    : Number(product.basePrice);
+    : Number(product.basePrice)
 
   const comparePrice = product.comparePrice
     ? Number(product.comparePrice)
-    : null;
+    : null
 
   // Group variants by attribute type for labelling
-  const hasColors = variants.some((v) => v.color);
-  const hasSizes = variants.some((v) => v.size);
-  const hasTypes = variants.some((v) => v.type && !v.color && !v.size);
+  const hasColors = variants.some((v) => v.color)
+  const hasSizes = variants.some((v) => v.size)
+  const hasTypes = variants.some((v) => v.type && !v.color && !v.size)
 
   const variantLabel = hasColors
     ? 'Màu sắc'
@@ -101,7 +101,7 @@ export function AddToCartDialog({
       ? 'Kích cỡ'
       : hasTypes
         ? 'Loại'
-        : 'Phiên bản';
+        : 'Phiên bản'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -153,9 +153,9 @@ export function AddToCartDialog({
                 <p className="text-sm font-semibold">{variantLabel}</p>
                 <div className="flex flex-wrap gap-2">
                   {variants.map((variant) => {
-                    const isSelected = selectedVariant?.id === variant.id;
+                    const isSelected = selectedVariant?.id === variant.id
                     const isVariantOutOfStock =
-                      variant.inventory?.displayStatus === 'OUT_OF_STOCK';
+                      variant.inventory?.displayStatus === 'OUT_OF_STOCK'
 
                     return (
                       <button
@@ -200,7 +200,7 @@ export function AddToCartDialog({
                           <span className="text-[10px]">• Hết hàng</span>
                         )}
                       </button>
-                    );
+                    )
                   })}
                 </div>
               </div>
@@ -279,5 +279,5 @@ export function AddToCartDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

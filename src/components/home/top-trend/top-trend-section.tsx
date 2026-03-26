@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils';
-import { trendCategories, getProductsByCategory } from './data';
-import { TrendCard } from './trend-card';
-import { SectionHeadingCenter } from '@/components/home/section-heading';
+import { useState, useMemo } from 'react'
+import { cn } from '@/lib/utils/style-utils'
+import { trendCategories, getProductsByCategory } from './data'
+import { TrendCard } from './trend-card'
+import { SectionHeadingCenter } from '@/components/home/section-heading'
 
 export default function TopTrendSection() {
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('all')
 
   const filteredProducts = useMemo(() => {
-    return getProductsByCategory(activeTab);
-  }, [activeTab]);
+    return getProductsByCategory(activeTab)
+  }, [activeTab])
 
   return (
     <section className="">
@@ -59,5 +59,5 @@ export default function TopTrendSection() {
         </div>
       </div>
     </section>
-  );
+  )
 }

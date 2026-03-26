@@ -11,9 +11,11 @@ import {
   Clock,
   AlertCircle,
 } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+
 import {
   OFFER_TYPE_LABELS,
   OFFER_TYPE_COLORS,
@@ -21,7 +23,7 @@ import {
   isOfferExpiringSoon,
   type Offer,
   type OfferType,
-} from '../../offers/_data/mock-offers';
+} from '@/app/(main)/profile/offers/_data/mock-offers';
 
 // ============ Constants ============
 const OFFER_TYPE_ICONS: Record<OfferType, React.ReactNode> = {

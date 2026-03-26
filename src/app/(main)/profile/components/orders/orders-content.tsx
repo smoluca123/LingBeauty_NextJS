@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Search } from 'lucide-react';
+
 import { Input } from '@/components/ui/input';
 import {
   TabsUnderline,
@@ -9,13 +10,14 @@ import {
   TabsUnderlineTrigger,
   TabsUnderlineContent,
 } from '@/components/ui/tabs-underline';
-import { EmptyState } from '../empty-state';
+import { EmptyState } from '@/app/(main)/profile/components/empty-state';
+import { OrderCard } from './order-card';
+
 import {
   type Order,
   getOrdersByStatus,
   searchOrders,
-} from '../../orders/_data/mock-orders';
-import { OrderCard } from './order-card';
+} from '@/app/(main)/profile/orders/_data/mock-orders';
 
 // ============ Types ============
 type OrderTab = 'all' | 'pending' | 'processing' | 'shipping' | 'delivered';

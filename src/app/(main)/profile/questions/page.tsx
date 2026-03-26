@@ -1,4 +1,4 @@
-import { QuestionsContent } from '../components';
+import { QuestionsContent } from '@/app/(main)/profile/components';
 
 export default function QuestionsPage() {
   return (

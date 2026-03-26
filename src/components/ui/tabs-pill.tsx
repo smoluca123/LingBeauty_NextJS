@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import * as TabsPrimitive from '@radix-ui/react-tabs';
+import * as React from 'react'
+import * as TabsPrimitive from '@radix-ui/react-tabs'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/style-utils'
 
 function TabsPill({
   className,
@@ -15,7 +15,7 @@ function TabsPill({
       className={cn('flex flex-col gap-2', className)}
       {...props}
     />
-  );
+  )
 }
 
 function TabsPillList({
@@ -31,7 +31,7 @@ function TabsPillList({
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TabsPillTrigger({
@@ -47,7 +47,7 @@ function TabsPillTrigger({
       )}
       {...props}
     />
-  );
+  )
 }
 
 function TabsPillContent({
@@ -60,7 +60,7 @@ function TabsPillContent({
       className={cn('mt-6 flex-1 outline-none', className)}
       {...props}
     />
-  );
+  )
 }
 
-export { TabsPill, TabsPillList, TabsPillTrigger, TabsPillContent };
+export { TabsPill, TabsPillList, TabsPillTrigger, TabsPillContent }

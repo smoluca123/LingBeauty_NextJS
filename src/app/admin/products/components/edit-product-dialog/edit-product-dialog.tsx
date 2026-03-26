@@ -1,6 +1,7 @@
 'use client';
 
 import { Pencil, Loader2 } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,9 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useUpdateProductMutation } from '@/hooks/querys/admin-product.query';
+import { useUpdateProductMutation } from '@/hooks/mutations/admin-product.mutation';
 import { useAdminCategoriesQuery, useAdminBrandsQuery } from '@/hooks/querys/admin-category-brand.query';
-import type { IAdminProductDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 import { useEditProductForm } from './use-edit-product-form';
 import {
   BasicInfoSection,
@@ -20,7 +20,9 @@ import {
   PricingSection,
   VariantSection,
   OptionsSection,
-} from '../product-form';
+} from '@/app/admin/products/components/product-form';
+
+import type { IAdminProductDataType } from '@/lib/types/interfaces/apis/admin-product.interfaces';
 
 // ============ Types ============
 interface EditProductDialogProps {

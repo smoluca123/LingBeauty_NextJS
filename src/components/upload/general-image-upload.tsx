@@ -55,7 +55,7 @@ export function GeneralImageUpload({
     setUploading(true);
     try {
       const response = await uploadGeneralImage(file);
-      const url = response.data?.url;
+      const url = response.data.url;
       
       if (url) {
         onUploadSuccess?.(url);

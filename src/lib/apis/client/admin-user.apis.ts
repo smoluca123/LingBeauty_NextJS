@@ -1,14 +1,14 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { HTTPError } from 'ky';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IAdminRoleDataType,
   IAdminUserDataType,
   IUserFilters,
-} from '@/lib/types/interfaces/apis/admin-user.interfaces';
+} from '@/lib/types/interfaces/apis/admin-user.interfaces'
 
 // Helper: loại bỏ undefined trước khi truyền vào searchParams
 const buildSearchParams = (
@@ -16,17 +16,14 @@ const buildSearchParams = (
 ): Record<string, string | number | boolean> =>
   Object.fromEntries(
     Object.entries(options).filter(([, v]) => v !== undefined),
-  ) as Record<string, string | number | boolean>;
+  ) as Record<string, string | number | boolean>
 
-const handleError = async (error: unknown) => {
-  if (error instanceof HTTPError) {
-    const data = await error.response.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message || error.message);
-  }
-  throw error;
-};
-
-// ============ Get All Users ============
+/**
+ * Fetch all users with filters and pagination (Admin)
+ * @param params - User filter parameters
+ * @returns Promise with paginated user data
+ * @throws Error with backend message
+ */
 export const getAllUsersClientAPI = async (params: IUserFilters = {}) => {
   try {
     return await kyNextInstance
@@ -42,62 +39,89 @@ export const getAllUsersClientAPI = async (params: IUserFilters = {}) => {
           order: params.order,
         }),
       })
-      .json<IApiPaginationResponseWrapperType<IAdminUserDataType>>();
+      .json<IApiPaginationResponseWrapperType<IAdminUserDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(await extractErrorMessage(error, 'Failed to fetch users'))
   }
-};
+}
 
-// ============ Get All User Roles ============
+/**
+ * Fetch all user roles (Admin)
+ * @returns Promise with user roles array
+ * @throws Error with backend message
+ */
 export const getAllUserRolesClientAPI = async () => {
   try {
     return await kyNextInstance
       .get('admin/users/roles')
-      .json<IApiResponseWrapperType<IAdminRoleDataType[]>>();
+      .json<IApiResponseWrapperType<IAdminRoleDataType[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch user roles'),
+    )
   }
-};
+}
 
-// ============ Ban / Unban User ============
+/**
+ * Ban or unban a user (Admin)
+ * @param userId - User ID to ban/unban
+ * @param isBanned - Ban status (true to ban, false to unban)
+ * @returns Promise with updated user data
+ * @throws Error with backend message
+ */
 export const banUserClientAPI = async (userId: string, isBanned: boolean) => {
   try {
     return await kyNextInstance
       .patch(`admin/users/${userId}/ban`, { json: { isBanned } })
-      .json<IApiResponseWrapperType<IAdminUserDataType>>();
+      .json<IApiResponseWrapperType<IAdminUserDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to ban/unban user'),
+    )
   }
-};
+}
 
-// ============ Bulk Ban / Unban Users ============
+/**
+ * Ban or unban multiple users in bulk (Admin)
+ * @param items - Array of user IDs and ban status
+ * @returns Promise with updated count
+ * @throws Error with backend message
+ */
 export const banUserBulkClientAPI = async (
   items: { userId: string; isBanned: boolean }[],
 ) => {
   try {
     return await kyNextInstance
       .patch('admin/users/ban/bulk', { json: { items } })
-      .json<IApiResponseWrapperType<{ updatedCount: number }>>();
+      .json<IApiResponseWrapperType<{ updatedCount: number }>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to bulk ban/unban users'),
+    )
   }
-};
-
-// ============ Update User By Admin ============
-export interface IUpdateUserByAdminPayload {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  username?: string;
-  roleIds?: string[];
-  isActive?: boolean;
-  isVerified?: boolean;
-  isBanned?: boolean;
-  isEmailVerified?: boolean;
-  isPhoneVerified?: boolean;
 }
 
+export interface IUpdateUserByAdminPayload {
+  email?: string
+  firstName?: string
+  lastName?: string
+  phone?: string
+  username?: string
+  roleIds?: string[]
+  isActive?: boolean
+  isVerified?: boolean
+  isBanned?: boolean
+  isEmailVerified?: boolean
+  isPhoneVerified?: boolean
+}
+
+/**
+ * Update user information (Admin)
+ * @param userId - User ID to update
+ * @param data - User update payload
+ * @returns Promise with updated user data
+ * @throws Error with backend message
+ */
 export const updateUserByAdminClientAPI = async (
   userId: string,
   data: IUpdateUserByAdminPayload,
@@ -105,32 +129,37 @@ export const updateUserByAdminClientAPI = async (
   try {
     return await kyNextInstance
       .patch(`admin/users/${userId}`, { json: data })
-      .json<IApiResponseWrapperType<IAdminUserDataType>>();
+      .json<IApiResponseWrapperType<IAdminUserDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(await extractErrorMessage(error, 'Failed to update user'))
   }
-};
-
-// ============ Create User By Admin ============
-export interface ICreateUserByAdminPayload {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  username: string;
-  roleId?: string;
-  isActive?: boolean;
-  isEmailVerified?: boolean;
-  isPhoneVerified?: boolean;
 }
 
+export interface ICreateUserByAdminPayload {
+  email: string
+  password: string
+  firstName: string
+  lastName: string
+  phone: string
+  username: string
+  roleId?: string
+  isActive?: boolean
+  isEmailVerified?: boolean
+  isPhoneVerified?: boolean
+}
+
+/**
+ * Create a new user (Admin)
+ * @param data - User creation payload
+ * @returns Promise with created user data
+ * @throws Error with backend message
+ */
 export const createUserClientAPI = async (data: ICreateUserByAdminPayload) => {
   try {
     return await kyNextInstance
       .post('admin/users', { json: data })
-      .json<IApiResponseWrapperType<IAdminUserDataType>>();
+      .json<IApiResponseWrapperType<IAdminUserDataType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(await extractErrorMessage(error, 'Failed to create user'))
   }
-};
+}

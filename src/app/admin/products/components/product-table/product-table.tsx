@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MoreHorizontal, Pencil, Trash2, Eye, Images, Sliders, Tag } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -21,17 +22,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ProductImagesDialog } from '@/app/admin/products/components/product-images-dialog';
+import { ProductVariantsDialog } from '@/app/admin/products/components/product-variants-dialog';
+import { ProductBadgesDialog } from '@/app/admin/products/components/product-badges-dialog';
+import { EditProductDialog } from '@/app/admin/products/components/edit-product-dialog';
+import { formatPrice, getStockStatus } from './helpers';
+
 import {
   IAdminProductDataType,
   getTotalStock,
   getPrimaryImageUrl,
   getFirstCategory,
 } from '@/lib/types/interfaces/apis/admin-product.interfaces';
-import { ProductImagesDialog } from '../product-images-dialog';
-import { ProductVariantsDialog } from '../product-variants-dialog';
-import { ProductBadgesDialog } from '../product-badges-dialog';
-import { EditProductDialog } from '../edit-product-dialog';
-import { formatPrice, getStockStatus } from './helpers';
 
 // ============ Types ============
 

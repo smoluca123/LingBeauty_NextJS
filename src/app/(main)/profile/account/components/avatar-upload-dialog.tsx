@@ -1,27 +1,27 @@
-'use client';
+'use client'
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react'
 import ReactCrop, {
   type Crop,
   type PixelCrop,
   centerCrop,
   makeAspectCrop,
-} from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+} from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css'
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import LoadingButton from '@/components/ui/loading-button';
-import { Upload, ImageIcon, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getCroppedImageFile } from '@/hooks/use-image-crop';
-import { useUploadAvatarMutation } from '@/hooks/mutations/user.mutation';
-import { toast } from 'sonner';
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import LoadingButton from '@/components/ui/loading-button'
+import { Upload, ImageIcon, X } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
+import { getCroppedImageFile } from '@/hooks/use-image-crop'
+import { useUploadAvatarMutation } from '@/hooks/mutations/user.mutation'
+import { toast } from 'sonner'
 
 // ============ Constants ============
 const ACCEPTED_IMAGE_TYPES = [
@@ -29,10 +29,10 @@ const ACCEPTED_IMAGE_TYPES = [
   'image/jpg',
   'image/png',
   'image/webp',
-];
-const MAX_FILE_SIZE_MB = 5;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-const CROP_ASPECT_RATIO = 1; // Square crop for avatar
+]
+const MAX_FILE_SIZE_MB = 5
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+const CROP_ASPECT_RATIO = 1 // Square crop for avatar
 
 // ============ Helpers ============
 function createInitialCrop(width: number, height: number): Crop {
@@ -40,13 +40,13 @@ function createInitialCrop(width: number, height: number): Crop {
     makeAspectCrop({ unit: '%', width: 80 }, CROP_ASPECT_RATIO, width, height),
     width,
     height,
-  );
+  )
 }
 
 // ============ Props ============
 interface IAvatarUploadDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 // ============ Component ============
@@ -54,97 +54,97 @@ export function AvatarUploadDialog({
   open,
   onOpenChange,
 }: IAvatarUploadDialogProps) {
-  const [imgSrc, setImgSrc] = useState<string>('');
-  const [crop, setCrop] = useState<Crop>();
-  const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>('')
+  const [crop, setCrop] = useState<Crop>()
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop>()
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
 
-  const imgRef = useRef<HTMLImageElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const { mutate: uploadAvatar, isPending: isUploading } =
-    useUploadAvatarMutation();
+    useUploadAvatarMutation()
 
   // ============ Cleanup state on close ============
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
       if (!nextOpen) {
-        setImgSrc('');
-        setCrop(undefined);
-        setCompletedCrop(undefined);
-        setIsDraggingOver(false);
+        setImgSrc('')
+        setCrop(undefined)
+        setCompletedCrop(undefined)
+        setIsDraggingOver(false)
       }
-      onOpenChange(nextOpen);
+      onOpenChange(nextOpen)
     },
     [onOpenChange],
-  );
+  )
 
   // ============ File validation & loading ============
   const loadImageFile = useCallback((file: File) => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      toast.error('Chỉ hỗ trợ định dạng JPG, PNG, WebP');
-      return;
+      toast.error('Chỉ hỗ trợ định dạng JPG, PNG, WebP')
+      return
     }
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error(`Kích thước ảnh tối đa ${MAX_FILE_SIZE_MB}MB`);
-      return;
+      toast.error(`Kích thước ảnh tối đa ${MAX_FILE_SIZE_MB}MB`)
+      return
     }
 
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.addEventListener('load', () => {
-      setImgSrc(reader.result?.toString() ?? '');
-      setCrop(undefined);
-      setCompletedCrop(undefined);
-    });
-    reader.readAsDataURL(file);
-  }, []);
+      setImgSrc(reader.result?.toString() ?? '')
+      setCrop(undefined)
+      setCompletedCrop(undefined)
+    })
+    reader.readAsDataURL(file)
+  }, [])
 
   // ============ File input change ============
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) loadImageFile(file);
+      const file = e.target.files?.[0]
+      if (file) loadImageFile(file)
       // Reset input so same file can be re-selected
-      e.target.value = '';
+      e.target.value = ''
     },
     [loadImageFile],
-  );
+  )
 
   // ============ Drag & Drop handlers ============
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDraggingOver(true);
-  }, []);
+    e.preventDefault()
+    setIsDraggingOver(true)
+  }, [])
 
   const handleDragLeave = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDraggingOver(false);
-  }, []);
+    e.preventDefault()
+    setIsDraggingOver(false)
+  }, [])
 
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setIsDraggingOver(false);
-      const file = e.dataTransfer.files?.[0];
-      if (file) loadImageFile(file);
+      e.preventDefault()
+      setIsDraggingOver(false)
+      const file = e.dataTransfer.files?.[0]
+      if (file) loadImageFile(file)
     },
     [loadImageFile],
-  );
+  )
 
   // ============ Image load callback: set initial crop ============
   const handleImageLoad = useCallback(
     (e: React.SyntheticEvent<HTMLImageElement>) => {
-      const { width, height } = e.currentTarget;
-      setCrop(createInitialCrop(width, height));
+      const { width, height } = e.currentTarget
+      setCrop(createInitialCrop(width, height))
     },
     [],
-  );
+  )
 
   // ============ Submit: crop + upload ============
   const handleConfirm = useCallback(async () => {
     if (!imgRef.current || !completedCrop) {
-      toast.error('Vui lòng chọn vùng ảnh để cắt');
-      return;
+      toast.error('Vui lòng chọn vùng ảnh để cắt')
+      return
     }
 
     try {
@@ -152,21 +152,21 @@ export function AvatarUploadDialog({
         imgRef.current,
         completedCrop,
         'avatar.jpg',
-      );
+      )
       uploadAvatar(croppedFile, {
         onSuccess: () => handleOpenChange(false),
-      });
+      })
     } catch {
-      toast.error('Có lỗi xảy ra khi xử lý ảnh');
+      toast.error('Có lỗi xảy ra khi xử lý ảnh')
     }
-  }, [completedCrop, uploadAvatar, handleOpenChange]);
+  }, [completedCrop, uploadAvatar, handleOpenChange])
 
   // ============ Reset to pick another image ============
   const handleReset = useCallback(() => {
-    setImgSrc('');
-    setCrop(undefined);
-    setCompletedCrop(undefined);
-  }, []);
+    setImgSrc('')
+    setCrop(undefined)
+    setCompletedCrop(undefined)
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -304,5 +304,5 @@ export function AvatarUploadDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

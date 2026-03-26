@@ -1,19 +1,24 @@
-import { kyClientInstance } from '@/lib/kyInstance/kyClient';
-import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
-import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
+import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 
-export const getCategoriesAPI = async () => {
+/**
+ * Fetch all categories
+ * @returns Promise with categories data
+ * @throws Error with backend message
+ */
+export const getCategoriesAPI = async (): Promise<
+  IApiResponseWrapperType<ICategoryDataType[]>
+> => {
   try {
-    const response = await kyClientInstance
+    const response = await kyNextInstance
       .get('category')
-      .json<IApiResponseWrapperType<ICategoryDataType[]>>();
-    return response;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    if (error.response) {
-      const errorData = await error.response.json();
-      throw errorData.message;
-    }
-    throw error.message;
+      .json<IApiResponseWrapperType<ICategoryDataType[]>>()
+    return response
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch categories'),
+    )
   }
-};
+}

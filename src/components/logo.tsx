@@ -1,14 +1,14 @@
-import Link from 'next/link';
-import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces';
-import { cn } from '@/lib/utils';
+import Link from 'next/link'
+import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
+import { cn } from '@/lib/utils/style-utils'
 
 interface ILogoProps extends IPropsWithClassName {
   classNames?: {
-    container?: string;
-    link?: string;
-    uploadIcon?: string;
-    text?: string;
-  };
+    container?: string
+    link?: string
+    uploadIcon?: string
+    text?: string
+  }
 }
 
 export function Logo({ className, classNames }: ILogoProps) {
@@ -36,5 +36,5 @@ export function Logo({ className, classNames }: ILogoProps) {
         </span>
       </Link>
     </div>
-  );
+  )
 }

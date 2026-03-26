@@ -1,16 +1,16 @@
-'use client';
+'use client'
 'use no memo'
 
-import { useCallback, useState, useRef } from 'react';
-import { useEditor, EditorContent, type Editor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import Placeholder from '@tiptap/extension-placeholder';
-import TextAlign from '@tiptap/extension-text-align';
-import Underline from '@tiptap/extension-underline';
-import Highlight from '@tiptap/extension-highlight';
-import { handleTiptapImageUpload } from '@/lib/utils/tiptap-image-upload';
+import { useCallback, useState, useRef } from 'react'
+import { useEditor, EditorContent, type Editor } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import Placeholder from '@tiptap/extension-placeholder'
+import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
+import Highlight from '@tiptap/extension-highlight'
+import { handleTiptapImageUpload } from '@/lib/utils/tiptap-utils'
 import {
   Bold,
   Italic,
@@ -29,34 +29,34 @@ import {
   Undo,
   Redo,
   Hash,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
-import { HashtagExtension } from './extensions/hashtag';
+} from '@/components/ui/popover'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils/style-utils'
+import { HashtagExtension } from './extensions/hashtag'
 
 // ============ Types ============
 export interface TiptapEditorProps {
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  onImageUpload?: (file: File) => Promise<string>;
-  availableHashtags?: string[];
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  className?: string
+  onImageUpload?: (file: File) => Promise<string>
+  availableHashtags?: string[]
 }
 
 interface ToolbarButtonProps {
-  onClick: () => void;
-  isActive?: boolean;
-  disabled?: boolean;
-  children: React.ReactNode;
-  title?: string;
+  onClick: () => void
+  isActive?: boolean
+  disabled?: boolean
+  children: React.ReactNode
+  title?: string
 }
 
 // ============ Toolbar Button Component ============
@@ -88,92 +88,92 @@ function ToolbarButton({
         <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-white rounded-full" />
       )}
     </Button>
-  );
+  )
 }
 
 // ============ Toolbar Component ============
 interface ToolbarProps {
-  editor: Editor | null;
-  onImageUpload?: (file: File) => Promise<string>;
-  availableHashtags?: string[];
+  editor: Editor | null
+  onImageUpload?: (file: File) => Promise<string>
+  availableHashtags?: string[]
 }
 
 function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
-  const [imageUrl, setImageUrl] = useState('');
-  const [hashtagInput, setHashtagInput] = useState('');
-  const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false);
-  const [isHashtagPopoverOpen, setIsHashtagPopoverOpen] = useState(false);
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrl, setImageUrl] = useState('')
+  const [hashtagInput, setHashtagInput] = useState('')
+  const [isImagePopoverOpen, setIsImagePopoverOpen] = useState(false)
+  const [isHashtagPopoverOpen, setIsHashtagPopoverOpen] = useState(false)
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const addImage = useCallback(() => {
     if (imageUrl && editor) {
-      editor.chain().focus().setImage({ src: imageUrl }).run();
-      setImageUrl('');
-      setIsImagePopoverOpen(false);
+      editor.chain().focus().setImage({ src: imageUrl }).run()
+      setImageUrl('')
+      setIsImagePopoverOpen(false)
     }
-  }, [editor, imageUrl]);
+  }, [editor, imageUrl])
 
   const handleFileUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
+      const file = e.target.files?.[0]
       if (file && onImageUpload && editor) {
-        setIsUploadingImage(true);
+        setIsUploadingImage(true)
         try {
-          const url = await onImageUpload(file);
-          editor.chain().focus().setImage({ src: url }).run();
-          setIsImagePopoverOpen(false);
+          const url = await onImageUpload(file)
+          editor.chain().focus().setImage({ src: url }).run()
+          setIsImagePopoverOpen(false)
         } catch (error) {
-          console.error('Failed to upload image:', error);
-          alert('Tải ảnh lên thất bại. Vui lòng thử lại.');
+          console.error('Failed to upload image:', error)
+          alert('Tải ảnh lên thất bại. Vui lòng thử lại.')
         } finally {
-          setIsUploadingImage(false);
+          setIsUploadingImage(false)
           // Reset file input
           if (e.target) {
-            e.target.value = '';
+            e.target.value = ''
           }
         }
       }
     },
     [editor, onImageUpload],
-  );
+  )
 
   const addHashtag = useCallback(
     (tag: string) => {
-      const cleanTag = tag.replace(/^#/, '');
+      const cleanTag = tag.replace(/^#/, '')
       if (cleanTag && editor) {
-        editor.chain().focus().setHashtag({ tag: cleanTag }).run();
-        setHashtagInput('');
-        setIsHashtagPopoverOpen(false);
+        editor.chain().focus().setHashtag({ tag: cleanTag }).run()
+        setHashtagInput('')
+        setIsHashtagPopoverOpen(false)
       }
     },
     [editor],
-  );
+  )
 
   const setLink = useCallback(() => {
-    if (!editor) return;
-    const previousUrl = editor.getAttributes('link').href;
-    const url = window.prompt('Nhập URL:', previousUrl);
+    if (!editor) return
+    const previousUrl = editor.getAttributes('link').href
+    const url = window.prompt('Nhập URL:', previousUrl)
 
     if (url === null) {
-      return;
+      return
     }
 
     if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
+      editor.chain().focus().extendMarkRange('link').unsetLink().run()
+      return
     }
 
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-  }, [editor]);
+    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  }, [editor])
 
   const filteredHashtags =
     availableHashtags?.filter((tag) =>
       tag.toLowerCase().includes(hashtagInput.toLowerCase().replace(/^#/, '')),
-    ) || [];
+    ) || []
 
   if (!editor) {
-    return null;
+    return null
   }
 
   return (
@@ -341,8 +341,8 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                     onChange={(e) => setImageUrl(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
-                        e.preventDefault();
-                        addImage();
+                        e.preventDefault()
+                        addImage()
                       }
                     }}
                   />
@@ -422,8 +422,8 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
                   onChange={(e) => setHashtagInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addHashtag(hashtagInput);
+                      e.preventDefault()
+                      addHashtag(hashtagInput)
                     }
                   }}
                 />
@@ -459,7 +459,7 @@ function Toolbar({ editor, onImageUpload, availableHashtags }: ToolbarProps) {
         </Popover>
       </div>
     </div>
-  );
+  )
 }
 
 // ============ Main Editor Component ============
@@ -471,18 +471,18 @@ export function TiptapEditor({
   onImageUpload,
   availableHashtags = [],
 }: TiptapEditorProps) {
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false)
 
   // Use provided onImageUpload or default to handleTiptapImageUpload
   const uploadImage = useCallback(
     async (file: File): Promise<string> => {
       if (onImageUpload) {
-        return onImageUpload(file);
+        return onImageUpload(file)
       }
-      return handleTiptapImageUpload(file);
+      return handleTiptapImageUpload(file)
     },
     [onImageUpload],
-  );
+  )
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -515,7 +515,7 @@ export function TiptapEditor({
     ],
     content: value,
     onUpdate: ({ editor: editorInstance }) => {
-      onChange(editorInstance.getHTML());
+      onChange(editorInstance.getHTML())
     },
     editorProps: {
       attributes: {
@@ -524,82 +524,82 @@ export function TiptapEditor({
       },
       // Handle paste events for images
       handlePaste: (view, event) => {
-        const items = event.clipboardData?.items;
-        if (!items) return false;
+        const items = event.clipboardData?.items
+        if (!items) return false
 
         for (let i = 0; i < items.length; i++) {
-          const item = items[i];
+          const item = items[i]
 
           if (item.type.indexOf('image') === 0) {
-            event.preventDefault();
+            event.preventDefault()
 
-            const file = item.getAsFile();
-            if (!file) continue;
+            const file = item.getAsFile()
+            if (!file) continue
 
-            setIsUploading(true);
+            setIsUploading(true)
             uploadImage(file)
               .then((url) => {
-                editor?.chain().focus().setImage({ src: url }).run();
+                editor?.chain().focus().setImage({ src: url }).run()
               })
               .catch((error) => {
-                console.error('Paste upload failed:', error);
+                console.error('Paste upload failed:', error)
               })
               .finally(() => {
-                setIsUploading(false);
-              });
+                setIsUploading(false)
+              })
 
-            return true;
+            return true
           }
         }
 
-        return false;
+        return false
       },
       // Handle drop events for images
       handleDrop: (view, event, slice, moved) => {
         if (moved || !event.dataTransfer?.files?.length) {
-          return false;
+          return false
         }
 
-        const files = Array.from(event.dataTransfer.files);
+        const files = Array.from(event.dataTransfer.files)
         const imageFiles = files.filter((file) =>
           file.type.startsWith('image/'),
-        );
+        )
 
         if (imageFiles.length === 0) {
-          return false;
+          return false
         }
 
-        event.preventDefault();
+        event.preventDefault()
 
-        const { schema } = view.state;
+        const { schema } = view.state
         const coordinates = view.posAtCoords({
           left: event.clientX,
           top: event.clientY,
-        });
+        })
 
         imageFiles.forEach((file) => {
-          setIsUploading(true);
+          setIsUploading(true)
           uploadImage(file)
             .then((url) => {
-              const node = schema.nodes.image.create({ src: url });
+              const node = schema.nodes.image.create({ src: url })
               const transaction = view.state.tr.insert(
                 coordinates?.pos ?? 0,
                 node,
-              );
-              view.dispatch(transaction);
+              )
+              view.dispatch(transaction)
             })
             .catch((error) => {
-              console.error('Drop upload failed:', error);
+              console.error('Drop upload failed:', error)
             })
             .finally(() => {
-              setIsUploading(false);
-            });
-        });
+              setIsUploading(false)
+            })
+        })
 
-        return true;
+        return true
       },
     },
-  });
+  })
 
   return (
     <div
@@ -620,10 +620,11 @@ export function TiptapEditor({
       )}
       <EditorContent editor={editor} />
       <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30 border-t">
-        💡 Tip: Nút toolbar sáng = có định dạng trong vùng chọn. Click để bật/tắt.
+        💡 Tip: Nút toolbar sáng = có định dạng trong vùng chọn. Click để
+        bật/tắt.
       </div>
     </div>
-  );
+  )
 }
 
-export default TiptapEditor;
+export default TiptapEditor

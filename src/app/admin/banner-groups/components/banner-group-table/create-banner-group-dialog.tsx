@@ -1,9 +1,10 @@
-'use client';
+'use client'
+'use no memo'
 
-import { Loader2 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2 } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -19,13 +20,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { useCreateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation';
-import { generateSlug } from '@/app/admin/banners/constants';
+} from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { useCreateBannerGroupMutation } from '@/hooks/mutations/admin-banner.mutation'
+import { generateSlug } from '@/lib/utils'
 
 // ── Schema ───────────────────────────────────────────────────────────────────
 
@@ -36,15 +37,15 @@ const formSchema = z.object({
   isActive: z.boolean(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-});
+})
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface CreateBannerGroupDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
@@ -55,7 +56,7 @@ export function CreateBannerGroupDialog({
 }: CreateBannerGroupDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='sm:max-w-[500px]'>
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Thêm nhóm banner</DialogTitle>
           <DialogDescription>
@@ -66,13 +67,13 @@ export function CreateBannerGroupDialog({
         {open && <CreateBannerGroupForm onClose={() => onOpenChange(false)} />}
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
 // ── Form Component ─────────────────────────────────────────────────────────────
 
 function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
-  const createMutation = useCreateBannerGroupMutation();
+  const createMutation = useCreateBannerGroupMutation()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -84,18 +85,18 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
       startDate: '',
       endDate: '',
     },
-  });
+  })
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    form.setValue('name', value, { shouldValidate: true });
+    const value = e.target.value
+    form.setValue('name', value, { shouldValidate: true })
 
     // Auto-generate slug if it's empty or matches the previous auto-generated slug
-    const currentSlug = form.getValues('slug');
+    const currentSlug = form.getValues('slug')
     if (!currentSlug || currentSlug === generateSlug(value.slice(0, -1))) {
-      form.setValue('slug', generateSlug(value), { shouldValidate: true });
+      form.setValue('slug', generateSlug(value), { shouldValidate: true })
     }
-  };
+  }
 
   const onSubmit = async (data: FormValues) => {
     await createMutation.mutateAsync({
@@ -105,35 +106,35 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
       isActive: data.isActive,
       startDate: data.startDate || undefined,
       endDate: data.endDate || undefined,
-    });
+    })
 
-    onClose();
-  };
+    onClose()
+  }
 
   const handleClose = () => {
     if (!createMutation.isPending) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className='grid gap-4 py-4'>
+        <div className="grid gap-4 py-4">
           {/* Name */}
           <FormField
             control={form.control}
-            name='name'
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Tên nhóm <span className='text-destructive'>*</span>
+                  Tên nhóm <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     onChange={handleNameChange}
-                    placeholder='VD: Banner Tết 2026'
+                    placeholder="VD: Banner Tết 2026"
                   />
                 </FormControl>
                 <FormMessage />
@@ -144,14 +145,14 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
           {/* Slug */}
           <FormField
             control={form.control}
-            name='slug'
+            name="slug"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Slug <span className='text-destructive'>*</span>
+                  Slug <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder='VD: tet-2026' />
+                  <Input {...field} placeholder="VD: tet-2026" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,14 +162,14 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
           {/* Description */}
           <FormField
             control={form.control}
-            name='description'
+            name="description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Mô tả</FormLabel>
                 <FormControl>
                   <Textarea
                     {...field}
-                    placeholder='Mô tả về nhóm banner này...'
+                    placeholder="Mô tả về nhóm banner này..."
                     rows={3}
                   />
                 </FormControl>
@@ -178,15 +179,15 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
           />
 
           {/* Date Range */}
-          <div className='grid grid-cols-2 gap-4'>
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name='startDate'
+              name="startDate"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ngày bắt đầu</FormLabel>
                   <FormControl>
-                    <Input {...field} type='date' />
+                    <Input {...field} type="date" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -194,12 +195,12 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
             />
             <FormField
               control={form.control}
-              name='endDate'
+              name="endDate"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Ngày kết thúc</FormLabel>
                   <FormControl>
-                    <Input {...field} type='date' />
+                    <Input {...field} type="date" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -210,10 +211,10 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
           {/* Active Status */}
           <FormField
             control={form.control}
-            name='isActive'
+            name="isActive"
             render={({ field }) => (
-              <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2'>
-                <div className='space-y-0.5'>
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm mt-2">
+                <div className="space-y-0.5">
                   <FormLabel>Kích hoạt</FormLabel>
                   <FormMessage />
                 </div>
@@ -230,21 +231,21 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
 
         <DialogFooter>
           <Button
-            type='button'
-            variant='outline'
+            type="button"
+            variant="outline"
             onClick={handleClose}
             disabled={createMutation.isPending}
           >
             Hủy
           </Button>
           <Button
-            type='submit'
-            variant='primary-pink'
+            type="submit"
+            variant="primary-pink"
             disabled={createMutation.isPending}
           >
             {createMutation.isPending ? (
               <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Đang tạo...
               </>
             ) : (
@@ -254,5 +255,5 @@ function CreateBannerGroupForm({ onClose }: { onClose: () => void }) {
         </DialogFooter>
       </form>
     </Form>
-  );
+  )
 }

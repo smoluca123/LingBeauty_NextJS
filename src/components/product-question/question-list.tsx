@@ -1,10 +1,10 @@
-'use client';
+'use client'
 
-import { memo } from 'react';
-import { MessageCircleQuestion, Smile } from 'lucide-react';
-import { QuestionItem } from './question-item';
-import { QuestionListSkeleton } from './question-list-skeleton';
-import { IProductQuestion } from '@/lib/types/interfaces/apis/product-question.interfaces';
+import { memo } from 'react'
+import { Smile } from 'lucide-react'
+import { QuestionItem } from './question-item'
+import { QuestionListSkeleton } from './question-list-skeleton'
+import { IProductQuestion } from '@/lib/types/interfaces/apis/product-question.interfaces'
 import {
   Pagination,
   PaginationContent,
@@ -12,18 +12,18 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
+} from '@/components/ui/pagination'
 
 interface QuestionListProps {
-  questions: IProductQuestion[];
-  productId: string;
-  totalCount: number;
-  currentPage: number;
-  pageSize: number;
-  isLoading: boolean;
-  onPageChange: (page: number) => void;
-  onAskQuestion: () => void;
-  isAuthenticated: boolean;
+  questions: IProductQuestion[]
+  productId: string
+  totalCount: number
+  currentPage: number
+  pageSize: number
+  isLoading: boolean
+  onPageChange: (page: number) => void
+  onAskQuestion: () => void
+  isAuthenticated: boolean
 }
 
 // Memoize to prevent re-renders when parent state changes (rerender-memo)
@@ -39,7 +39,7 @@ export const QuestionList = memo(function QuestionList({
   isAuthenticated,
 }: QuestionListProps) {
   if (isLoading) {
-    return <QuestionListSkeleton />;
+    return <QuestionListSkeleton />
   }
 
   if (questions.length === 0) {
@@ -64,10 +64,10 @@ export const QuestionList = memo(function QuestionList({
           Đặt câu hỏi
         </button>
       </div>
-    );
+    )
   }
 
-  const totalPages = Math.ceil(totalCount / pageSize);
+  const totalPages = Math.ceil(totalCount / pageSize)
 
   return (
     <div className="space-y-6">
@@ -97,15 +97,15 @@ export const QuestionList = memo(function QuestionList({
             </PaginationItem>
 
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum: number;
+              let pageNum: number
               if (totalPages <= 5) {
-                pageNum = i + 1;
+                pageNum = i + 1
               } else if (currentPage <= 3) {
-                pageNum = i + 1;
+                pageNum = i + 1
               } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
+                pageNum = totalPages - 4 + i
               } else {
-                pageNum = currentPage - 2 + i;
+                pageNum = currentPage - 2 + i
               }
 
               return (
@@ -117,7 +117,7 @@ export const QuestionList = memo(function QuestionList({
                     {pageNum}
                   </PaginationLink>
                 </PaginationItem>
-              );
+              )
             })}
 
             <PaginationItem>
@@ -136,5 +136,5 @@ export const QuestionList = memo(function QuestionList({
         </Pagination>
       )}
     </div>
-  );
-});
+  )
+})

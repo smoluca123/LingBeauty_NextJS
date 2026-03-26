@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { IAdminCategoryDataType } from '@/lib/types/interfaces/apis/admin-category.interfaces';
-import { useDeleteCategoryMutation } from '@/hooks/querys/admin-category-brand.query';
+import { useDeleteCategoryMutation } from '@/hooks/mutations/admin-category-brand.mutation';
 
 interface DeleteCategoryDialogProps {
   open: boolean;

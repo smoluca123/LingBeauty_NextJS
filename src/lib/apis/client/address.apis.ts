@@ -1,18 +1,23 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces'
 import {
   IApiPaginationParams,
   IApiPaginationResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
-import { HTTPError } from 'ky';
+} from '@/lib/types/interfaces/apis/api.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 
+/**
+ * Fetch current user's addresses with pagination
+ * @param params - Pagination and search parameters
+ * @returns Promise with paginated address data
+ * @throws Error with backend message
+ */
 export const getMyAddressesAPI = async (
   params?: IApiPaginationParams & {
-    search?: string;
+    search?: string
   },
 ) => {
   try {
-    //   const response = await getMyAddressesAPI(params || {});
     const response = await kyNextInstance
       .get('me/address', {
         searchParams: {
@@ -21,13 +26,11 @@ export const getMyAddressesAPI = async (
           search: params?.search,
         },
       })
-      .json<IApiPaginationResponseWrapperType<IAddressDataType>>();
-    return response;
+      .json<IApiPaginationResponseWrapperType<IAddressDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch addresses');
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch addresses'),
+    )
   }
-};
+}

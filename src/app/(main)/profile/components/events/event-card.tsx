@@ -9,16 +9,18 @@ import {
   Gift,
   ChevronRight,
 } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+
 import {
   EVENT_STATUS_LABELS,
   EVENT_STATUS_COLORS,
   formatEventDate,
   formatEventTime,
   type Event,
-} from '../../events/_data/mock-events';
+} from '@/app/(main)/profile/events/_data/mock-events';
 
 // ============ Event Card Component ============
 interface EventCardProps {

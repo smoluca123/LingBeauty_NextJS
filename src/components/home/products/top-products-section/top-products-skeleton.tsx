@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ProductCard2Skeleton } from '@/components/product';
-import { HorizontalScroller } from '../../horizontal-scroller';
-import { SectionHeading } from '../../section-heading';
+import { HorizontalScroller } from '@/components/home/horizontal-scroller';
+import { SectionHeading } from '@/components/home/section-heading';
 
 /**
  * Skeleton loading state for TopProductsSection

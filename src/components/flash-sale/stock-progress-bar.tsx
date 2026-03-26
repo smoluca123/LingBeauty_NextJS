@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils/style-utils'
 import {
   calculateStockPercent,
   getRemainingStock,
   isLowStock,
-} from '@/lib/utils/flash-sale-utils';
+} from '@/lib/utils/flash-sale-utils'
 
 interface StockProgressBarProps {
-  soldQuantity: number;
-  maxQuantity: number;
-  className?: string;
+  soldQuantity: number
+  maxQuantity: number
+  className?: string
 }
 
 export function StockProgressBar({
@@ -18,9 +18,9 @@ export function StockProgressBar({
   maxQuantity,
   className,
 }: StockProgressBarProps) {
-  const stockPercent = calculateStockPercent(soldQuantity, maxQuantity);
-  const remaining = getRemainingStock(soldQuantity, maxQuantity);
-  const lowStock = isLowStock(soldQuantity, maxQuantity);
+  const stockPercent = calculateStockPercent(soldQuantity, maxQuantity)
+  const remaining = getRemainingStock(soldQuantity, maxQuantity)
+  const lowStock = isLowStock(soldQuantity, maxQuantity)
 
   return (
     <div className={cn('w-full', className)}>
@@ -39,5 +39,5 @@ export function StockProgressBar({
         </span>
       </div>
     </div>
-  );
+  )
 }

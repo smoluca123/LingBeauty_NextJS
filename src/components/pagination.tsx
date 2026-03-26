@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import Link from 'next/link'
+import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
   /** When provided, pagination renders SEO-friendly <Link> elements instead of buttons */
-  getPageHref?: (page: number) => string;
-  className?: string;
+  getPageHref?: (page: number) => string
+  className?: string
 }
 
 export function Pagination({
@@ -21,62 +21,62 @@ export function Pagination({
   className,
 }: PaginationProps) {
   // Don't render pagination if there's only 1 page or less
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1) return null
 
   // Generate page numbers to display
   const getPageNumbers = (): (number | 'ellipsis')[] => {
-    const pages: (number | 'ellipsis')[] = [];
-    const showEllipsisThreshold = 7;
+    const pages: (number | 'ellipsis')[] = []
+    const showEllipsisThreshold = 7
 
     if (totalPages <= showEllipsisThreshold) {
       // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
+        pages.push(i)
       }
     } else {
       // Always show first page
-      pages.push(1);
+      pages.push(1)
 
       if (currentPage > 3) {
-        pages.push('ellipsis');
+        pages.push('ellipsis')
       }
 
       // Show pages around current page
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
 
       for (let i = start; i <= end; i++) {
-        pages.push(i);
+        pages.push(i)
       }
 
       if (currentPage < totalPages - 2) {
-        pages.push('ellipsis');
+        pages.push('ellipsis')
       }
 
       // Always show last page
-      pages.push(totalPages);
+      pages.push(totalPages)
     }
 
-    return pages;
-  };
+    return pages
+  }
 
-  const pageNumbers = getPageNumbers();
+  const pageNumbers = getPageNumbers()
 
   const buttonBaseClass =
-    'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200';
+    'flex h-10 w-10 items-center justify-center rounded-lg border transition-all duration-200'
   const activeClass =
-    'border-primary-pink bg-primary-pink text-white shadow-md shadow-primary-pink/25';
+    'border-primary-pink bg-primary-pink text-white shadow-md shadow-primary-pink/25'
   const inactiveClass =
-    'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink';
-  const disabledClass = 'cursor-not-allowed border-gray-200 text-gray-300';
+    'border-gray-200 text-muted-foreground hover:border-primary-pink hover:bg-primary-pink/5 hover:text-primary-pink'
+  const disabledClass = 'cursor-not-allowed border-gray-200 text-gray-300'
 
   /** Render a page item as <Link> (SEO) or <button> (client-only) */
   const renderPageItem = (page: number) => {
-    const isActive = currentPage === page;
+    const isActive = currentPage === page
     const className = cn(
       'flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-medium transition-all duration-200',
       isActive ? activeClass : inactiveClass,
-    );
+    )
 
     if (getPageHref && !isActive) {
       return (
@@ -89,7 +89,7 @@ export function Pagination({
         >
           {page}
         </Link>
-      );
+      )
     }
 
     return (
@@ -102,8 +102,8 @@ export function Pagination({
       >
         {page}
       </button>
-    );
-  };
+    )
+  }
 
   /** Render prev/next as <Link> or <button> */
   const renderNavButton = (
@@ -111,8 +111,8 @@ export function Pagination({
     disabled: boolean,
     targetPage: number,
   ) => {
-    const Icon = direction === 'prev' ? ChevronLeft : ChevronRight;
-    const label = direction === 'prev' ? 'Previous page' : 'Next page';
+    const Icon = direction === 'prev' ? ChevronLeft : ChevronRight
+    const label = direction === 'prev' ? 'Previous page' : 'Next page'
 
     if (getPageHref && !disabled) {
       return (
@@ -124,7 +124,7 @@ export function Pagination({
         >
           <Icon className="h-4 w-4" />
         </Link>
-      );
+      )
     }
 
     return (
@@ -139,8 +139,8 @@ export function Pagination({
       >
         <Icon className="h-4 w-4" />
       </button>
-    );
-  };
+    )
+  }
 
   return (
     <nav
@@ -169,5 +169,5 @@ export function Pagination({
       {/* Next button */}
       {renderNavButton('next', currentPage === totalPages, currentPage + 1)}
     </nav>
-  );
+  )
 }

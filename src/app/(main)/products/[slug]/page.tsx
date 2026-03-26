@@ -49,7 +49,7 @@ export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { slug } = await params;
-
+  
   if (!slug) notFound();
 
   return (

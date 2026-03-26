@@ -1,19 +1,9 @@
-import { kyInstance } from '@/lib/kyInstance/ky';
-import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { logoutServerAPI } from '@/lib/apis/server/auth-api'
+import { proxyRoute } from '@/lib/proxy-route'
 
 export async function POST() {
-  const cookieStore = await cookies();
-
-  // Best-effort: call BE to invalidate the session, but don't fail if it errors
-  try {
-    await kyInstance.post('auth/logout');
-  } catch {
-    // Intentionally swallowed — cookie cleanup must always happen
-  }
-
-  cookieStore.delete('accessToken');
-  cookieStore.delete('userId');
-
-  return NextResponse.json({ message: 'Logged out successfully' });
+  return proxyRoute(async () => {
+    await logoutServerAPI()
+    return { message: 'Logged out successfully' }
+  })
 }

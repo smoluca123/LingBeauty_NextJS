@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
-import { AddressesContent } from '../components';
 import { Loader2 } from 'lucide-react';
+
+import { AddressesContent } from '@/app/(main)/profile/components';
 
 export default function AddressesPage() {
   return (

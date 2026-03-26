@@ -1,8 +1,8 @@
-'use client';
+/* eslint-disable jsx-a11y/alt-text */
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Bold, Italic, Underline, Image, Hash } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { Bold, Italic, Underline, Image, Hash } from 'lucide-react'
 
 /**
  * Demo component để show các trạng thái của toolbar buttons
@@ -13,7 +13,7 @@ export function ToolbarButtonDemo() {
     <div className="space-y-8 p-8 bg-background">
       <div>
         <h3 className="text-lg font-semibold mb-4">Toolbar Button States</h3>
-        
+
         {/* Normal State */}
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">Normal (Inactive)</p>
@@ -115,7 +115,9 @@ export function ToolbarButtonDemo() {
 
         {/* Special Buttons (Image, Hashtag) */}
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Special Buttons (Normal)</p>
+          <p className="text-sm text-muted-foreground">
+            Special Buttons (Normal)
+          </p>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -137,7 +139,9 @@ export function ToolbarButtonDemo() {
         </div>
 
         <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">Special Buttons (Active/Open)</p>
+          <p className="text-sm text-muted-foreground">
+            Special Buttons (Active/Open)
+          </p>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -174,7 +178,9 @@ export function ToolbarButtonDemo() {
             <div className="w-12 h-12 bg-muted rounded" />
             <div>
               <p className="font-medium">Muted</p>
-              <p className="text-sm text-muted-foreground">Hover background (normal)</p>
+              <p className="text-sm text-muted-foreground">
+                Hover background (normal)
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -189,5 +195,5 @@ export function ToolbarButtonDemo() {
         </div>
       </div>
     </div>
-  );
+  )
 }

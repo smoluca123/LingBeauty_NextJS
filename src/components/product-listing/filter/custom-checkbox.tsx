@@ -1,13 +1,13 @@
-'use client';
+'use client'
 
-import { Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Check } from 'lucide-react'
+import { cn } from '@/lib/utils/style-utils'
 
 interface CustomCheckboxProps {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-  count?: number;
+  checked: boolean
+  onChange: (checked: boolean) => void
+  label: string
+  count?: number
 }
 
 export function CustomCheckbox({
@@ -24,8 +24,8 @@ export function CustomCheckbox({
       onClick={() => onChange(!checked)}
       onKeyDown={(e) => {
         if (e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          onChange(!checked);
+          e.preventDefault()
+          onChange(!checked)
         }
       }}
       className="flex cursor-pointer items-center gap-3 group py-1.5 px-2 -mx-2 rounded-lg hover:bg-white/60 transition-colors"
@@ -56,5 +56,5 @@ export function CustomCheckbox({
         )}
       </span>
     </div>
-  );
+  )
 }

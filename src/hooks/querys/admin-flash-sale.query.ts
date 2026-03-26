@@ -3,7 +3,7 @@ import {
   useMutation,
   useQueryClient,
   type UseQueryOptions,
-} from '@tanstack/react-query';
+} from '@tanstack/react-query'
 import {
   getAllFlashSalesClientAPI,
   getFlashSaleByIdClientAPI,
@@ -15,11 +15,11 @@ import {
   removeProductFromFlashSaleClientAPI,
   getCurrentFlashSaleClientAPI,
   getUpcomingFlashSalesClientAPI,
-} from '@/lib/apis/client/admin-flash-sale.apis';
+} from '@/lib/apis/client/admin-flash-sale.apis'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IFlashSaleDataType,
   IFlashSaleFilterParams,
@@ -27,8 +27,7 @@ import type {
   IUpdateFlashSaleFormData,
   IAddFlashSaleProductFormData,
   IUpdateFlashSaleProductFormData,
-  IFlashSaleProductDataType,
-} from '@/lib/types/interfaces/apis/flash-sale.interfaces';
+} from '@/lib/types/interfaces/apis/flash-sale.interfaces'
 
 // ── Query Keys ────────────────────────────────────────────────────────────────
 
@@ -37,7 +36,7 @@ export const adminFlashSaleQueryKeys = {
   flashSale: (id: string) => ['admin', 'flash-sale', id] as const,
   currentFlashSale: ['flash-sale', 'current'] as const,
   upcomingFlashSales: ['flash-sale', 'upcoming'] as const,
-};
+}
 
 // ── Get All Flash Sales ───────────────────────────────────────────────────────
 
@@ -53,7 +52,7 @@ export const useAdminFlashSalesQuery = (
     queryFn: () => getAllFlashSalesClientAPI(params),
     staleTime: 1000 * 60 * 2, // 2 minutes
     ...options,
-  });
+  })
 
 // ── Get Flash Sale by ID ──────────────────────────────────────────────────────
 
@@ -70,7 +69,7 @@ export const useAdminFlashSaleQuery = (
     staleTime: 1000 * 60 * 2, // 2 minutes
     enabled: !!id,
     ...options,
-  });
+  })
 
 // ── Get Current Flash Sale (Public) ───────────────────────────────────────────
 
@@ -86,7 +85,7 @@ export const useCurrentFlashSaleQuery = (
     staleTime: 1000 * 30, // 30 seconds - refresh more frequently for countdown
     refetchInterval: 1000 * 60, // Refetch every minute
     ...options,
-  });
+  })
 
 // ── Get Upcoming Flash Sales (Public) ─────────────────────────────────────────
 
@@ -101,12 +100,12 @@ export const useUpcomingFlashSalesQuery = (
     queryFn: () => getUpcomingFlashSalesClientAPI(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     ...options,
-  });
+  })
 
 // ── Create Flash Sale ─────────────────────────────────────────────────────────
 
 export const useCreateFlashSaleMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (data: ICreateFlashSaleFormData) =>
@@ -114,75 +113,75 @@ export const useCreateFlashSaleMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSales,
-      });
+      })
     },
-  });
-};
+  })
+}
 
 // ── Update Flash Sale ─────────────────────────────────────────────────────────
 
 export const useUpdateFlashSaleMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
       id,
       data,
     }: {
-      id: string;
-      data: IUpdateFlashSaleFormData;
+      id: string
+      data: IUpdateFlashSaleFormData
     }) => updateFlashSaleClientAPI(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSales,
-      });
+      })
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSale(variables.id),
-      });
+      })
     },
-  });
-};
+  })
+}
 
 // ── Delete Flash Sale ─────────────────────────────────────────────────────────
 
 export const useDeleteFlashSaleMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (id: string) => deleteFlashSaleClientAPI(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSales,
-      });
+      })
     },
-  });
-};
+  })
+}
 
 // ── Add Products to Flash Sale ────────────────────────────────────────────────
 
 export const useAddProductsToFlashSaleMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
       flashSaleId,
       data,
     }: {
-      flashSaleId: string;
-      data: IAddFlashSaleProductFormData[];
+      flashSaleId: string
+      data: IAddFlashSaleProductFormData[]
     }) => addProductsToFlashSaleClientAPI(flashSaleId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSale(variables.flashSaleId),
-      });
+      })
     },
-  });
-};
+  })
+}
 
 // ── Update Flash Sale Product ─────────────────────────────────────────────────
 
 export const useUpdateFlashSaleProductMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
@@ -191,24 +190,24 @@ export const useUpdateFlashSaleProductMutation = () => {
       data,
       variantId,
     }: {
-      flashSaleId: string;
-      productId: string;
-      data: IUpdateFlashSaleProductFormData;
-      variantId?: string;
+      flashSaleId: string
+      productId: string
+      data: IUpdateFlashSaleProductFormData
+      variantId?: string
     }) =>
       updateFlashSaleProductClientAPI(flashSaleId, productId, data, variantId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSale(variables.flashSaleId),
-      });
+      })
     },
-  });
-};
+  })
+}
 
 // ── Remove Product from Flash Sale ────────────────────────────────────────────
 
 export const useRemoveProductFromFlashSaleMutation = () => {
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({
@@ -216,15 +215,15 @@ export const useRemoveProductFromFlashSaleMutation = () => {
       productId,
       variantId,
     }: {
-      flashSaleId: string;
-      productId: string;
-      variantId?: string;
+      flashSaleId: string
+      productId: string
+      variantId?: string
     }) =>
       removeProductFromFlashSaleClientAPI(flashSaleId, productId, variantId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: adminFlashSaleQueryKeys.flashSale(variables.flashSaleId),
-      });
+      })
     },
-  });
-};
+  })
+}

@@ -25,7 +25,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   updateQuestionSchema,
   type UpdateQuestionValues,
-} from '@/lib/zod-schemas/product-question.schema';
+} from "@/lib/schemas/product.schema";
 import { useUpdateQuestionMutation } from '@/hooks/mutations/product-question.mutation';
 
 interface EditQuestionDialogProps {

@@ -1,12 +1,14 @@
 'use client';
 
 import { CheckCircle2 } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
-import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 import {
   ADDRESS_TYPE_LABELS,
   ADDRESS_TYPE_ICONS,
-} from '../constants/address.constants';
+} from '@/app/(main)/profile/components/addresses/constants/address.constants';
+
+import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
 
 interface AddressHeaderProps {
   fullName: string;

@@ -1,4 +1,4 @@
-import { OrdersContent } from '../components';
+import { OrdersContent } from '@/app/(main)/profile/components';
 
 export default function OrdersPage() {
   return (

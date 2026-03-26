@@ -2,14 +2,16 @@
 
 import Image from 'next/image';
 import { Package, ChevronRight } from 'lucide-react';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_COLORS,
   type Order,
-} from '../../orders/_data/mock-orders';
+} from '@/app/(main)/profile/orders/_data/mock-orders';
 
 // ============ Helper ============
 function formatCurrency(amount: number): string {

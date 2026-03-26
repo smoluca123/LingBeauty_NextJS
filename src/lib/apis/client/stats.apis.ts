@@ -1,5 +1,6 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
+import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IAggregatedStatsType,
   IDailyStatsType,
@@ -8,8 +9,7 @@ import type {
   IRevenueChartType,
   ITopProductType,
   StatsPeriod,
-} from '@/lib/types/interfaces/apis/stats.interfaces';
-import { HTTPError } from 'ky';
+} from '@/lib/types/interfaces/apis/stats.interfaces'
 
 // Helper: loại bỏ undefined trước khi truyền vào searchParams
 const buildSearchParams = (
@@ -17,35 +17,40 @@ const buildSearchParams = (
 ): Record<string, string | number | boolean> =>
   Object.fromEntries(
     Object.entries(options).filter(([, v]) => v !== undefined),
-  ) as Record<string, string | number | boolean>;
-
-const handleError = async (error: unknown) => {
-  if (error instanceof HTTPError) {
-    const data = await error.response.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message || error.message);
-  }
-  throw error;
-};
+  ) as Record<string, string | number | boolean>
 
 // ── Overview ─────────────────────────────────────────────────────────────────
 
+/**
+ * Get overview statistics
+ * @returns Promise with overview stats data
+ * @throws Error with backend message
+ */
 export const getOverviewStatsClientAPI = async () => {
   try {
     return await kyNextInstance
       .get('admin/stats/overview')
-      .json<IApiResponseWrapperType<IOverviewStatsType>>();
+      .json<IApiResponseWrapperType<IOverviewStatsType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch overview stats'),
+    )
   }
-};
+}
 
 // ── Daily snapshots ───────────────────────────────────────────────────────────
 
 export interface IDailyStatsClientParams {
-  startDate?: string;
-  endDate?: string;
+  startDate?: string
+  endDate?: string
 }
 
+/**
+ * Get daily statistics snapshots
+ * @param params - Date range parameters
+ * @returns Promise with daily stats array
+ * @throws Error with backend message
+ */
 export const getDailyStatsClientAPI = async (
   params: IDailyStatsClientParams = {},
 ) => {
@@ -57,20 +62,28 @@ export const getDailyStatsClientAPI = async (
           endDate: params.endDate,
         }),
       })
-      .json<IApiResponseWrapperType<IDailyStatsType[]>>();
+      .json<IApiResponseWrapperType<IDailyStatsType[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch daily stats'),
+    )
   }
-};
+}
 
 // ── Aggregated stats ──────────────────────────────────────────────────────────
 
 export interface IAggregatedStatsClientParams {
-  period?: StatsPeriod;
-  startDate?: string;
-  endDate?: string;
+  period?: StatsPeriod
+  startDate?: string
+  endDate?: string
 }
 
+/**
+ * Get aggregated statistics
+ * @param params - Period and date range parameters
+ * @returns Promise with aggregated stats array
+ * @throws Error with backend message
+ */
 export const getAggregatedStatsClientAPI = async (
   params: IAggregatedStatsClientParams = {},
 ) => {
@@ -83,20 +96,28 @@ export const getAggregatedStatsClientAPI = async (
           endDate: params.endDate,
         }),
       })
-      .json<IApiResponseWrapperType<IAggregatedStatsType[]>>();
+      .json<IApiResponseWrapperType<IAggregatedStatsType[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch aggregated stats'),
+    )
   }
-};
+}
 
 // ── Revenue chart ─────────────────────────────────────────────────────────────
 
 export interface IRevenueChartClientParams {
-  period?: StatsPeriod;
-  startDate?: string;
-  endDate?: string;
+  period?: StatsPeriod
+  startDate?: string
+  endDate?: string
 }
 
+/**
+ * Get revenue chart data
+ * @param params - Period and date range parameters
+ * @returns Promise with revenue chart data
+ * @throws Error with backend message
+ */
 export const getRevenueChartClientAPI = async (
   params: IRevenueChartClientParams = {},
 ) => {
@@ -109,30 +130,48 @@ export const getRevenueChartClientAPI = async (
           endDate: params.endDate,
         }),
       })
-      .json<IApiResponseWrapperType<IRevenueChartType>>();
+      .json<IApiResponseWrapperType<IRevenueChartType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch revenue chart'),
+    )
   }
-};
+}
 
 // ── Order status breakdown ────────────────────────────────────────────────────
 
+/**
+ * Get order status breakdown
+ * @returns Promise with order status breakdown data
+ * @throws Error with backend message
+ */
 export const getOrderStatusBreakdownClientAPI = async () => {
   try {
     return await kyNextInstance
       .get('admin/stats/orders/breakdown')
-      .json<IApiResponseWrapperType<IOrderStatusBreakdownType>>();
+      .json<IApiResponseWrapperType<IOrderStatusBreakdownType>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(
+        error,
+        'Failed to fetch order status breakdown',
+      ),
+    )
   }
-};
+}
 
 // ── Top products ──────────────────────────────────────────────────────────────
 
 export interface ITopProductsClientParams {
-  limit?: number;
+  limit?: number
 }
 
+/**
+ * Get top products
+ * @param params - Limit parameter
+ * @returns Promise with top products array
+ * @throws Error with backend message
+ */
 export const getTopProductsClientAPI = async (
   params: ITopProductsClientParams = {},
 ) => {
@@ -141,20 +180,29 @@ export const getTopProductsClientAPI = async (
       .get('admin/stats/products/top', {
         searchParams: buildSearchParams({ limit: params.limit }),
       })
-      .json<IApiResponseWrapperType<ITopProductType[]>>();
+      .json<IApiResponseWrapperType<ITopProductType[]>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch top products'),
+    )
   }
-};
+}
 
 // ── Sync daily stats ──────────────────────────────────────────────────────────
 
+/**
+ * Sync daily statistics
+ * @returns Promise with sync result message
+ * @throws Error with backend message
+ */
 export const syncDailyStatsClientAPI = async () => {
   try {
     return await kyNextInstance
       .post('admin/stats/sync')
-      .json<IApiResponseWrapperType<{ message: string }>>();
+      .json<IApiResponseWrapperType<{ message: string }>>()
   } catch (error) {
-    return handleError(error);
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to sync daily stats'),
+    )
   }
-};
+}

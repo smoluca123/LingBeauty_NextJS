@@ -1,8 +1,8 @@
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
 import type {
   IApiPaginationResponseWrapperType,
   IApiResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces';
+} from '@/lib/types/interfaces/apis/api.interfaces'
 import type {
   IReviewDataType,
   IReviewSummaryDataType,
@@ -13,8 +13,8 @@ import type {
   IUpdateReviewDataType,
   IUpdateReviewReplyDataType,
   IGetReviewRepliesParams,
-} from '@/lib/types/interfaces/apis/review.interfaces';
-import { HTTPError } from 'ky';
+} from '@/lib/types/interfaces/apis/review.interfaces'
+import { extractErrorMessage } from '@/lib/utils/error-handler'
 
 /**
  * Fetch public reviews for a product (client-side)
@@ -28,23 +28,19 @@ export const getPublicProductReviewsAPI = async (
     const searchParams: Record<string, string | number> = {
       page: params.page ?? 1,
       limit: params.limit ?? 10,
-    };
-    if (params.rating) searchParams.rating = params.rating;
-    if (params.sortBy) searchParams.sortBy = params.sortBy;
-    if (params.order) searchParams.order = params.order;
+    }
+    if (params.rating) searchParams.rating = params.rating
+    if (params.sortBy) searchParams.sortBy = params.sortBy
+    if (params.order) searchParams.order = params.order
 
     const response = await kyNextInstance
       .get(`review/public/product/${productId}`, { searchParams })
-      .json<IApiPaginationResponseWrapperType<IReviewDataType>>();
-    return response;
+      .json<IApiPaginationResponseWrapperType<IReviewDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch reviews');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to fetch reviews'))
   }
-};
+}
 
 /**
  * Fetch review summary for a product (client-side)
@@ -54,16 +50,14 @@ export const getProductReviewSummaryAPI = async (productId: string) => {
   try {
     const response = await kyNextInstance
       .get(`review/public/product/${productId}/summary`)
-      .json<IApiResponseWrapperType<IReviewSummaryDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewSummaryDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch review summary');
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch review summary'),
+    )
   }
-};
+}
 
 /**
  * Fetch a single public review by ID (client-side)
@@ -73,16 +67,12 @@ export const getPublicReviewByIdAPI = async (reviewId: string) => {
   try {
     const response = await kyNextInstance
       .get(`review/public/${reviewId}`)
-      .json<IApiResponseWrapperType<IReviewDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch review');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to fetch review'))
   }
-};
+}
 
 /**
  * Create a new review
@@ -92,16 +82,12 @@ export const createReviewAPI = async (data: ICreateReviewDataType) => {
   try {
     const response = await kyNextInstance
       .post('review', { json: data })
-      .json<IApiResponseWrapperType<IReviewDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to create review');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to create review'))
   }
-};
+}
 
 /**
  * Mark a review as helpful
@@ -113,21 +99,17 @@ export const markHelpfulAPI = async (reviewId: string) => {
       .post(`review/${reviewId}/helpful`)
       .json<
         IApiResponseWrapperType<{
-          reviewId: string;
-          helpfulCount: number;
-          hasMarked: boolean;
-          isHelpful: boolean;
+          reviewId: string
+          helpfulCount: number
+          hasMarked: boolean
+          isHelpful: boolean
         }>
-      >();
-    return response;
+      >()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to mark helpful');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to mark helpful'))
   }
-};
+}
 
 /**
  * Unmark helpful from a review
@@ -139,21 +121,19 @@ export const unmarkHelpfulAPI = async (reviewId: string) => {
       .delete(`review/${reviewId}/helpful`)
       .json<
         IApiResponseWrapperType<{
-          reviewId: string;
-          helpfulCount: number;
-          hasMarked: boolean;
-          isHelpful: boolean | null;
+          reviewId: string
+          helpfulCount: number
+          hasMarked: boolean
+          isHelpful: boolean | null
         }>
-      >();
-    return response;
+      >()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to unmark helpful');
-    }
-    throw error;
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to unmark helpful'),
+    )
   }
-};
+}
 
 /**
  * Create a reply to a review
@@ -166,16 +146,12 @@ export const createReviewReplyAPI = async (
   try {
     const response = await kyNextInstance
       .post(`review/${reviewId}/reply`, { json: data })
-      .json<IApiResponseWrapperType<IReviewReplyDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewReplyDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to create reply');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to create reply'))
   }
-};
+}
 
 /**
  * Fetch replies for a review
@@ -189,22 +165,18 @@ export const getReviewRepliesAPI = async (
     const searchParams: Record<string, string | number> = {
       page: params.page ?? 1,
       limit: params.limit ?? 10,
-    };
-    if (params.sortBy) searchParams.sortBy = params.sortBy;
-    if (params.order) searchParams.order = params.order;
+    }
+    if (params.sortBy) searchParams.sortBy = params.sortBy
+    if (params.order) searchParams.order = params.order
 
     const response = await kyNextInstance
       .get(`review/${reviewId}/replies`, { searchParams })
-      .json<IApiPaginationResponseWrapperType<IReviewReplyDataType>>();
-    return response;
+      .json<IApiPaginationResponseWrapperType<IReviewReplyDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to fetch replies');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to fetch replies'))
   }
-};
+}
 
 /**
  * Update a review
@@ -217,16 +189,12 @@ export const updateReviewAPI = async (
   try {
     const response = await kyNextInstance
       .patch(`review/${reviewId}`, { json: data })
-      .json<IApiResponseWrapperType<IReviewDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to update review');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to update review'))
   }
-};
+}
 
 /**
  * Delete a review
@@ -236,16 +204,12 @@ export const deleteReviewAPI = async (reviewId: string) => {
   try {
     const response = await kyNextInstance
       .delete(`review/${reviewId}`)
-      .json<IApiResponseWrapperType<{ deleted: boolean }>>();
-    return response;
+      .json<IApiResponseWrapperType<{ deleted: boolean }>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to delete review');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to delete review'))
   }
-};
+}
 
 /**
  * Update a review reply
@@ -258,16 +222,12 @@ export const updateReviewReplyAPI = async (
   try {
     const response = await kyNextInstance
       .patch(`review/reply/${replyId}`, { json: data })
-      .json<IApiResponseWrapperType<IReviewReplyDataType>>();
-    return response;
+      .json<IApiResponseWrapperType<IReviewReplyDataType>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to update reply');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to update reply'))
   }
-};
+}
 
 /**
  * Delete a review reply
@@ -277,13 +237,9 @@ export const deleteReviewReplyAPI = async (replyId: string) => {
   try {
     const response = await kyNextInstance
       .delete(`review/reply/${replyId}`)
-      .json<IApiResponseWrapperType<{ deleted: boolean }>>();
-    return response;
+      .json<IApiResponseWrapperType<{ deleted: boolean }>>()
+    return response
   } catch (error) {
-    if (error instanceof HTTPError) {
-      const errorData = await error.response.json();
-      throw new Error(errorData.message || 'Failed to delete reply');
-    }
-    throw error;
+    throw new Error(await extractErrorMessage(error, 'Failed to delete reply'))
   }
-};
+}

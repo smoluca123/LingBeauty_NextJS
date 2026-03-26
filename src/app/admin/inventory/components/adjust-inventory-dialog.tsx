@@ -25,7 +25,7 @@ import {
   useUpdateProductInventoryMutation,
   useAdjustVariantInventoryMutation,
   useUpdateVariantInventoryMutation,
-} from '@/hooks/querys/admin-inventory.query';
+} from '@/hooks/mutations/admin-inventory.mutation';
 import type { InventoryDisplayStatus } from '@/lib/types/interfaces/apis/admin-inventory.interfaces';
 import type { InventoryRow } from './inventory-table';
 import { isVariantRow } from './inventory-table/helpers';

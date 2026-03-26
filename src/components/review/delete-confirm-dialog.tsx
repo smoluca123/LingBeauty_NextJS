@@ -1,24 +1,23 @@
-'use client';
+'use client'
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import LoadingButton from '@/components/ui/loading-button';
+} from '@/components/ui/alert-dialog'
+import LoadingButton from '@/components/ui/loading-button'
 
 interface DeleteConfirmDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title?: string;
-  description?: string;
-  isLoading?: boolean;
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  title?: string
+  description?: string
+  isLoading?: boolean
 }
 
 export function DeleteConfirmDialog({
@@ -50,5 +49,5 @@ export function DeleteConfirmDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

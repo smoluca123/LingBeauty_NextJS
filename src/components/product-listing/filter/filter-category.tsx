@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { Search } from 'lucide-react'
+import { useState } from 'react'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import { CustomCheckbox } from './custom-checkbox';
+} from '@/components/ui/accordion'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils/style-utils'
+import { IFilterCategoryDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import { CustomCheckbox } from './custom-checkbox'
 
 interface FilterCategoryProps {
-  categories: IFilterCategoryDataType[];
-  selectedCategories: string[];
-  onChange: (categories: string[]) => void;
-  className?: string;
+  categories: IFilterCategoryDataType[]
+  selectedCategories: string[]
+  onChange: (categories: string[]) => void
+  className?: string
 }
 
 export function FilterCategoryComponent({
@@ -26,19 +26,19 @@ export function FilterCategoryComponent({
   onChange,
   className,
 }: FilterCategoryProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('')
 
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  )
 
   const handleCheckboxChange = (categorySlug: string, checked: boolean) => {
     if (checked) {
-      onChange([...selectedCategories, categorySlug]);
+      onChange([...selectedCategories, categorySlug])
     } else {
-      onChange(selectedCategories.filter((slug) => slug !== categorySlug));
+      onChange(selectedCategories.filter((slug) => slug !== categorySlug))
     }
-  };
+  }
 
   return (
     <Accordion
@@ -83,5 +83,5 @@ export function FilterCategoryComponent({
         </AccordionContent>
       </AccordionItem>
     </Accordion>
-  );
+  )
 }
