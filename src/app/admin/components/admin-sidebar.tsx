@@ -1,6 +1,6 @@
-'use client';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+'use client'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
   Package,
@@ -14,7 +14,8 @@ import {
   Zap,
   MessageSquare,
   HelpCircle,
-} from 'lucide-react';
+  ShoppingCart,
+} from 'lucide-react'
 
 import {
   Sidebar,
@@ -29,18 +30,18 @@ import {
   SidebarRail,
   SidebarSeparator,
   useSidebar,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 // ============ Types ============
 interface NavItem {
-  icon: React.ElementType;
-  label: string;
-  href: string;
+  icon: React.ElementType
+  label: string
+  href: string
 }
 
 interface NavSection {
-  title: string;
-  items: NavItem[];
+  title: string
+  items: NavItem[]
 }
 
 // ============ Constants ============
@@ -73,6 +74,12 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: 'Đơn hàng',
+    items: [
+      { icon: ShoppingCart, label: 'Quản lý đơn hàng', href: '/admin/orders' },
+    ],
+  },
+  {
     title: 'Nội dung',
     items: [
       { icon: MessageSquare, label: 'Đánh giá', href: '/admin/reviews' },
@@ -83,44 +90,44 @@ const NAV_SECTIONS: NavSection[] = [
     title: 'Ngườii dùng',
     items: [{ icon: Users, label: 'Tất cả ngườii dùng', href: '/admin/users' }],
   },
-];
+]
 
 export function AdminSidebar() {
-  const pathname = usePathname();
-  const { isMobile, setOpenMobile } = useSidebar();
+  const pathname = usePathname()
+  const { isMobile, setOpenMobile } = useSidebar()
 
   return (
-    <Sidebar collapsible='icon'>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size='lg' asChild>
+            <SidebarMenuButton size="lg" asChild>
               <Link
-                href='/admin'
+                href="/admin"
                 onClick={() => isMobile && setOpenMobile(false)}
               >
-                <div className='flex aspect-square size-8 items-center justify-center rounded-lg bg-primary-pink text-primary-foreground'>
-                  <LayoutDashboard className='size-4 text-white' />
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary-pink text-primary-foreground">
+                  <LayoutDashboard className="size-4 text-white" />
                 </div>
-                <div className='flex flex-col gap-0.5 leading-none'>
-                  <span className='font-semibold text-primary-pink'>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold text-primary-pink">
                     Admin Panel
                   </span>
-                  <span className=''>v1.0.0</span>
+                  <span className="">v1.0.0</span>
                 </div>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarMenu className='px-2 py-1'>
+      <SidebarMenu className="px-2 py-1">
         <SidebarMenuItem>
           <SidebarMenuButton
             asChild
-            tooltip='Về trang chủ'
-            className='bg-primary-pink text-white hover:bg-primary-pink/90 hover:text-white'
+            tooltip="Về trang chủ"
+            className="bg-primary-pink text-white hover:bg-primary-pink/90 hover:text-white"
           >
-            <Link href='/' onClick={() => isMobile && setOpenMobile(false)}>
+            <Link href="/" onClick={() => isMobile && setOpenMobile(false)}>
               <Store />
               <span>Về trang chủ</span>
             </Link>
@@ -137,7 +144,7 @@ export function AdminSidebar() {
                 {section.items.map((item) => {
                   const isActive =
                     pathname === item.href ||
-                    (item.href !== '/admin' && pathname.startsWith(item.href));
+                    (item.href !== '/admin' && pathname.startsWith(item.href))
 
                   return (
                     <SidebarMenuItem key={item.label}>
@@ -161,7 +168,7 @@ export function AdminSidebar() {
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  );
+                  )
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -171,5 +178,5 @@ export function AdminSidebar() {
 
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }
