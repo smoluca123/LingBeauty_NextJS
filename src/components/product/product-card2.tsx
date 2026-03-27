@@ -29,6 +29,7 @@ type ProductCardProps = {
   showStock?: boolean
   soldQuantity?: number
   maxQuantity?: number
+  showAddToCart?: boolean
 } & IPropsWithClassName
 
 export function ProductCard2({
@@ -37,6 +38,7 @@ export function ProductCard2({
   showStock = false,
   soldQuantity,
   maxQuantity,
+  showAddToCart = false,
 }: ProductCardProps) {
   const { name, brand, primaryImage, stats } = product
   const basePrice = Number(product.basePrice)
@@ -136,27 +138,26 @@ export function ProductCard2({
         onVariantClick={handleVariantClick}
       />
 
-      {/* Add to cart / Stock */}
-      {showStock && typeof maxQuantity === 'number' ? (
+      {/* Stock progress bar for flash sale */}
+      {showStock && typeof maxQuantity === 'number' && (
         <div className="mt-3">
           <StockProgressBar
             soldQuantity={soldQuantity ?? 0}
             maxQuantity={maxQuantity}
           />
         </div>
-      ) : (
-        <AddToCartButton product={product} />
       )}
 
+      {/* Add to cart button */}
+      {(showAddToCart || !showStock) && <AddToCartButton product={product} />}
+
       {/* View detail link */}
-      {!showStock && (
-        <Link
-          href={`/products/${product.slug}`}
-          className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
-        >
-          Xem chi tiết
-        </Link>
-      )}
+      <Link
+        href={`/products/${product.slug}`}
+        className="mt-2 flex h-9 w-full items-center justify-center rounded-full border border-primary-pink text-sm font-semibold text-primary-pink hover:bg-primary-pink/10 transition-colors"
+      >
+        Xem chi tiết
+      </Link>
     </article>
   )
 }

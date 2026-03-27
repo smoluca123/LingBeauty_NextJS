@@ -17,6 +17,7 @@ import type {
 import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation'
 import { formatCurrency } from '@/lib/utils/format-utils'
 import { cn } from '@/lib/utils/style-utils'
+import { getDisplayVariants } from '@/lib/utils/variant-utils'
 
 interface AddToCartDialogProps {
   open: boolean
@@ -29,7 +30,8 @@ export function AddToCartDialog({
   onOpenChange,
   product,
 }: AddToCartDialogProps) {
-  const variants = product.variants ?? []
+  // Filter out default variant if it's the only one
+  const variants = getDisplayVariants(product.variants)
 
   // Default to first in-stock variant
   const defaultVariant =
@@ -254,27 +256,56 @@ export function AddToCartDialog({
             </div>
 
             {/* Action button */}
-            <Button
-              onClick={handleAddToCart}
-              disabled={
-                !selectedVariant || isOutOfStock || addToCartMutation.isPending
-              }
-              className="w-full h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold gap-2"
-            >
-              {addToCartMutation.isPending ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  Đang thêm...
-                </>
-              ) : isOutOfStock ? (
-                'Hết hàng'
-              ) : (
-                <>
-                  <ShoppingBag className="h-4 w-4" />
-                  Thêm vào giỏ hàng
-                </>
-              )}
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleAddToCart}
+                disabled={
+                  !selectedVariant || isOutOfStock || addToCartMutation.isPending
+                }
+                variant="outline"
+                className="flex-1 h-11 rounded-xl border-primary-pink text-primary-pink hover:bg-primary-pink/10 font-semibold gap-2"
+              >
+                {addToCartMutation.isPending ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-pink border-t-transparent" />
+                    Đang thêm...
+                  </>
+                ) : isOutOfStock ? (
+                  'Hết hàng'
+                ) : (
+                  <>
+                    <ShoppingBag className="h-4 w-4" />
+                    Thêm vào giỏ
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!selectedVariant) return
+                  addToCartMutation.mutate(
+                    {
+                      productId: product.id,
+                      variantId: selectedVariant.id,
+                      quantity,
+                    },
+                    {
+                      onSuccess: () => {
+                        onOpenChange(false)
+                        setQuantity(1)
+                        // Redirect to cart for checkout
+                        window.location.href = '/cart'
+                      },
+                    },
+                  )
+                }}
+                disabled={
+                  !selectedVariant || isOutOfStock || addToCartMutation.isPending
+                }
+                className="flex-1 h-11 rounded-xl bg-primary-pink hover:bg-primary-pink/90 text-white font-semibold"
+              >
+                {isOutOfStock ? 'Hết hàng' : 'Mua ngay'}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

@@ -10,25 +10,32 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ICartDataType } from '@/lib/types/interfaces/cart.interfaces'
 import { formatCurrency } from '@/lib/utils/format-utils'
+import { Loader2 } from 'lucide-react'
 
 interface CheckoutSummaryProps {
   cartData: ICartDataType
+  onPlaceOrder: () => void
+  isPlacingOrder: boolean
+  canPlaceOrder: boolean
 }
 
-export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
+export function CheckoutSummary({
+  cartData,
+  onPlaceOrder,
+  isPlacingOrder,
+  canPlaceOrder,
+}: CheckoutSummaryProps) {
   const applyCouponMutation = useApplyCouponMutation()
   const { couponCode, appliedCoupon, setCouponCode, setAppliedCoupon } =
     useCartStore()
   const subtotal = Number(cartData.summary.subtotal)
+  const discount = appliedCoupon?.discountAmount ?? 0
+  const total = appliedCoupon ? appliedCoupon.finalTotal : subtotal
 
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return
-
     applyCouponMutation.mutate(
-      {
-        code: couponCode,
-        subtotal: subtotal,
-      },
+      { code: couponCode, subtotal },
       {
         onSuccess: (data) => {
           setAppliedCoupon({
@@ -44,17 +51,17 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
   return (
     <Card className="p-6 border-none shadow-sm sticky top-24">
       <h2 className="text-lg font-bold mb-4">
-        Đơn hàng của bạn ({cartData.summary.itemCount})
+        Đơn hàng ({cartData.summary.itemCount} sản phẩm)
       </h2>
 
-      <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+      <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
         {cartData.items.map((item) => (
-          <div key={item.id} className="flex gap-4">
-            <div className="relative w-16 h-16 bg-gray-100 rounded-md overflow-hidden shrink-0 border border-gray-100">
+          <div key={item.id} className="flex gap-3">
+            <div className="relative w-14 h-14 bg-gray-100 rounded-md overflow-hidden shrink-0 border">
               {item.product.thumbnailImage?.media?.url ? (
                 <Image
                   src={item.product.thumbnailImage.media.url}
-                  alt={item.product.thumbnailImage.alt || item.product.name}
+                  alt={item.product.name}
                   fill
                   className="object-cover"
                 />
@@ -63,18 +70,17 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
                   Ảnh
                 </div>
               )}
-              <span className="absolute -top-2 -right-2 bg-gray-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full z-10">
+              <span className="absolute -top-1.5 -right-1.5 bg-gray-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {item.quantity}
               </span>
             </div>
-
-            <div className="flex-1 min-w-0 flex flex-col justify-center">
-              <p className="text-sm font-medium text-gray-900 line-clamp-2">
-                {item.product.name}
-              </p>
-              {item.variant && (
-                <p className="text-xs text-gray-500 mt-1">
-                  {item.variant.size} - {item.variant.color}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium line-clamp-2">{item.product.name}</p>
+              {item.variant && item.variant.name !== 'Mặc định' && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {[item.variant.color, item.variant.size, item.variant.type]
+                    .filter(Boolean)
+                    .join(' / ') || item.variant.name}
                 </p>
               )}
               <p className="text-sm font-semibold text-primary-pink mt-1">
@@ -85,79 +91,63 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         ))}
       </div>
 
-      <Separator className="my-6" />
-
-      <div className="space-y-3 text-sm">
-        <div className="flex justify-between text-gray-600">
-          <span>Tạm tính</span>
-          <span className="font-medium text-gray-900">
-            {formatCurrency(subtotal)}
-          </span>
-        </div>
-        <div className="flex justify-between text-gray-600">
-          <span>Phí vận chuyển</span>
-          <span className="font-medium text-gray-900">Miễn phí</span>
-        </div>
-        <div className="flex justify-between text-gray-600">
-          <span>Giảm giá</span>
-          <span
-            className={
-              appliedCoupon
-                ? 'text-green-600 font-medium'
-                : 'font-medium text-gray-900'
-            }
-          >
-            {appliedCoupon
-              ? `-${formatCurrency(appliedCoupon.discountAmount)}`
-              : '0 ₫'}
-          </span>
-        </div>
-      </div>
-
       <Separator className="my-4" />
 
-      <div className="mb-4 space-y-2">
-        <label htmlFor="promo" className="text-sm font-medium text-gray-700">
-          Mã giảm giá
-        </label>
+      {/* Coupon */}
+      <div className="space-y-2 mb-4">
+        <label className="text-sm font-medium">Mã giảm giá</label>
         <div className="flex gap-2">
           <Input
-            id="promo"
             placeholder="Nhập mã giảm giá..."
             className="flex-1"
             value={couponCode}
             onChange={(e) => setCouponCode(e.target.value)}
-            disabled={applyCouponMutation.isPending}
+            disabled={applyCouponMutation.isPending || !!appliedCoupon}
           />
           <Button
             variant="outline"
             className="shrink-0 border-primary-pink text-primary-pink hover:bg-primary-pink/10"
             onClick={handleApplyCoupon}
-            disabled={!couponCode.trim() || applyCouponMutation.isPending}
+            disabled={!couponCode.trim() || applyCouponMutation.isPending || !!appliedCoupon}
           >
             {applyCouponMutation.isPending ? 'Đang áp dụng...' : 'Áp dụng'}
           </Button>
         </div>
         {appliedCoupon && (
-          <p className="text-sm text-green-600 mt-2">
-            Đã áp dụng mã <strong>{appliedCoupon.code}</strong> thành công!
+          <p className="text-sm text-green-600">
+            Đã áp dụng mã <strong>{appliedCoupon.code}</strong> — giảm{' '}
+            {formatCurrency(appliedCoupon.discountAmount)}
           </p>
         )}
       </div>
 
       <Separator className="my-4" />
 
+      {/* Totals */}
+      <div className="space-y-2 text-sm mb-4">
+        <div className="flex justify-between text-muted-foreground">
+          <span>Tạm tính</span>
+          <span>{formatCurrency(subtotal)}</span>
+        </div>
+        <div className="flex justify-between text-muted-foreground">
+          <span>Phí vận chuyển</span>
+          <span>Miễn phí</span>
+        </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Giảm giá</span>
+            <span>-{formatCurrency(discount)}</span>
+          </div>
+        )}
+      </div>
+
       <div className="flex justify-between items-center mb-6">
         <span className="text-lg font-bold">Tổng cộng</span>
         <div className="text-right">
           <span className="text-2xl font-bold text-primary-pink block">
-            {formatCurrency(
-              appliedCoupon ? appliedCoupon.finalTotal : subtotal,
-            )}
+            {formatCurrency(total)}
           </span>
-          <span className="text-xs text-gray-500 font-normal">
-            Đã bao gồm VAT (nếu có)
-          </span>
+          <span className="text-xs text-muted-foreground">Đã bao gồm VAT</span>
         </div>
       </div>
 
@@ -165,26 +155,29 @@ export function CheckoutSummary({ cartData }: CheckoutSummaryProps) {
         size="lg"
         className="w-full text-base font-semibold"
         variant="primary-pink"
+        onClick={onPlaceOrder}
+        disabled={!canPlaceOrder || isPlacingOrder}
       >
-        Đặt hàng
+        {isPlacingOrder ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Đang đặt hàng...
+          </>
+        ) : (
+          'Đặt hàng'
+        )}
       </Button>
-      <p className="text-xs text-center text-gray-500 mt-4 leading-relaxed">
-        Bằng việc tiến hành Đặt hàng, bạn đồng ý với
-        <br />
-        <Link
-          href="#"
-          className="underline text-gray-700 hover:text-primary-pink"
-        >
+
+      <p className="text-xs text-center text-muted-foreground mt-4 leading-relaxed">
+        Bằng việc đặt hàng, bạn đồng ý với{' '}
+        <Link href="#" className="underline hover:text-primary-pink">
           Điều khoản dịch vụ
         </Link>{' '}
         và{' '}
-        <Link
-          href="#"
-          className="underline text-gray-700 hover:text-primary-pink"
-        >
+        <Link href="#" className="underline hover:text-primary-pink">
           Chính sách bảo mật
-        </Link>{' '}
-        của chúng tôi.
+        </Link>
+        .
       </p>
     </Card>
   )

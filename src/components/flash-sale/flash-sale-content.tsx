@@ -63,20 +63,40 @@ export function FlashSaleContent({ flashSale }: FlashSaleContentProps) {
       if (!p.variantId) {
         // The whole product is on sale, meaning all its original variants apply
         // Just map them to have the flash sale price overridden.
-        const allSaleVariants = p.product.variants.map(v => ({
-           ...v,
-           price: p.flashPrice.toString()
-        }));
-        existing.product.variants = allSaleVariants;
+        const allSaleVariants = p.product.variants.map((v) => {
+          const fsAvail = Math.max(0, p.maxQuantity - p.soldQuantity);
+          const limit = p.limitPerOrder || fsAvail;
+          const allowedQuantity = Math.min(v.inventory?.quantity || 0, fsAvail, limit);
+          
+          return {
+            ...v,
+            price: p.flashPrice.toString(),
+            inventory: v.inventory ? {
+              ...v.inventory,
+              quantity: allowedQuantity,
+              displayStatus: allowedQuantity > 0 ? v.inventory.displayStatus : 'OUT_OF_STOCK'
+            } : v.inventory
+          };
+        });
+        existing.product.variants = allSaleVariants as unknown as typeof p.product.variants;
       } else {
         // Find the specific variant from the original product data
         const originalVariant = p.product.variants.find(v => v.id === p.variantId);
         if (originalVariant) {
-          // Push it with overridden price
+          const fsAvail = Math.max(0, p.maxQuantity - p.soldQuantity);
+          const limit = p.limitPerOrder || fsAvail;
+          const allowedQuantity = Math.min(originalVariant.inventory?.quantity || 0, fsAvail, limit);
+
+          // Push it with overridden price and updated inventory
           existing.product.variants.push({
             ...originalVariant,
-            price: p.flashPrice.toString()
-          });
+            price: p.flashPrice.toString(),
+            inventory: originalVariant.inventory ? {
+              ...originalVariant.inventory,
+              quantity: allowedQuantity,
+              displayStatus: allowedQuantity > 0 ? originalVariant.inventory.displayStatus : 'OUT_OF_STOCK'
+            } : originalVariant.inventory
+          } as unknown as typeof originalVariant);
         }
       }
     });

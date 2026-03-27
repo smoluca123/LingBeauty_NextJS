@@ -23,6 +23,17 @@ export interface ICartItemStockInfoType {
   stockStatus: ProductInventoryDisplayStatus;
 }
 
+/** Flash sale info — present when item is from flash sale */
+export interface ICartItemFlashSaleInfoType {
+  flashSaleId: string;
+  flashSaleName: string;
+  flashPrice: string;
+  originalPrice: string;
+  limitPerOrder: number;
+  maxQuantity: number;
+  soldQuantity: number;
+}
+
 /** Variant display fields — null for products without variants */
 export interface ICartItemVariantType {
   id: string;
@@ -58,6 +69,8 @@ export interface ICartItemType {
   variant: ICartItemVariantType | null;
   /** Always present. Use this for all stock validation logic. */
   stockInfo: ICartItemStockInfoType;
+  /** Present when item is from flash sale */
+  flashSaleInfo?: ICartItemFlashSaleInfoType | null;
   createdAt: Date;
   updatedAt: Date;
 }
