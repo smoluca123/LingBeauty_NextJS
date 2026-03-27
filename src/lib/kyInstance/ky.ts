@@ -1,17 +1,18 @@
-'use server';
-import { env } from '@/lib/env.config';
-import ky from 'ky';
-import { cookies } from 'next/headers';
+'use server'
+import { env } from '@/lib/env.config'
+import ky from 'ky'
+import { cookies } from 'next/headers'
+import { IApiResponseWrapperType, IProductDataType, IProductImageDataType } from '../types'
 
 // Per-token refresh map to prevent race conditions across different users
-const refreshMap = new Map<string, Promise<{ accessToken: string }>>();
+const refreshMap = new Map<string, Promise<{ accessToken: string }>>()
 
 async function refreshTokenOnce(
   currentAccessToken: string,
 ): Promise<{ accessToken: string }> {
   // If already refreshing for this specific token, reuse the existing promise
-  const existing = refreshMap.get(currentAccessToken);
-  if (existing) return existing;
+  const existing = refreshMap.get(currentAccessToken)
+  if (existing) return existing
 
   const promise = (async () => {
     try {
@@ -23,27 +24,27 @@ async function refreshTokenOnce(
           },
         })
         .json<{
-          data: { accessToken: string; user: { id: string } };
-        }>();
+          data: { accessToken: string; user: { id: string } }
+        }>()
 
       // Update cookie with new token
-      const cookieStore = await cookies();
+      const cookieStore = await cookies()
       cookieStore.set('accessToken', res.data.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
         maxAge: 60 * 60 * 24 * 7,
-      });
+      })
 
-      return { accessToken: res.data.accessToken };
+      return { accessToken: res.data.accessToken }
     } finally {
-      refreshMap.delete(currentAccessToken);
+      refreshMap.delete(currentAccessToken)
     }
-  })();
+  })()
 
-  refreshMap.set(currentAccessToken, promise);
-  return promise;
+  refreshMap.set(currentAccessToken, promise)
+  return promise
 }
 
 export const kyInstance = ky.create({
@@ -53,48 +54,81 @@ export const kyInstance = ky.create({
   },
   parseJson: (text) => {
     return JSON.parse(text, (key, value) => {
-      if (key.endsWith('At')) return new Date(value);
-      return value;
-    });
+      if (key.endsWith('At')) return new Date(value)
+      return value
+    })
   },
   hooks: {
     beforeRequest: [
       async (request) => {
-        const cookieStore = await cookies();
-        const accessToken = cookieStore.get('accessToken');
+        const cookieStore = await cookies()
+        const accessToken = cookieStore.get('accessToken')
 
         if (accessToken) {
-          request.headers.set('accessToken', accessToken.value);
+          request.headers.set('accessToken', accessToken.value)
         }
       },
     ],
     afterResponse: [
       async (request, _options, response) => {
         if (response.status === 401) {
-          const cookieStore = await cookies();
-          const accessToken = cookieStore.get('accessToken')?.value;
+          const cookieStore = await cookies()
+          const accessToken = cookieStore.get('accessToken')?.value
 
           if (!accessToken) {
-            return response;
+            return response
           }
 
           try {
-            const refreshed = await refreshTokenOnce(accessToken);
-            request.headers.set('accessToken', refreshed.accessToken);
+            const refreshed = await refreshTokenOnce(accessToken)
+            request.headers.set('accessToken', refreshed.accessToken)
 
             // Retry the original request with new token
             const newRequest = new Request(request, {
               headers: request.headers,
-            });
-            return ky(newRequest);
+            })
+            return ky(newRequest)
           } catch {
-            cookieStore.delete('accessToken');
-            return response;
+            cookieStore.delete('accessToken')
+            return response
           }
         }
 
-        return response;
+        return response
+      },
+
+      // create primaryImage field for product data response
+      async (_req, _options, res) => {
+        // Clone response để có thể đọc body nhiều lần
+        const clonedRes = res.clone()
+        
+        try {
+          const dataResponse =
+            await clonedRes.json()
+          
+          if (
+            dataResponse?.data?.images &&
+            dataResponse?.data?.images.length > 0
+          ) {
+            // Tìm primary image (đã được backend sort, nên luôn ở index 0)
+            const primaryImage = dataResponse.data.images.find((img:IProductImageDataType) => img.isPrimary)
+            if (primaryImage) {
+              dataResponse.data.primaryImage = primaryImage
+            }
+            
+            // Tạo Response mới với data đã được modify
+            return new Response(JSON.stringify(dataResponse), {
+              status: res.status,
+              statusText: res.statusText,
+              headers: res.headers,
+            })
+          }
+        } catch {
+          // Nếu không phải product response hoặc có lỗi, return response gốc
+        }
+        
+        return res
       },
     ],
   },
-});
+})
