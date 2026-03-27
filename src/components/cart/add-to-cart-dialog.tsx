@@ -17,6 +17,7 @@ import type {
 import { useAddToCartMutation } from '@/hooks/mutations/cart.mutation'
 import { formatCurrency } from '@/lib/utils/format-utils'
 import { cn } from '@/lib/utils/style-utils'
+import { getDisplayVariants } from '@/lib/utils/variant-utils'
 
 interface AddToCartDialogProps {
   open: boolean
@@ -29,7 +30,8 @@ export function AddToCartDialog({
   onOpenChange,
   product,
 }: AddToCartDialogProps) {
-  const variants = product.variants ?? []
+  // Filter out default variant if it's the only one
+  const variants = getDisplayVariants(product.variants)
 
   // Default to first in-stock variant
   const defaultVariant =

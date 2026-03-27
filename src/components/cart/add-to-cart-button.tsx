@@ -9,6 +9,10 @@ import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog'
 import { useIsAuthenticated } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils/style-utils'
 import { getIsOutOfStock } from '@/lib/utils/product-utils'
+import {
+  getDisplayVariants,
+  hasOnlyDefaultVariant,
+} from '@/lib/utils/variant-utils'
 
 interface AddToCartButtonProps {
   product: IProductDataType
@@ -18,9 +22,10 @@ interface AddToCartButtonProps {
 /**
  * Smart "Add to Cart" button for product cards.
  *
- * - No variants (or exactly 1): adds directly with quantity=1.
- * - Multiple variants: opens a dialog to pick variant + quantity.
- * - Not authenticated: clicking triggers the auth flow (TODO: open login modal).
+ * - Simple product (only default variant): adds directly without variantId (backend auto-selects)
+ * - Single variant: adds directly with variantId
+ * - Multiple variants: opens dialog to pick variant + quantity
+ * - Not authenticated: triggers auth flow
  */
 export function AddToCartButton({ product, className }: AddToCartButtonProps) {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -28,15 +33,14 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
   const addToCartMutation = useAddToCartMutation()
 
   const variants = product.variants ?? []
-  const hasMultipleVariants = variants.length > 1
-  const singleVariant = variants.length === 1 ? variants[0] : null
+  const displayVariants = getDisplayVariants(variants)
+  const isSimpleProduct = hasOnlyDefaultVariant(variants)
+  const hasMultipleVariants = displayVariants.length > 1
+  const singleVariant = displayVariants.length === 1 ? displayVariants[0] : null
 
-  // Out-of-stock resolution: trust displayStatus managed by server.
-  // Use shared utility to stay in sync with product-card and other consumers.
   const isOutOfStock = getIsOutOfStock(product)
 
   const handleClick = (e: React.MouseEvent) => {
-    // Prevent card click / link navigation
     e.preventDefault()
     e.stopPropagation()
 
@@ -63,7 +67,7 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
       return
     }
 
-    // No-variant product — omit variantId so BE auto-resolves the first variant
+    // Simple product (only default variant) — omit variantId, backend auto-selects
     addToCartMutation.mutate({
       productId: product.id,
       quantity: 1,

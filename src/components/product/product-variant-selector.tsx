@@ -1,18 +1,19 @@
-'use client';
+'use client'
 
-import Image from 'next/image';
+import Image from 'next/image'
 
 import {
   IProductImageDataType,
   IProductVariantDataType,
-} from '@/lib/types/interfaces/apis/product.interfaces';
+} from '@/lib/types/interfaces/apis/product.interfaces'
+import { getDisplayVariants } from '@/lib/utils/variant-utils'
 
 type ProductVariantSelectorProps = {
-  variants: IProductVariantDataType[];
-  primaryImage?: IProductImageDataType;
-  maxDisplay?: number;
-  onVariantClick: (variant: IProductVariantDataType) => void;
-};
+  variants: IProductVariantDataType[]
+  primaryImage?: IProductImageDataType
+  maxDisplay?: number
+  onVariantClick: (variant: IProductVariantDataType) => void
+}
 
 export function ProductVariantSelector({
   variants,
@@ -20,14 +21,17 @@ export function ProductVariantSelector({
   maxDisplay = 4,
   onVariantClick,
 }: ProductVariantSelectorProps) {
-  if (!variants || variants.length === 0) {
-    return null;
+  // Filter out default variant if it's the only one
+  const displayVariants = getDisplayVariants(variants)
+
+  if (displayVariants.length === 0) {
+    return null
   }
 
   return (
     <div className="hidden group-hover/product:block">
       <div className="mt-3 flex items-center gap-1.5">
-        {variants.slice(0, maxDisplay).map((variant) => (
+        {displayVariants.slice(0, maxDisplay).map((variant) => (
           <button
             key={variant.id}
             type="button"
@@ -53,12 +57,12 @@ export function ProductVariantSelector({
             ) : null}
           </button>
         ))}
-        {variants.length > maxDisplay && (
+        {displayVariants.length > maxDisplay && (
           <span className="text-[10px] font-medium text-muted-foreground">
-            +{variants.length - maxDisplay}
+            +{displayVariants.length - maxDisplay}
           </span>
         )}
       </div>
     </div>
-  );
+  )
 }
