@@ -23,10 +23,12 @@ export function CartItem({
   isUpdating = false,
   isRemoving = false,
 }: CartItemProps) {
-  // Price: use variant price if available, otherwise product basePrice
-  const price = item.variant
-    ? Number(item.variant.price)
-    : Number(item.product.basePrice)
+  // Price: use flash sale price if available, otherwise variant/product price
+  const price = item.flashSaleInfo
+    ? Number(item.flashSaleInfo.flashPrice)
+    : item.variant
+      ? Number(item.variant.price)
+      : Number(item.product.basePrice)
   const lineTotal = Number(item.lineTotal)
   const imageUrl = item.product.thumbnailImage?.media?.url
 
@@ -79,11 +81,19 @@ export function CartItem({
   // ── Stock logic: always use item.stockInfo (never item.variant) ──────────────
   const { stockQuantity, minStockQuantity, stockStatus } = item.stockInfo
 
-  // canAddMore: adding one more must not push projected stock below the backorder floor
-  const canAddMore = stockQuantity - (item.quantity + 1) >= minStockQuantity
+  // For flash sale items, also check against limitPerOrder
+  const flashSaleLimit = item.flashSaleInfo?.limitPerOrder
+  const maxAllowedQuantity = flashSaleLimit
+    ? Math.min(flashSaleLimit, stockQuantity - minStockQuantity)
+    : stockQuantity - minStockQuantity
 
-  // How many more units can still be ordered (may be > stockQuantity when in backorder)
-  const remainingOrderable = stockQuantity - minStockQuantity - item.quantity
+  // canAddMore: adding one more must not exceed limits
+  const canAddMore =
+    item.quantity < maxAllowedQuantity &&
+    stockQuantity - (item.quantity + 1) >= minStockQuantity
+
+  // How many more units can still be ordered
+  const remainingOrderable = maxAllowedQuantity - item.quantity
 
   const isDisabled = isUpdating || isRemoving
 
@@ -112,6 +122,14 @@ export function CartItem({
             <h4 className="font-semibold text-sm line-clamp-2">
               {item.product.name}
             </h4>
+
+            {/* Flash sale badge */}
+            {item.flashSaleInfo && (
+              <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-bold">
+                <span>⚡</span>
+                <span>FLASH SALE</span>
+              </div>
+            )}
 
             {/* Variant display fields — only shown when variant exists */}
             {item.variant && (
@@ -155,6 +173,13 @@ export function CartItem({
                   Còn {stockQuantity} sản phẩm
                 </p>
               )}
+
+            {/* Flash sale limit warning */}
+            {item.flashSaleInfo && (
+              <p className="text-xs text-purple-600 mt-1 font-medium">
+                Giới hạn {item.flashSaleInfo.limitPerOrder} sản phẩm/đơn
+              </p>
+            )}
           </div>
 
           {/* Remove Button */}
@@ -214,6 +239,12 @@ export function CartItem({
             {item.quantity > 1 && (
               <p className="text-xs text-muted-foreground">
                 {formatCurrency(price)} x {item.quantity}
+              </p>
+            )}
+            {/* Show original price if flash sale */}
+            {item.flashSaleInfo && (
+              <p className="text-xs text-muted-foreground line-through">
+                {formatCurrency(Number(item.flashSaleInfo.originalPrice))}
               </p>
             )}
           </div>

@@ -1,112 +1,189 @@
-"use client";
+'use client'
 
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { MapPin, Truck, CreditCard } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { MapPin, CreditCard, ChevronRight, Plus } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useGetMyAddressesQuery } from '@/hooks/querys/address.query'
+import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces'
+import type { PaymentMethod } from '@/lib/types/interfaces/apis/order.interfaces'
+import Link from 'next/link'
+import { cn } from '@/lib/utils/style-utils'
 
-export function CheckoutFormOptions() {
+interface CheckoutFormOptionsProps {
+  selectedAddressId: string | null
+  onAddressChange: (id: string) => void
+  paymentMethod: PaymentMethod
+  onPaymentMethodChange: (method: PaymentMethod) => void
+}
+
+export function CheckoutFormOptions({
+  selectedAddressId,
+  onAddressChange,
+  paymentMethod,
+  onPaymentMethodChange,
+}: CheckoutFormOptionsProps) {
+  const { data, isLoading } = useGetMyAddressesQuery({ limit: 10 })
+  const addresses = data?.data.items ?? []
+
   return (
     <div className="space-y-6">
-      {/* 1. Thông tin giao hàng */}
+      {/* 1. Địa chỉ giao hàng */}
       <Card className="p-6 border-none shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-primary-pink/10 p-2 rounded-full">
-            <MapPin className="w-5 h-5 text-primary-pink" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary-pink/10 p-2 rounded-full">
+              <MapPin className="w-5 h-5 text-primary-pink" />
+            </div>
+            <h2 className="text-xl font-semibold">1. Địa chỉ giao hàng</h2>
           </div>
-          <h2 className="text-xl font-semibold">1. Thông tin giao hàng</h2>
+          <Link href="/profile/addresses">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-primary-pink gap-1"
+            >
+              <Plus className="h-4 w-4" />
+              Thêm địa chỉ
+            </Button>
+          </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="fullname">Họ và tên</Label>
-            <Input id="fullname" placeholder="Nhập họ và tên đầy đủ" />
+        {isLoading ? (
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-20 w-full rounded-lg" />
+            ))}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Số điện thoại</Label>
-            <Input id="phone" placeholder="Nhập số điện thoại của bạn" />
+        ) : addresses.length === 0 ? (
+          <div className="text-center py-6 text-muted-foreground">
+            <p className="mb-3">Bạn chưa có địa chỉ nào.</p>
+            <Link href="/profile/addresses">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-primary-pink text-primary-pink"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Thêm địa chỉ mới
+              </Button>
+            </Link>
           </div>
-          <div className="space-y-2 md:col-span-2">
-            <Label htmlFor="address">Địa chỉ</Label>
-            <Input id="address" placeholder="Số nhà, Tên đường, Phường/Xã..." />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="province">Tỉnh / Thành phố</Label>
-            <Input id="province" placeholder="Chọn tỉnh/thành phố" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="district">Quận / Huyện</Label>
-            <Input id="district" placeholder="Chọn quận/huyện" />
-          </div>
-        </div>
+        ) : (
+          <RadioGroup
+            value={selectedAddressId ?? ''}
+            onValueChange={onAddressChange}
+            className="space-y-3"
+          >
+            {addresses.map((address) => (
+              <AddressOption
+                key={address.id}
+                address={address}
+                isSelected={selectedAddressId === address.id}
+              />
+            ))}
+          </RadioGroup>
+        )}
       </Card>
 
-      {/* 2. Phương thức vận chuyển */}
-      <Card className="p-6 border-none shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="bg-primary-pink/10 p-2 rounded-full">
-            <Truck className="w-5 h-5 text-primary-pink" />
-          </div>
-          <h2 className="text-xl font-semibold">2. Phương thức vận chuyển</h2>
-        </div>
-
-        <RadioGroup defaultValue="standard" className="space-y-3">
-          <div className="flex items-center justify-between border border-gray-200 p-4 rounded-lg has-checked:border-primary-pink has-checked:bg-primary-pink/5 transition-colors cursor-pointer">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="standard" id="standard" />
-              <Label htmlFor="standard" className="font-medium cursor-pointer">
-                Giao hàng tiêu chuẩn
-                <span className="block text-sm font-normal text-gray-500 mt-1">Dự kiến giao: 2-4 ngày làm việc</span>
-              </Label>
-            </div>
-            <span className="font-semibold text-gray-900">Miễn phí</span>
-          </div>
-
-          <div className="flex items-center justify-between border border-gray-200 p-4 rounded-lg has-checked:border-primary-pink has-checked:bg-primary-pink/5 transition-colors cursor-pointer">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="express" id="express" />
-              <Label htmlFor="express" className="font-medium cursor-pointer">
-                Giao hàng hỏa tốc
-                <span className="block text-sm font-normal text-gray-500 mt-1">Giao trong 2 giờ (Chỉ áp dụng nội thành HCM)</span>
-              </Label>
-            </div>
-            <span className="font-semibold text-gray-900">40.000 ₫</span>
-          </div>
-        </RadioGroup>
-      </Card>
-
-      {/* 3. Phương thức thanh toán */}
+      {/* 2. Phương thức thanh toán */}
       <Card className="p-6 border-none shadow-sm">
         <div className="flex items-center gap-3 mb-6">
           <div className="bg-primary-pink/10 p-2 rounded-full">
             <CreditCard className="w-5 h-5 text-primary-pink" />
           </div>
-          <h2 className="text-xl font-semibold">3. Phương thức thanh toán</h2>
+          <h2 className="text-xl font-semibold">2. Phương thức thanh toán</h2>
         </div>
 
-        <RadioGroup defaultValue="cod" className="space-y-3">
-          <div className="flex items-center justify-between border border-gray-200 p-4 rounded-lg has-checked:border-primary-pink has-checked:bg-primary-pink/5 transition-colors cursor-pointer">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="cod" id="cod" />
-              <Label htmlFor="cod" className="font-medium cursor-pointer">
-                Thanh toán khi nhận hàng (COD)
-                <span className="block text-sm font-normal text-gray-500 mt-1">Thanh toán bằng tiền mặt khi hàng được giao đến.</span>
-              </Label>
+        <RadioGroup
+          value={paymentMethod}
+          onValueChange={(v) => onPaymentMethodChange(v as PaymentMethod)}
+          className="space-y-3"
+        >
+          {PAYMENT_METHODS.map((method) => (
+            <div
+              key={method.value}
+              className={cn(
+                'flex items-center justify-between border p-4 rounded-lg transition-colors cursor-pointer',
+                paymentMethod === method.value
+                  ? 'border-primary-pink bg-primary-pink/5'
+                  : 'border-gray-200 hover:border-primary-pink/40',
+              )}
+            >
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value={method.value} id={method.value} />
+                <Label
+                  htmlFor={method.value}
+                  className="font-medium cursor-pointer"
+                >
+                  {method.label}
+                  <span className="block text-sm font-normal text-gray-500 mt-0.5">
+                    {method.description}
+                  </span>
+                </Label>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between border border-gray-200 p-4 rounded-lg has-checked:border-primary-pink has-checked:bg-primary-pink/5 transition-colors cursor-pointer">
-            <div className="flex items-center space-x-3">
-              <RadioGroupItem value="banking" id="banking" />
-              <Label htmlFor="banking" className="font-medium cursor-pointer">
-                Chuyển khoản ngân hàng
-                <span className="block text-sm font-normal text-gray-500 mt-1">Chuyển khoản nhanh 24/7 qua QR Code.</span>
-              </Label>
-            </div>
-          </div>
+          ))}
         </RadioGroup>
       </Card>
     </div>
-  );
+  )
 }
+
+function AddressOption({
+  address,
+  isSelected,
+}: {
+  address: IAddressDataType
+  isSelected: boolean
+}) {
+  return (
+    <div
+      className={cn(
+        'flex items-start gap-3 border p-4 rounded-lg transition-colors cursor-pointer',
+        isSelected
+          ? 'border-primary-pink bg-primary-pink/5'
+          : 'border-gray-200 hover:border-primary-pink/40',
+      )}
+    >
+      <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
+      <Label htmlFor={address.id} className="cursor-pointer flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="font-semibold">{address.fullName}</span>
+          <span className="text-muted-foreground">|</span>
+          <span className="text-sm text-muted-foreground">{address.phone}</span>
+          {address.isDefault && (
+            <span className="text-[10px] font-bold text-primary-pink border border-primary-pink rounded px-1.5 py-0.5">
+              Mặc định
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-muted-foreground">
+          {address.addressLine1}
+          {address.addressLine2 ? `, ${address.addressLine2}` : ''}
+          {`, ${address.city}, ${address.province}`}
+        </p>
+      </Label>
+    </div>
+  )
+}
+
+const PAYMENT_METHODS: {
+  value: PaymentMethod
+  label: string
+  description: string
+}[] = [
+  {
+    value: 'COD',
+    label: 'Thanh toán khi nhận hàng (COD)',
+    description: 'Thanh toán bằng tiền mặt khi hàng được giao đến.',
+  },
+  {
+    value: 'BANK_TRANSFER',
+    label: 'Chuyển khoản ngân hàng',
+    description: 'Chuyển khoản nhanh 24/7 qua QR Code.',
+  },
+]

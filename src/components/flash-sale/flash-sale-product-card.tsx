@@ -1,7 +1,5 @@
 'use client'
 
-import Link from 'next/link'
-
 import { cn } from '@/lib/utils/style-utils'
 import { isSoldOut } from '@/lib/utils/flash-sale-utils'
 import { ProductCard2 } from '@/components/product/product-card2'
@@ -35,7 +33,7 @@ export function FlashSaleProductCard({
     comparePrice: parsedOriginalPrice.toString(),
   }
 
-  const cardContent = (
+  return (
     <div className={cn('relative h-full', soldOut && 'opacity-75', className)}>
       {/* Sold out overlay */}
       {soldOut && (
@@ -55,17 +53,8 @@ export function FlashSaleProductCard({
         showStock
         soldQuantity={soldQuantity}
         maxQuantity={maxQuantity}
+        showAddToCart
       />
     </div>
-  )
-
-  if (soldOut) {
-    return <div className="cursor-not-allowed">{cardContent}</div>
-  }
-
-  return (
-    <Link href={`/products/${product.product.slug}`} className="block h-full">
-      {cardContent}
-    </Link>
   )
 }
