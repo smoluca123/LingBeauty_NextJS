@@ -70,18 +70,15 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
   const activeInventory = selectedVariant?.inventory
   const maxStock = activeInventory?.quantity ?? 0
 
-  // isOutOfStock: OUT_OF_STOCK status OR quantity is zero
+  // isOutOfStock: displayStatus is the source of truth
   const isOutOfStock =
     selectedVariant?.inventory?.displayStatus === 'OUT_OF_STOCK' ||
-    selectedVariant?.inventory?.quantity === 0 ||
     (hasActualVariants &&
       displayVariants.every(
-        (v) =>
-          v.inventory?.displayStatus === 'OUT_OF_STOCK' ||
-          v.inventory?.quantity === 0,
+        (v) => v.inventory?.displayStatus === 'OUT_OF_STOCK',
       ))
 
-  // isLowStock: quantity > 0 AND quantity <= lowStockThreshold
+  // isLowStock: still IN_STOCK but quantity <= lowStockThreshold
   const isLowStock =
     !isOutOfStock &&
     maxStock > 0 &&
@@ -251,8 +248,7 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
             {displayVariants.map((variant) => {
               const isSelected = selectedVariant?.id === variant.id
               const isVariantOutOfStock =
-                variant.inventory?.displayStatus === 'OUT_OF_STOCK' ||
-                variant.inventory?.quantity === 0
+                variant.inventory?.displayStatus === 'OUT_OF_STOCK'
 
               return (
                 <button

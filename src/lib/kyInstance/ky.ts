@@ -2,7 +2,6 @@
 import { env } from '@/lib/env.config'
 import ky from 'ky'
 import { cookies } from 'next/headers'
-import { IApiResponseWrapperType, IProductDataType, IProductImageDataType } from '../types'
 
 // Per-token refresh map to prevent race conditions across different users
 const refreshMap = new Map<string, Promise<{ accessToken: string }>>()
@@ -97,38 +96,7 @@ export const kyInstance = ky.create({
         return response
       },
 
-      // create primaryImage field for product data response
-      async (_req, _options, res) => {
-        // Clone response để có thể đọc body nhiều lần
-        const clonedRes = res.clone()
-        
-        try {
-          const dataResponse =
-            await clonedRes.json()
-          
-          if (
-            dataResponse?.data?.images &&
-            dataResponse?.data?.images.length > 0
-          ) {
-            // Tìm primary image (đã được backend sort, nên luôn ở index 0)
-            const primaryImage = dataResponse.data.images.find((img:IProductImageDataType) => img.isPrimary)
-            if (primaryImage) {
-              dataResponse.data.primaryImage = primaryImage
-            }
-            
-            // Tạo Response mới với data đã được modify
-            return new Response(JSON.stringify(dataResponse), {
-              status: res.status,
-              statusText: res.statusText,
-              headers: res.headers,
-            })
-          }
-        } catch {
-          // Nếu không phải product response hoặc có lỗi, return response gốc
-        }
-        
-        return res
-      },
+      
     ],
   },
 })

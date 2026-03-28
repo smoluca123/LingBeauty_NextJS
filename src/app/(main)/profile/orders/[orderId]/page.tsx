@@ -176,9 +176,9 @@ export default function OrderDetailPage({
             {order.items.map((item) => (
               <div key={item.id} className="flex gap-4">
                 <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 border">
-                  {item.product?.primaryImage?.media?.url ? (
+                  {item.product?.images?.find((img) => img.isPrimary)?.media?.url ? (
                     <Image
-                      src={item.product.primaryImage.media.url}
+                      src={item.product.images.find((img) => img.isPrimary)!.media.url}
                       alt={item.name}
                       fill
                       className="object-cover"

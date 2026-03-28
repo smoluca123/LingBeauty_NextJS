@@ -40,7 +40,7 @@ export function ProductCard2({
   maxQuantity,
   showAddToCart = false,
 }: ProductCardProps) {
-  const { name, brand, primaryImage, stats } = product
+  const { name, brand, stats } = product
   const basePrice = Number(product.basePrice)
   const comparePrice = product.comparePrice
     ? Number(product.comparePrice)
@@ -134,7 +134,6 @@ export function ProductCard2({
 
       <ProductVariantSelector
         variants={product.variants}
-        primaryImage={primaryImage}
         onVariantClick={handleVariantClick}
       />
 

@@ -289,10 +289,8 @@ export function ReviewDetailDialog({
                 <div className="h-20 w-20 rounded-xl overflow-hidden border border-border/40 bg-muted shrink-0 relative">
                   <Image
                     src={
-                      product?.primaryImage?.media?.url ||
                       product?.images?.find((img) => img.isPrimary)?.media
-                        .url ||
-                      ''
+                        .url || ''
                     }
                     alt={product?.name || 'Product'}
                     fill

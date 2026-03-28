@@ -37,7 +37,7 @@ export interface IProductDataType {
   metaTitle?: string
   metaDesc?: string
   brand: IProductBrandDataType
-  primaryImage?: IProductImageDataType
+  // primaryImage?: IProductImageDataType
   productCategories: IProductCategoryDataType[]
   images?: IProductImageDataType[]
   variants: IProductVariantDataType[]
