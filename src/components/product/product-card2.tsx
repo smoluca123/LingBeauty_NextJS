@@ -22,6 +22,7 @@ import { ProductHeader } from '@/components/product/product-header'
 import { RatingStars } from '@/components/product/rating-stars'
 import { useProductImages } from '@/hooks/use-product-images'
 import { AddToCartButton } from '@/components/cart/add-to-cart-button'
+import { AddToWishlistButton } from '@/components/wishlist/add-to-wishlist-button'
 import { getIsLowStock, getIsOutOfStock } from '@/lib/utils/product-utils'
 
 type ProductCardProps = {
@@ -86,7 +87,7 @@ export function ProductCard2({
     >
       <ProductHeader discountPercent={discountPercent} />
 
-      {/* Image with out-of-stock overlay */}
+      {/* Image with out-of-stock overlay and wishlist button */}
       <div className="relative">
         <ProductImageCarousel
           ref={carouselRef}
@@ -107,6 +108,10 @@ export function ProductCard2({
             </span>
           </div>
         )}
+        {/* Wishlist button */}
+        <div className="absolute top-2 left-2">
+          <AddToWishlistButton productId={product.id} iconOnly />
+        </div>
       </div>
       <ProductBadges product={product} />
 

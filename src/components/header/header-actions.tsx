@@ -1,20 +1,22 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { Store, BookOpen, Heart, ShoppingBag } from 'lucide-react';
+import { useState } from 'react'
+import Link from 'next/link'
+import { Store, BookOpen, ShoppingBag } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { CartDrawer } from './cart-drawer';
-import { UserButton } from './user-button';
-import { useGetCartCountQuery } from '@/hooks/querys/cart.query';
+import { Button } from '@/components/ui/button'
+import { CartDrawer } from './cart-drawer'
+import { UserButton } from './user-button'
+import { useGetCartCountQuery } from '@/hooks/querys/cart.query'
+import { WishlistIcon } from '@/components/wishlist'
+import BadgeCount from '@/components/badge-count'
 
 export function HeaderActions() {
-  const [cartOpen, setCartOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false)
 
   // Cart badge count — only fetches when authenticated
-  const { data: cartCountData } = useGetCartCountQuery();
-  const cartItemCount = cartCountData?.data?.itemCount ?? 0;
+  const { data: cartCountData } = useGetCartCountQuery()
+  const cartItemCount = cartCountData?.data?.itemCount ?? 0
 
   return (
     <>
@@ -40,14 +42,8 @@ export function HeaderActions() {
         {/* Auth section */}
         <UserButton />
 
-        {/* Wishlist - Always icon only */}
-        <Link
-          href="/wishlist"
-          className="flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-          aria-label="Yêu thích"
-        >
-          <Heart className="h-4 w-4" />
-        </Link>
+        {/* Wishlist - with item count badge */}
+        <WishlistIcon />
 
         {/* Cart - with item count badge */}
         <Button
@@ -58,15 +54,11 @@ export function HeaderActions() {
           aria-label="Giỏ hàng"
         >
           <ShoppingBag className="h-4 w-4" />
-          {cartItemCount > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-pink text-[10px] font-bold text-white leading-none">
-              {cartItemCount > 99 ? '99+' : cartItemCount}
-            </span>
-          )}
+          {cartItemCount > 0 && <BadgeCount count={cartItemCount} />}
         </Button>
       </div>
 
       <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </>
-  );
+  )
 }
