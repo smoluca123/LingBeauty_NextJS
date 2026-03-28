@@ -7,10 +7,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { CouponForm, type CouponFormValues } from './coupon-form';
+import { CouponForm } from './coupon-form';
 import { useUpdateCouponMutation } from '@/hooks/mutations/admin-coupon.mutation';
 import type { ICouponDataType } from '@/lib/types/interfaces/apis/coupon.interfaces';
 import { CouponType } from '@/lib/types/interfaces/coupon.interfaces';
+import { CouponFormValues } from '@/lib/schemas';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

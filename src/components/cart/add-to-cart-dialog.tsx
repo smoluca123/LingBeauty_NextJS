@@ -82,7 +82,8 @@ export function AddToCartDialog({
 
   // Resolve image for the selected variant or fall back to product primary
   const displayImageUrl =
-    selectedVariant?.images?.[0]?.media?.url ?? product.primaryImage?.media?.url
+    selectedVariant?.images?.[0]?.media?.url ?? 
+    product.images?.find((img) => img.isPrimary)?.media?.url
 
   const displayPrice = selectedVariant
     ? Number(selectedVariant.price)

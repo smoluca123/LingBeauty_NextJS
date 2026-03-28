@@ -57,6 +57,17 @@ export const getAllAdminProductsAPI = async (
     .json<IApiPaginationResponseWrapperType<IAdminProductDataType>>()
 
 /**
+ * Get product by ID (Admin only)
+ * @param productId - Product ID to fetch
+ * @returns Product data
+ * @throws Error with backend message if request fails
+ */
+export const getAdminProductByIdAPI = async (productId: string) =>
+  kyInstance
+    .get(`product/${productId}`)
+    .json<IApiResponseWrapperType<IAdminProductDataType>>()
+
+/**
  * Create product (Admin only)
  * @param data - Product data to create
  * @returns Created product data

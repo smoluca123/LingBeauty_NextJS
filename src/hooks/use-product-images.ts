@@ -11,11 +11,10 @@ import {
  */
 export function useProductImages(product: IProductDataType) {
   return useMemo(() => {
-    const { primaryImage, images, variants } = product;
+    const { images, variants } = product;
 
     // Collect all images in a single pass
     const allImages = [
-      primaryImage,
       ...(images || []),
       ...(variants?.flatMap((variant) => variant.images || []) || []),
     ].filter((img): img is IProductImageDataType => img !== undefined);

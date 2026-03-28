@@ -1,5 +1,6 @@
 import {
   deleteAdminProductAPI,
+  getAdminProductByIdAPI,
   updateAdminProductAPI,
 } from '@/lib/apis/server/admin-product-apis'
 import { proxyRoute } from '@/lib/proxy-route'

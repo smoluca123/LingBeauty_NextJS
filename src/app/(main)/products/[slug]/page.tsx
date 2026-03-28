@@ -27,7 +27,7 @@ export async function generateMetadata({
       product.metaDesc ||
       product.shortDesc ||
       `Mua ${product.name} chính hãng tại LingBeauty. Giá tốt, giao hàng nhanh.`;
-    const imageUrl = product.primaryImage?.media?.url;
+    const imageUrl = product.images?.find((img) => img.isPrimary)?.media?.url;
 
     return {
       title,

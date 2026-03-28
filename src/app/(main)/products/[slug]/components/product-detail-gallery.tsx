@@ -12,13 +12,11 @@ interface ProductDetailGalleryProps {
 }
 
 export function ProductDetailGallery({ product }: ProductDetailGalleryProps) {
-  // Build image list from all product images (sorted by sortOrder)
+  // Build image list from all product images (sorted by isPrimary first, then sortOrder)
   const images =
     product.images && product.images.length > 0
-      ? [...product.images].sort((a, b) => a.sortOrder - b.sortOrder)
-      : product.primaryImage
-        ? [product.primaryImage]
-        : []
+      ? product.images
+      : []
 
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
