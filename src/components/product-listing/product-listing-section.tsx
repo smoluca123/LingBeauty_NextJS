@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { PRICE_RANGES, PRODUCTS_PER_PAGE } from '@/constants/product-listing'
 import { FilterSidebar, FilterState, FilterDrawer } from './filter'
 import { getActiveFiltersCount } from './filter/filter-utils'
@@ -56,9 +56,9 @@ export function ProductListingSection({
   className,
 }: ProductListingSectionProps) {
   const router = useRouter()
-  // Filter state
+  // Filter state - initialize searchQuery from contextParams
   const [filters, setFilters] = useState<FilterState>({
-    searchQuery: '',
+    searchQuery: contextParams.search || '',
     priceRanges: [],
     categories: [],
   })
@@ -71,6 +71,20 @@ export function ProductListingSection({
 
   // Mobile filter drawer state
   const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
+
+  const searchParams = useSearchParams()
+
+  // Sync filter state with URL search params when URL changes
+  useEffect(() => {
+    const urlSearch = searchParams.get('search') || ''
+    setFilters((prev) => {
+      // Only update if different to avoid infinite loop
+      if (prev.searchQuery !== urlSearch) {
+        return { ...prev, searchQuery: urlSearch }
+      }
+      return prev
+    })
+  }, [searchParams])
 
   // Build context params for filter categories API
   const filterCategoriesParams = useMemo<IFilterCategoriesParams>(
@@ -174,6 +188,24 @@ export function ProductListingSection({
   const handleFiltersChange = (newFilters: FilterState) => {
     setFilters(newFilters)
     setCurrentPage(1)
+
+    // Update URL with search param if using pageBaseUrl
+    if (pageBaseUrl) {
+      const searchQuery = newFilters.searchQuery.trim()
+      const url = new URL(window.location.href)
+
+      if (searchQuery) {
+        url.searchParams.set('search', searchQuery)
+      } else {
+        url.searchParams.delete('search')
+      }
+
+      // Remove page number from pathname if present
+      const basePath = pageBaseUrl
+      url.pathname = basePath
+
+      router.push(url.pathname + url.search, { scroll: false })
+    }
   }
 
   const handleSortChange = (newSort: string) => {
@@ -187,11 +219,24 @@ export function ProductListingSection({
 
       // URL-based pagination: navigate to /products/2, /products/3, etc.
       if (pageBaseUrl) {
-        const href = page === 1 ? pageBaseUrl : `${pageBaseUrl}/${page}`
-        router.push(href, { scroll: true })
+        const url = new URL(window.location.href)
+        const searchQuery = filters.searchQuery.trim()
+
+        // Update pathname for page
+        const basePath = page === 1 ? pageBaseUrl : `${pageBaseUrl}/${page}`
+        url.pathname = basePath
+
+        // Preserve search param
+        if (searchQuery) {
+          url.searchParams.set('search', searchQuery)
+        } else {
+          url.searchParams.delete('search')
+        }
+
+        router.push(url.pathname + url.search, { scroll: true })
       }
     },
-    [pageBaseUrl, router],
+    [pageBaseUrl, router, filters.searchQuery],
   )
 
   // Count active filters

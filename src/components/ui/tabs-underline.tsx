@@ -26,7 +26,10 @@ function TabsUnderlineList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        'h-auto w-full inline-flex items-center justify-center gap-0 rounded-none border-b bg-transparent p-0',
+        // 'h-auto w-full inline-flex items-center justify-center gap-0 rounded-none border-b bg-transparent p-0',
+        'h-auto w-full inline-flex items-center gap-0 rounded-none border-b bg-transparent p-0',
+        'overflow-auto scrollbar-hide',
+        'md:justify-center',
         // 'bg-muted  text-muted-foreground inline-flex h-9  items-center justify-center rounded-lg p-[3px]',
         className,
       )}

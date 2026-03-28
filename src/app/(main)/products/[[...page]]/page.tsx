@@ -1,11 +1,12 @@
-import { Suspense } from 'react';
-import { Metadata } from 'next';
-import { ProductsShield } from '@/app/(main)/products/components';
-import { redirect, notFound } from 'next/navigation';
-import ProductsListingPageSkeleton from '@/components/skeletons/products-listing-page-skeleton';
+import { Suspense } from 'react'
+import { Metadata } from 'next'
+import { ProductsShield } from '@/app/(main)/products/components'
+import { redirect, notFound } from 'next/navigation'
+import ProductsListingPageSkeleton from '@/components/skeletons/products-listing-page-skeleton'
 
 interface ProductsPageProps {
-  params: Promise<{ page?: string[] }>;
+  params: Promise<{ page?: string[] }>
+  searchParams: Promise<{ search?: string }>
 }
 
 /**
@@ -13,50 +14,64 @@ interface ProductsPageProps {
  * /products → page 1, /products/2 → page 2, /products/abc → notFound
  */
 function parsePageParam(pageSegments?: string[]): number {
-  if (!pageSegments || pageSegments.length === 0) return 1;
+  if (!pageSegments || pageSegments.length === 0) return 1
 
   // Only accept single segment like /products/2, not /products/2/3
-  if (pageSegments.length > 1) notFound();
+  if (pageSegments.length > 1) notFound()
 
-  const page = Number(pageSegments[0]);
+  const page = Number(pageSegments[0])
 
   // Must be a positive integer
-  if (!Number.isInteger(page) || page < 1) notFound();
+  if (!Number.isInteger(page) || page < 1) notFound()
 
-  return page;
+  return page
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: ProductsPageProps): Promise<Metadata> {
-  const { page: pageSegments } = await params;
-  const page = parsePageParam(pageSegments);
-  const suffix = page > 1 ? ` - Trang ${page}` : '';
+  const { page: pageSegments } = await params
+  const { search } = await searchParams
+  const page = parsePageParam(pageSegments)
+
+  let title = 'Tất Cả Sản Phẩm'
+  let description =
+    'Khám phá bộ sưu tập mỹ phẩm đa dạng tại LingBeauty. Tìm kiếm, lọc theo danh mục, giá cả và nhiều tiêu chí khác.'
+
+  if (search) {
+    title = `Tìm kiếm: ${search}`
+    description = `Kết quả tìm kiếm cho "${search}" tại LingBeauty.`
+  } else if (page > 1) {
+    title += ` - Trang ${page}`
+  }
 
   return {
-    title: `Tất Cả Sản Phẩm${suffix} | LingBeauty`,
-    description:
-      'Khám phá bộ sưu tập mỹ phẩm đa dạng tại LingBeauty. Tìm kiếm, lọc theo danh mục, giá cả và nhiều tiêu chí khác.',
+    title: `${title} | LingBeauty`,
+    description,
     openGraph: {
-      title: `Tất Cả Sản Phẩm${suffix} | LingBeauty`,
-      description:
-        'Khám phá bộ sưu tập mỹ phẩm đa dạng tại LingBeauty. Tìm kiếm, lọc theo danh mục, giá cả và nhiều tiêu chí khác.',
+      title: `${title} | LingBeauty`,
+      description,
     },
-  };
+  }
 }
 
-export default async function ProductsPage({ params }: ProductsPageProps) {
-  const { page: pageSegments } = await params;
-  const page = parsePageParam(pageSegments);
+export default async function ProductsPage({
+  params,
+  searchParams,
+}: ProductsPageProps) {
+  const { page: pageSegments } = await params
+  const { search } = await searchParams
+  const page = parsePageParam(pageSegments)
 
   // Redirect /products/1 → /products to avoid duplicate content
   if (pageSegments && pageSegments[0] === '1') {
-    redirect('/products');
+    redirect('/products')
   }
 
   return (
     <Suspense fallback={<ProductsListingPageSkeleton />}>
-      <ProductsShield page={page} />
+      <ProductsShield page={page} search={search} />
     </Suspense>
-  );
+  )
 }

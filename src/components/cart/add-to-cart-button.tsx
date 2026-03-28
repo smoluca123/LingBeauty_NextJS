@@ -9,10 +9,7 @@ import { AddToCartDialog } from '@/components/cart/add-to-cart-dialog'
 import { useIsAuthenticated } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils/style-utils'
 import { getIsOutOfStock } from '@/lib/utils/product-utils'
-import {
-  getDisplayVariants,
-  hasOnlyDefaultVariant,
-} from '@/lib/utils/variant-utils'
+import { getDisplayVariants } from '@/lib/utils/variant-utils'
 
 interface AddToCartButtonProps {
   product: IProductDataType
@@ -34,7 +31,7 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
 
   const variants = product.variants ?? []
   const displayVariants = getDisplayVariants(variants)
-  const isSimpleProduct = hasOnlyDefaultVariant(variants)
+  // const isSimpleProduct = hasOnlyDefaultVariant(variants)
   const hasMultipleVariants = displayVariants.length > 1
   const singleVariant = displayVariants.length === 1 ? displayVariants[0] : null
 
@@ -99,7 +96,7 @@ export function AddToCartButton({ product, className }: AddToCartButtonProps) {
           'Hết hàng'
         ) : (
           <>
-            <ShoppingBag className="h-3.5 w-3.5" />
+            <ShoppingBag className="h-3.5 w-3.5 md:block hidden" />
             {hasMultipleVariants ? 'Chọn & thêm vào giỏ' : 'Thêm vào giỏ hàng'}
           </>
         )}

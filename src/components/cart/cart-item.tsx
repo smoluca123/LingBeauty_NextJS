@@ -125,7 +125,7 @@ export function CartItem({
 
             {/* Flash sale badge */}
             {item.flashSaleInfo && (
-              <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white text-[10px] font-bold">
+              <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-linear-to-r from-pink-500 to-purple-500 text-white text-[10px] font-bold">
                 <span>⚡</span>
                 <span>FLASH SALE</span>
               </div>
@@ -196,7 +196,7 @@ export function CartItem({
         </div>
 
         {/* Price and Quantity Controls */}
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex md:flex-row flex-col items-center md:justify-between mt-3 gap-y-2 md:gap-y-0">
           <div className="flex items-center gap-2 bg-muted rounded-lg">
             <Button
               variant="ghost"
@@ -242,11 +242,12 @@ export function CartItem({
               </p>
             )}
             {/* Show original price if flash sale */}
-            {item.flashSaleInfo && (
-              <p className="text-xs text-muted-foreground line-through">
-                {formatCurrency(Number(item.flashSaleInfo.originalPrice))}
-              </p>
-            )}
+            {item.flashSaleInfo?.originalPrice &&
+              !isNaN(Number(item.flashSaleInfo.originalPrice)) && (
+                <p className="text-xs text-muted-foreground line-through">
+                  {formatCurrency(Number(item.flashSaleInfo.originalPrice))}
+                </p>
+              )}
           </div>
         </div>
       </div>

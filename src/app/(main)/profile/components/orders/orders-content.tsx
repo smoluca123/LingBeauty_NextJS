@@ -65,7 +65,11 @@ export function OrdersContent() {
       >
         <TabsUnderlineList>
           {TABS.map((tab) => (
-            <TabsUnderlineTrigger key={tab.value} value={tab.value}>
+            <TabsUnderlineTrigger
+              key={tab.value}
+              value={tab.value}
+              className="h-auto"
+            >
               {tab.label}
             </TabsUnderlineTrigger>
           ))}

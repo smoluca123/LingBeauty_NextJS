@@ -3,6 +3,8 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Search } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -20,20 +22,35 @@ interface SearchFormValues {
 }
 
 export function SearchBar() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const form = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      search: '',
+      search: searchParams.get('search') || '',
     },
   })
 
+  // Sync form with URL search params
+  useEffect(() => {
+    const searchValue = searchParams.get('search') || ''
+    form.setValue('search', searchValue)
+  }, [searchParams, form])
+
   function onSubmit(data: SearchFormValues) {
-    console.log('Search form data:', data)
+    const searchQuery = data.search.trim()
+    if (searchQuery) {
+      router.push(`/products?search=${encodeURIComponent(searchQuery)}`)
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-xl mx-auto">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-xl mx-auto"
+      >
         <FormField
           control={form.control}
           name="search"
@@ -66,4 +83,3 @@ export function SearchBar() {
     </Form>
   )
 }
-

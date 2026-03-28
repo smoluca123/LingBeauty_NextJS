@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   compiler: {
-    removeConsole: {
-      exclude: ['error', 'warn'], // Keeps console.error and console.warn
-    },
+    // removeConsole: {
+    //   exclude: ['error', 'warn'], // Keeps console.error and console.warn
+    // },
   },
 
   images: {
