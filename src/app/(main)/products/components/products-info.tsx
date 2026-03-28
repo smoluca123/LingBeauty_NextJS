@@ -1,8 +1,9 @@
-import { Package, ShoppingBag } from 'lucide-react';
+import { Package, ShoppingBag } from 'lucide-react'
 
 interface ProductsInfoProps {
-  productCount: number;
-  purchaseCount: string;
+  productCount: number
+  purchaseCount: string
+  searchQuery?: string
 }
 
 /**
@@ -12,13 +13,18 @@ interface ProductsInfoProps {
 export function ProductsInfo({
   productCount,
   purchaseCount,
+  searchQuery,
 }: ProductsInfoProps) {
+  const title = searchQuery
+    ? `Kết Quả Tìm Kiếm: "${searchQuery}"`
+    : 'Tất Cả Sản Phẩm'
+
   return (
     <section className="container mx-auto px-4 py-8">
       {/* Header with gradient text */}
       <div className="text-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-bold bg-linear-to-r from-primary-pink via-pink-400 to-primary-pink bg-clip-text text-transparent mb-4">
-          Tất Cả Sản Phẩm
+          {title}
         </h2>
 
         {/* Stats Cards */}
@@ -49,5 +55,5 @@ export function ProductsInfo({
         </div>
       </div>
     </section>
-  );
+  )
 }

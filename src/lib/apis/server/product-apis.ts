@@ -42,6 +42,29 @@ export interface IProductStatsQueryParams {
   isFeatured?: boolean
 }
 
+/** Hot product criteria types */
+export type HotProductCriteria =
+  | 'sales'
+  | 'revenue'
+  | 'reviews'
+  | 'rating'
+  | 'badge'
+  | 'featured'
+  | 'composite'
+
+/** Hot product time period */
+export type HotProductPeriod = '7d' | '30d' | '90d' | 'all'
+
+/** Params for the hot products server API */
+export interface IHotProductsQueryParams {
+  limit?: number
+  criteria?: HotProductCriteria
+  period?: HotProductPeriod
+  categoryId?: string
+  brandId?: string
+  minRating?: number
+}
+
 // Helper: build search params object, omitting undefined values
 const buildSearchParams = (
   options: Record<string, string | number | boolean | undefined>,
@@ -145,6 +168,32 @@ export const getProductStatsAPI = async (
       }),
     })
     .json<IApiResponseWrapperType<IProductStatsDataType>>()
+}
+
+/**
+ * Get hot/best-selling products based on various criteria
+ * @param options - Query parameters for hot products
+ * @returns Array of hot products
+ * @throws Error with backend message if request fails
+ */
+export const getHotProductsAPI = async (
+  options: IHotProductsQueryParams = {},
+) => {
+  'use cache'
+  cacheLife(DEFAULT_CACHE_TIME)
+  cacheTag('hot-products')
+  return publicKyInstance
+    .get('product/public/hot', {
+      searchParams: buildSearchParams({
+        limit: options.limit,
+        criteria: options.criteria,
+        period: options.period,
+        categoryId: options.categoryId,
+        brandId: options.brandId,
+        minRating: options.minRating,
+      }),
+    })
+    .json<IApiResponseWrapperType<IProductDataType[]>>()
 }
 
 /**

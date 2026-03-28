@@ -114,9 +114,11 @@ export function ProductCard2({
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           {brand.name}
         </p>
-        <h3 className="text-base font-semibold text-foreground line-clamp-2">
-          {name}
-        </h3>
+        <Link href={`/products/${product.slug}`}>
+          <h3 className="text-base font-semibold text-foreground line-clamp-2 hover:text-primary-pink transition-colors ">
+            {name}
+          </h3>
+        </Link>
       </div>
 
       {/* Rating and Stats Section */}

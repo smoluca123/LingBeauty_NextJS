@@ -1,16 +1,17 @@
-import { Suspense } from 'react';
+import { Suspense } from 'react'
 import {
   BrandListSection,
   BrandListSkeleton,
-} from '@/components/home/brands/brand-list';
+} from '@/components/home/brands/brand-list'
 import {
   TopProductsSection,
   TopProductsSkeleton,
-} from '@/components/home/products/top-products-section';
-import HomeCarouselSection from '@/app/(main)/components/home-carousel-section';
-import HomeFlashSaleSection from '@/app/(main)/components/home-flase-sale-section';
-import BeautyBoxSection from '@/components/home/beauty-box';
-import { TopTrendSection } from '@/components/home/top-trend';
+} from '@/components/home/products/top-products-section'
+import HomeCarouselSection from '@/app/(main)/components/home-carousel-section'
+import HomeFlashSaleSection from '@/app/(main)/components/home-flase-sale-section'
+import BeautyBoxSection from '@/components/home/beauty-box'
+import { TopTrendSection } from '@/components/home/top-trend'
+import { ProductsSection } from '@/components/home/products/products-section/products-section'
 
 export default function MainPage() {
   return (
@@ -21,6 +22,9 @@ export default function MainPage() {
         <Suspense fallback={<TopProductsSkeleton />}>
           <TopProductsSection />
         </Suspense>
+        <Suspense fallback={<TopProductsSkeleton />}>
+          <ProductsSection />
+        </Suspense>
         <Suspense fallback={<BrandListSkeleton />}>
           <BrandListSection />
         </Suspense>
@@ -30,5 +34,5 @@ export default function MainPage() {
       </main>
     </div>
     // </Suspense>
-  );
+  )
 }

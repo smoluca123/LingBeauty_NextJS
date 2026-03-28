@@ -1,83 +1,93 @@
-'use client';
+'use client'
 
-import { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
-import useEmblaCarousel from 'embla-carousel-react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useCallback, useEffect, useRef } from 'react'
+import Link from 'next/link'
+import useEmblaCarousel from 'embla-carousel-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { ICategoryDataType } from '@/lib/types/interfaces/apis/header.interfaces'
 
 interface NavigationBarClientProps {
-  categories: ICategoryDataType[];
+  categories: ICategoryDataType[]
 }
 
 export function NavigationBarClient({ categories }: NavigationBarClientProps) {
-  const [openCategory, setOpenCategory] = useState<string | null>(null);
-  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [openCategory, setOpenCategory] = useState<string | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: 'start',
     containScroll: 'trimSnaps',
     dragFree: true,
-  });
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
+  })
+  const [canScrollPrev, setCanScrollPrev] = useState(false)
+  const [canScrollNext, setCanScrollNext] = useState(false)
 
-  const handleMouseEnter = (categoryLabel: string) => {
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      setHoverTimeout(null);
+  const handleMouseEnter = useCallback((categoryName: string) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
     }
-    setOpenCategory(categoryLabel);
-  };
+    setOpenCategory(categoryName)
+  }, [])
 
-  const handleMouseLeave = () => {
-    const timeout = setTimeout(() => {
-      setOpenCategory(null);
-    }, 300);
-    setHoverTimeout(timeout);
-  };
+  const handleMouseLeave = useCallback(() => {
+    timeoutRef.current = setTimeout(() => {
+      setOpenCategory(null)
+    }, 200)
+  }, [])
 
   const scrollPrev = useCallback(() => {
-    if (emblaApi) emblaApi.scrollPrev();
-  }, [emblaApi]);
+    if (emblaApi) emblaApi.scrollPrev()
+  }, [emblaApi])
 
   const scrollNext = useCallback(() => {
-    if (emblaApi) emblaApi.scrollNext();
-  }, [emblaApi]);
+    if (emblaApi) emblaApi.scrollNext()
+  }, [emblaApi])
 
   const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCanScrollPrev(emblaApi.canScrollPrev());
-    setCanScrollNext(emblaApi.canScrollNext());
-  }, [emblaApi]);
+    if (!emblaApi) return
+    setCanScrollPrev(emblaApi.canScrollPrev())
+    setCanScrollNext(emblaApi.canScrollNext())
+  }, [emblaApi])
 
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!emblaApi) return
 
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
-
-    // Check initial state
-    requestAnimationFrame(() => {
-      onSelect();
-    });
+    emblaApi.on('select', onSelect)
+    emblaApi.on('reInit', onSelect)
 
     return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
-    };
-  }, [emblaApi, onSelect]);
+      emblaApi.off('select', onSelect)
+      emblaApi.off('reInit', onSelect)
+    }
+  }, [emblaApi, onSelect])
+
+  useEffect(() => {
+    if (!emblaApi) return
+
+    const timer = setTimeout(() => {
+      onSelect()
+    }, 0)
+
+    return () => clearTimeout(timer)
+  }, [emblaApi, onSelect])
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+    }
+  }, [])
 
   return (
     <nav className="relative py-2">
-      {/* Left Arrow */}
       {canScrollPrev && (
         <Button
           variant="ghost"
@@ -89,7 +99,6 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
         </Button>
       )}
 
-      {/* Right Arrow */}
       {canScrollNext && (
         <Button
           variant="ghost"
@@ -104,73 +113,78 @@ export function NavigationBarClient({ categories }: NavigationBarClientProps) {
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex gap-3 md:gap-4 lg:gap-5 px-2 md:px-0">
           {categories.map((category) => (
-            <div
+            <Popover
               key={category.name}
-              onMouseEnter={() => handleMouseEnter(category.name)}
-              onMouseLeave={handleMouseLeave}
+              open={openCategory === category.name}
+              onOpenChange={(open) => {
+                if (!open && openCategory === category.name) {
+                  handleMouseLeave()
+                }
+              }}
             >
-              <DropdownMenu
-                modal={false}
-                open={openCategory === category.name}
-                onOpenChange={(open) => {
-                  if (!open) {
-                    setOpenCategory(null);
-                  }
-                }}
+              <div
+                className="relative"
+                onMouseEnter={() => handleMouseEnter(category.name)}
+                onMouseLeave={handleMouseLeave}
               >
-                <DropdownMenuTrigger asChild>
+                <PopoverTrigger asChild>
                   <Link href={`/categories/${category.slug}`}>
                     <Button
                       variant="outline"
                       size="sm"
-                      className="whitespace-nowrap hover:bg-accent hover:text-accent-foreground text-xs md:text-sm px-3 md:px-4 cursor-pointer"
+                      className="whitespace-nowrap hover:bg-accent hover:text-accent-foreground text-xs md:text-sm px-3 md:px-4"
+                      onPointerDown={(e) => e.preventDefault()}
                     >
                       {category.name}
                     </Button>
                   </Link>
-                </DropdownMenuTrigger>
+                </PopoverTrigger>
+
+                {/* Invisible bridge để hover qua khoảng trống không bị tắt */}
+                {openCategory === category.name &&
+                  category.children.length > 0 && (
+                    <div className="absolute left-0 top-full w-56 h-3 z-40" />
+                  )}
+
                 {category.children.length > 0 && (
-                  <DropdownMenuContent
+                  <PopoverContent
                     align="start"
-                    className="w-56"
-                    sideOffset={5}
-                    onCloseAutoFocus={(e) => e.preventDefault()}
+                    className="w-56 p-1 mt-3"
                     onMouseEnter={() => handleMouseEnter(category.name)}
                     onMouseLeave={handleMouseLeave}
+                    onOpenAutoFocus={(e) => e.preventDefault()}
                   >
-                    {category.children.map((item) => {
-                      if (item.type === 'BRAND') {
-                        return (
-                          <DropdownMenuItem key={item.brand.id} asChild>
-                            <Link href={`/collections/${item.brand.slug}`}>
+                    <div className="flex flex-col">
+                      {category.children.map((item) => {
+                        if (item.type === 'BRAND') {
+                          return (
+                            <Link
+                              key={item.brand.id}
+                              href={`/collections/${item.brand.slug}`}
+                              className="px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                            >
                               {item.brand.name}
                             </Link>
-                          </DropdownMenuItem>
-                        );
-                      }
-                      return (
-                        <DropdownMenuItem key={item.name} asChild>
-                          <Link href={`/categories/${item.slug}`}>
+                          )
+                        }
+                        return (
+                          <Link
+                            key={item.name}
+                            href={`/categories/${item.slug}`}
+                            className="px-3 py-2 text-sm rounded-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
                             {item.name}
                           </Link>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
+                        )
+                      })}
+                    </div>
+                  </PopoverContent>
                 )}
-              </DropdownMenu>
-              {/* Invisible bridge to prevent gap */}
-              {openCategory === category.name && (
-                <div
-                  className="absolute top-full left-0 right-0 h-3 z-40"
-                  onMouseEnter={() => handleMouseEnter(category.name)}
-                  onMouseLeave={handleMouseLeave}
-                />
-              )}
-            </div>
+              </div>
+            </Popover>
           ))}
         </div>
       </div>
     </nav>
-  );
+  )
 }

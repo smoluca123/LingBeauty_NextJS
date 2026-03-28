@@ -13,16 +13,17 @@ import { formatCount } from '@/lib/utils/format-utils'
 
 interface ProductsShieldProps {
   page: number
+  search?: string
 }
 
 /**
  * Server Component that pre-fetches products for the given page + stats for SEO.
  * Product data is included in the HTML on first render, then React Query takes over.
  */
-export async function ProductsShield({ page }: ProductsShieldProps) {
+export async function ProductsShield({ page, search }: ProductsShieldProps) {
   await connection()
 
-  const initialParams = { page, limit: PRODUCTS_PER_PAGE }
+  const initialParams = { page, limit: PRODUCTS_PER_PAGE, search }
 
   // Prefetch products for the current page & stats in parallel
   const [, statsResponse] = await Promise.all([
@@ -30,7 +31,7 @@ export async function ProductsShield({ page }: ProductsShieldProps) {
       queryKey: getProductListingQueryKey(initialParams),
       queryFn: () => getProductsAPI(initialParams),
     }),
-    getProductStatsAPI({}),
+    getProductStatsAPI({ search }),
   ])
 
   // Validate page is within range
@@ -49,10 +50,11 @@ export async function ProductsShield({ page }: ProductsShieldProps) {
         <ProductsInfo
           productCount={statsResponse.data?.productCount ?? 0}
           purchaseCount={formatCount(statsResponse.data?.totalSold ?? 0)}
+          searchQuery={search}
         />
 
         {/* Products Section — SSR initial data, client takes over for filter/sort/pagination */}
-        <AllProducts initialPage={page} />
+        <AllProducts initialPage={page} contextParams={{ search }} />
       </div>
     </HydrationBoundary>
   )

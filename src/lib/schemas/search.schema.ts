@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 /**
  * Search Schemas
@@ -6,5 +6,8 @@ import { z } from "zod";
  */
 
 export const searchSchema = z.object({
-  search: z.string().min(1, "Vui lòng nhập từ khóa tìm kiếm"),
-});
+  search: z
+    .string()
+    .min(1, 'Vui lòng nhập từ khóa tìm kiếm')
+    .max(100, 'Từ khóa tìm kiếm quá dài'),
+})
