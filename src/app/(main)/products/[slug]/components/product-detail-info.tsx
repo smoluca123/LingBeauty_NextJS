@@ -26,6 +26,7 @@ import {
   getDisplayVariants,
   hasOnlyDefaultVariant,
 } from '@/lib/utils/variant-utils'
+import { AddToWishlistButton } from '@/components/wishlist/add-to-wishlist-button'
 
 interface ProductDetailInfoProps {
   product: IProductDataType
@@ -40,10 +41,12 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
   // For simple products, use the default variant (hidden from UI)
   // For products with variants, default to first in-stock variant
   const defaultVariant = isSimpleProduct
-    ? product.variants?.[0] ?? null
-    : displayVariants.find(
+    ? (product.variants?.[0] ?? null)
+    : (displayVariants.find(
         (v) => v.inventory?.displayStatus !== 'OUT_OF_STOCK',
-      ) ?? displayVariants[0] ?? null
+      ) ??
+      displayVariants[0] ??
+      null)
 
   const [selectedVariant, setSelectedVariant] =
     useState<IProductVariantDataType | null>(defaultVariant)
@@ -342,7 +345,8 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
             variant="outline"
             className={cn(
               'flex-1 rounded-full py-6 text-base font-semibold transition-all border-primary-pink text-primary-pink hover:bg-primary-pink/10',
-              isOutOfStock && 'border-muted text-muted-foreground cursor-not-allowed hover:bg-transparent',
+              isOutOfStock &&
+                'border-muted text-muted-foreground cursor-not-allowed hover:bg-transparent',
             )}
             size="lg"
             aria-label={isOutOfStock ? 'Hết hàng' : 'Thêm vào giỏ hàng'}
@@ -410,13 +414,12 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
             {isOutOfStock ? 'Hết hàng' : 'Mua ngay'}
           </Button>
         </div>
-        <Button
-          variant="outline"
-          className="rounded-full border-primary-pink py-6 text-primary-pink hover:bg-primary-pink/10 shrink-0"
-          size="lg"
-        >
-          <Heart className="h-5 w-5" />
-        </Button>
+        <AddToWishlistButton
+          productId={product.id}
+          variantId={selectedVariant?.id}
+          iconOnly
+          className="rounded-full border-primary-pink py-6 text-primary-pink hover:bg-primary-pink/10 shrink-0 h-auto w-auto px-4"
+        />
         <Button
           variant="outline"
           className="rounded-full py-6 hover:bg-muted"

@@ -1,70 +1,72 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { MoreVertical, Pencil, Trash2, Flag } from 'lucide-react';
+import { useState } from 'react'
+import { MoreVertical, Pencil, Trash2, Flag } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces';
-import { useAuthUser } from '@/hooks/use-auth';
-import { DeleteConfirmDialog } from './delete-confirm-dialog';
-import { EditReviewDialog } from './edit-review-dialog';
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { IReviewDataType } from '@/lib/types/interfaces/apis/review.interfaces'
+import { useAuthUser } from '@/hooks/use-auth'
+import { DeleteConfirmDialog } from './delete-confirm-dialog'
+import { EditReviewDialog } from './edit-review-dialog'
 import {
   useDeleteReviewMutation,
   useUpdateReviewMutation,
-} from '@/hooks/mutations/review.mutation';
+} from '@/hooks/mutations/review.mutation'
+import { hasAdminRole } from '@/lib/utils/validation-utils'
 
 interface ReviewMoreActionsProps {
-  review: IReviewDataType;
-  productId: string;
+  review: IReviewDataType
+  productId: string
 }
 
 export function ReviewMoreActions({
   review,
   productId,
 }: ReviewMoreActionsProps) {
-  const currentUser = useAuthUser();
-  const isOwner = currentUser?.id === review.userId;
+  const currentUser = useAuthUser()
+  const isOwner = currentUser?.id === review.userId
+  const isDisplay = isOwner || hasAdminRole(currentUser?.roleAssignments)
 
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
-  const deleteMutation = useDeleteReviewMutation(review.id, productId);
-  const updateMutation = useUpdateReviewMutation(review.id, productId);
+  const deleteMutation = useDeleteReviewMutation(review.id, productId)
+  const updateMutation = useUpdateReviewMutation(review.id, productId)
 
   const handleDelete = () => {
     deleteMutation.mutate(undefined, {
       onSuccess: () => {
-        setIsDeleteDialogOpen(false);
+        setIsDeleteDialogOpen(false)
       },
-    });
-  };
+    })
+  }
 
   const handleEdit = (data: {
-    rating: number;
-    title: string;
-    comment: string;
+    rating: number
+    title: string
+    comment: string
   }) => {
     updateMutation.mutate(data, {
       onSuccess: () => {
-        setIsEditDialogOpen(false);
+        setIsEditDialogOpen(false)
       },
-    });
-  };
+    })
+  }
 
   const handleReport = () => {
     // TODO: Implement report functionality
-    alert('Chức năng báo cáo đang được phát triển');
-  };
+    alert('Chức năng báo cáo đang được phát triển')
+  }
 
   // Don't show menu if user is not authenticated
   if (!currentUser) {
-    return null;
+    return null
   }
 
   return (
@@ -81,7 +83,7 @@ export function ReviewMoreActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {isOwner && (
+          {isDisplay && (
             <>
               <DropdownMenuItem onClick={() => setIsEditDialogOpen(true)}>
                 <Pencil className="mr-2 h-4 w-4" />
@@ -123,5 +125,5 @@ export function ReviewMoreActions({
         isLoading={updateMutation.isPending}
       />
     </>
-  );
+  )
 }
