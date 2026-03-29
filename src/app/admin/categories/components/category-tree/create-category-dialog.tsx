@@ -1,32 +1,38 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+import { CategoryForm } from './category-form'
+import { ICategoryFormData } from '@/lib/types'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
-import { ICategoryFormData } from '@/lib/types/interfaces/apis/admin-category.interfaces';
+  categoryFormSchema,
+  CategoryValues,
+} from '@/app/admin/categories/components/category-tree/schema/category-form.schema'
 import {
   useCreateCategoryMutation,
   useCreateSubCategoryMutation,
-} from '@/hooks/mutations/admin-category-brand.mutation';
-import { CategoryForm } from './category-form';
+} from '@/hooks/mutations/admin-category-brand.mutation'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
+import { Form } from '@/components/ui/form'
 
 interface CreateCategoryDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
   /**
    * Khi click nút "+" trên tree item → pre-populate parentId vào select.
    * Nếu null/undefined → select trống (danh mục gốc).
    */
-  parentId?: string | null;
+  parentId?: string | null
 }
 
 const DEFAULT_VALUES: ICategoryFormData = {
@@ -39,24 +45,27 @@ const DEFAULT_VALUES: ICategoryFormData = {
   parentId: undefined,
   imageFile: null,
   imagePreview: null,
-};
+}
 
 export function CreateCategoryDialog({
   open,
   onOpenChange,
   parentId,
 }: CreateCategoryDialogProps) {
-  const form = useForm<ICategoryFormData>({ defaultValues: DEFAULT_VALUES });
+  const form = useForm<CategoryValues>({
+    resolver: zodResolver(categoryFormSchema),
+    defaultValues: DEFAULT_VALUES,
+  })
 
-  const createCategory = useCreateCategoryMutation();
-  const createSubCategory = useCreateSubCategoryMutation();
+  const createCategory = useCreateCategoryMutation()
+  const createSubCategory = useCreateSubCategoryMutation()
 
   // Dùng mutation phù hợp tuỳ theo có parentId hay không
   const isPending = parentId
     ? createSubCategory.isPending
-    : createCategory.isPending;
+    : createCategory.isPending
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   // Khi dialog mở với parentId từ tree item → pre-populate select cha
   useEffect(() => {
@@ -64,47 +73,47 @@ export function CreateCategoryDialog({
       form.reset({
         ...DEFAULT_VALUES,
         parentId: typeof parentId === 'string' ? parentId : undefined,
-      });
+      })
     }
-  }, [open, parentId, form]);
+  }, [open, parentId, form])
 
   const buildFormData = (values: ICategoryFormData): FormData => {
-    const fd = new FormData();
-    fd.append('name', values.name);
-    if (values.description) fd.append('description', values.description);
-    fd.append('isActive', String(values.isActive));
-    fd.append('sortOrder', String(values.sortOrder ?? 0));
-    fd.append('type', values.type);
-    if (values.brandId) fd.append('brandId', values.brandId);
-    if (values.imageFile) fd.append('image', values.imageFile);
-    return fd;
-  };
+    const fd = new FormData()
+    fd.append('name', values.name)
+    if (values.description) fd.append('description', values.description)
+    fd.append('isActive', String(values.isActive))
+    fd.append('sortOrder', String(values.sortOrder ?? 0))
+    fd.append('type', values.type)
+    if (values.brandId) fd.append('brandId', values.brandId)
+    if (values.imageFile) fd.append('image', values.imageFile)
+    return fd
+  }
 
   const handleSubmit = (values: ICategoryFormData) => {
-    const formData = buildFormData(values);
+    const formData = buildFormData(values)
 
     // Chọn API đúng: sub-category khi có parentId, root category khi không có
-    const effectiveParentId = values.parentId || parentId;
+    const effectiveParentId = values.parentId || parentId
 
     if (effectiveParentId) {
       createSubCategory.mutate(
         { parentId: effectiveParentId, formData },
         { onSuccess: () => onOpenChange(false) },
-      );
+      )
     } else {
       createCategory.mutate(formData, {
         onSuccess: () => onOpenChange(false),
-      });
+      })
     }
-  };
+  }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      form.reset(DEFAULT_VALUES);
-      setImagePreview(null);
+      form.reset(DEFAULT_VALUES)
+      setImagePreview(null)
     }
-    onOpenChange(newOpen);
-  };
+    onOpenChange(newOpen)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -145,5 +154,5 @@ export function CreateCategoryDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
