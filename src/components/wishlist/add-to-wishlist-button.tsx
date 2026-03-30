@@ -69,6 +69,7 @@ export function AddToWishlistButton({
           className,
         )}
         aria-label={isInWishlist ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}
+        suppressHydrationWarning
       >
         <Heart
           className={cn(
