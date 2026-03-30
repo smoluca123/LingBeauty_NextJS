@@ -1,17 +1,23 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { MessageCircle, CheckCircle2, Clock, ChevronDown, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import Image from 'next/image'
+import Link from 'next/link'
+import {
+  MessageCircle,
+  CheckCircle2,
+  Clock,
+  ChevronDown,
+  Trash2,
+} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+} from '@/components/ui/collapsible'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,52 +27,52 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+} from '@/components/ui/alert-dialog'
+import { formatDistanceToNow } from 'date-fns'
+import { vi } from 'date-fns/locale'
 import {
   IProductQuestionWithProduct,
   ProductQuestionStatus,
-} from '@/lib/types/interfaces/apis/product-question.interfaces';
-import { useDeleteQuestionMutation } from '@/hooks/mutations/product-question.mutation';
-import { EditQuestionDialog } from '@/components/product-question/edit-question-dialog';
+} from '@/lib/types/interfaces/apis/product-question.interfaces'
+import { useDeleteQuestionMutation } from '@/hooks/mutations/product-question.mutation'
+import { EditQuestionDialog } from '@/components/product-question/edit-question-dialog'
 
 // ============ Constants ============
 const QUESTION_STATUS_LABELS: Record<ProductQuestionStatus, string> = {
   [ProductQuestionStatus.PENDING]: 'Chờ phản hồi',
   [ProductQuestionStatus.ANSWERED]: 'Đã trả lời',
-};
+}
 
 const QUESTION_STATUS_COLORS: Record<ProductQuestionStatus, string> = {
   [ProductQuestionStatus.PENDING]: 'bg-yellow-100 text-yellow-700',
   [ProductQuestionStatus.ANSWERED]: 'bg-green-100 text-green-700',
-};
+}
 
 // ============ Question Card Component ============
 interface QuestionCardProps {
-  question: IProductQuestionWithProduct;
+  question: IProductQuestionWithProduct
 }
 
 export function QuestionCard({ question }: QuestionCardProps) {
   const [isOpen, setIsOpen] = useState(
-    question.status === ProductQuestionStatus.ANSWERED
-  );
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    question.status === ProductQuestionStatus.ANSWERED,
+  )
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const { mutate: deleteQuestion, isPending: isDeleting } =
-    useDeleteQuestionMutation(question.id, question.productId);
+    useDeleteQuestionMutation(question.id, question.productId)
 
   const handleDelete = () => {
-    deleteQuestion();
-    setShowDeleteDialog(false);
-  };
+    deleteQuestion()
+    setShowDeleteDialog(false)
+  }
 
   const formatDate = (dateString: string) => {
     return formatDistanceToNow(new Date(dateString), {
       addSuffix: true,
       locale: vi,
-    });
-  };
+    })
+  }
 
   return (
     <>
@@ -79,7 +85,10 @@ export function QuestionCard({ question }: QuestionCardProps) {
               className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-muted hover:opacity-80 transition-opacity"
             >
               <Image
-                src={question.product.images.find((img) => img.isPrimary)?.media.url || '/placeholder.png'}
+                src={
+                  question.product.images.find((img) => img.isPrimary)?.media
+                    .url || '/placeholder.png'
+                }
                 alt={question.product.name}
                 fill
                 className="object-cover"
@@ -171,7 +180,8 @@ export function QuestionCard({ question }: QuestionCardProps) {
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>
                         Trả lời bởi:{' '}
-                        {question.answeredByUser?.fullName || 'Admin'}
+                        {`${question.answeredByUser?.firstName} ${question.answeredByUser?.lastName}` ||
+                          'Admin'}
                       </span>
                       {question.updatedAt && (
                         <span>{formatDate(question.updatedAt)}</span>
@@ -215,6 +225,5 @@ export function QuestionCard({ question }: QuestionCardProps) {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  );
+  )
 }
-
