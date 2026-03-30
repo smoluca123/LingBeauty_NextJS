@@ -79,7 +79,7 @@ export function ReviewItem({
       {/* Review Header */}
       <div className="flex items-start gap-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage src={review.user.avatarMedia?.url} />
+          <AvatarImage src={review.user.avatar?.media?.url} />
           <AvatarFallback className="bg-primary-pink/10 text-primary-pink">
             {getInitials(review.user.firstName, review.user.lastName)}
           </AvatarFallback>

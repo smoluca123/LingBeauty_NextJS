@@ -19,8 +19,17 @@ export interface IUserDataType {
   isPhoneVerified: boolean
   emailVerifiedAt: string | null
   phoneVerifiedAt: string | null
-  avatarMedia: IMediaDataType | null
+  avatar: IUserAvatarType | null
   roleAssignments?: IUserRoleAssignmentDataType[]
+}
+
+export interface IUserAvatarType {
+  id: string
+  userId: string
+  mediaId: string
+  createdAt: string
+  updatedAt: string
+  media: IMediaDataType
 }
 
 // export interface IUserProfileDataType {

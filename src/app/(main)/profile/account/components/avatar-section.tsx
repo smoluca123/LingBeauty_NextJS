@@ -1,22 +1,23 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Camera } from 'lucide-react';
-import UserAvatar from '@/components/user-avatar';
-import { AvatarUploadDialog } from './avatar-upload-dialog';
-import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
+import { useState } from 'react'
+import { Camera } from 'lucide-react'
+import UserAvatar from '@/components/user-avatar'
+import { AvatarUploadDialog } from './avatar-upload-dialog'
+import type { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces'
 
 // ============ Props ============
 interface IAvatarSectionProps {
-  user: IUserDataType;
+  user: IUserDataType
 }
 
 // ============ Component ============
 export function AvatarSection({ user }: IAvatarSectionProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const avatarUrl = user.avatarMedia?.url;
-  const fullName = `${user.firstName} ${user.lastName}`.trim() || user.username;
+  const avatarUrl = user.avatar?.media?.url
+  const fullName = `${user.firstName} ${user.lastName}`.trim() || user.username
+  console.log(user)
 
   return (
     <>
@@ -42,5 +43,5 @@ export function AvatarSection({ user }: IAvatarSectionProps) {
       {/* Upload Dialog */}
       <AvatarUploadDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </>
-  );
+  )
 }

@@ -6,16 +6,16 @@ export enum ProductQuestionStatus {
   ANSWERED = 'ANSWERED',
 }
 
-export interface IUserBasic {
-  id: string
-  firstName: string
-  lastName: string
-  fullName?: string
-  avatarMedia?: {
-    id: string
-    url: string
-  }
-}
+// export interface IUserBasic {
+//   id: string
+//   firstName: string
+//   lastName: string
+//   fullName?: string
+//   avatarMedia?: {
+//     id: string
+//     url: string
+//   }
+// }
 
 export interface IProductBasic {
   id: string
@@ -44,7 +44,7 @@ export interface IProductQuestion {
   createdAt: string
   updatedAt: string
   user: IUserDataType
-  answeredByUser: IUserBasic | null
+  answeredByUser: IUserDataType | null
 }
 
 export interface IProductQuestionWithProduct extends IProductQuestion {

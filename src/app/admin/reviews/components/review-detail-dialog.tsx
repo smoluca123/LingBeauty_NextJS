@@ -174,7 +174,7 @@ export function ReviewDetailDialog({
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
                 <Avatar className="h-12 w-12 border ring-2 ring-muted/50">
-                  <AvatarImage src={review.user?.avatarMedia?.url ?? ''} />
+                  <AvatarImage src={review.user?.avatar?.media?.url ?? ''} />
                   <AvatarFallback className="text-lg bg-pink-50 text-pink-600 font-bold">
                     {getInitials(review.user?.firstName, review.user?.lastName)}
                   </AvatarFallback>
@@ -477,7 +477,7 @@ export function ReviewDetailDialog({
                             <div className="flex items-center gap-2.5">
                               <Avatar className="h-8 w-8 border ring-2 ring-background shadow-sm">
                                 <AvatarImage
-                                  src={reply.user?.avatarMedia?.url ?? ''}
+                                  src={reply.user?.avatar?.media?.url ?? ''}
                                 />
                                 <AvatarFallback className="text-[10px] bg-muted font-bold">
                                   {getInitials(

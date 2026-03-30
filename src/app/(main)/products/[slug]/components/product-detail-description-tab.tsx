@@ -1,9 +1,9 @@
-
-import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces';
-import parse from 'html-react-parser';
+import { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import parse from 'html-react-parser'
+import { ExpandableContent } from './expandable-content'
 
 interface ProductDetailDescriptionTabProps {
-  product: IProductDataType;
+  product: IProductDataType
 }
 
 export function ProductDetailDescriptionTab({
@@ -12,11 +12,11 @@ export function ProductDetailDescriptionTab({
   if (!product.description && !product.shortDesc) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-muted-foreground">
           Chưa có mô tả cho sản phẩm này.
         </p>
       </div>
-    );
+    )
   }
 
   return (
@@ -27,10 +27,12 @@ export function ProductDetailDescriptionTab({
         </p>
       )}
       {product.description && (
-        <article className="prose prose-sm max-w-none text-muted-foreground tiptap">
-          {parse(product.description)}
-        </article>
+        <ExpandableContent maxHeight={300}>
+          <article className="prose prose-sm max-w-none text-muted-foreground tiptap">
+            {parse(product.description)}
+          </article>
+        </ExpandableContent>
       )}
     </div>
-  );
+  )
 }

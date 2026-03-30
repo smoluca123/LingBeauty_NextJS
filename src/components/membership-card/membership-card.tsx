@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { useRef } from 'react';
-import Barcode from 'react-barcode';
-import { User } from 'lucide-react';
-import UserAvatar from '@/components/user-avatar';
-import { useAuthUser, useAuthLoading } from '@/hooks/use-auth';
-import { MembershipCardSkeleton } from './membership-card-skeleton';
+import { useRef } from 'react'
+import Barcode from 'react-barcode'
+import { User } from 'lucide-react'
+import UserAvatar from '@/components/user-avatar'
+import { useAuthUser, useAuthLoading } from '@/hooks/use-auth'
+import { MembershipCardSkeleton } from './membership-card-skeleton'
 
 // ============ Types ============
-export type MembershipTier = 'BRONZE' | 'SILVER' | 'GOLD';
+export type MembershipTier = 'BRONZE' | 'SILVER' | 'GOLD'
 
 interface MembershipCardProps {
-  tier?: MembershipTier;
-  points?: number;
-  pointsToNextTier?: number;
+  tier?: MembershipTier
+  points?: number
+  pointsToNextTier?: number
 }
 
 // ============ Constants ============
@@ -36,7 +36,7 @@ const TIER_CONFIG: Record<
     gradient: 'from-yellow-500 via-yellow-400 to-amber-300',
     nextTier: '',
   },
-};
+}
 
 // ============ Component ============
 export function MembershipCard({
@@ -44,19 +44,19 @@ export function MembershipCard({
   points = 0,
   pointsToNextTier = 100,
 }: MembershipCardProps) {
-  const user = useAuthUser();
-  const isLoading = useAuthLoading();
+  const user = useAuthUser()
+  const isLoading = useAuthLoading()
 
-  const barcodeRef = useRef<HTMLDivElement>(null);
+  const barcodeRef = useRef<HTMLDivElement>(null)
 
   // Show skeleton while loading user data
   if (isLoading || !user) {
-    return <MembershipCardSkeleton />;
+    return <MembershipCardSkeleton />
   }
 
-  const tierConfig = TIER_CONFIG[tier];
-  const displayName = `${user.firstName} ${user.lastName}`.trim();
-  const phoneNumber = user.phone || '0000000000';
+  const tierConfig = TIER_CONFIG[tier]
+  const displayName = `${user.firstName} ${user.lastName}`.trim()
+  const phoneNumber = user.phone || '0000000000'
 
   return (
     <div className="w-full rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -64,9 +64,9 @@ export function MembershipCard({
       <div className=" gap-3">
         {/* Avatar */}
         <div className="relative flex shrink-0 items-center justify-center gap-x-5">
-          {user.avatarMedia?.url ? (
+          {user.avatar?.media?.url ? (
             <UserAvatar
-              avatarUrl={user.avatarMedia.url}
+              avatarUrl={user.avatar?.media.url}
               fallbackName={displayName}
             />
           ) : (
@@ -125,5 +125,5 @@ export function MembershipCard({
         </button>
       </div>
     </div>
-  );
+  )
 }
