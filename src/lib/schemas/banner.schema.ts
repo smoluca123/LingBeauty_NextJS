@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const bannerSchema = z.object({
-  groupId: z.string().min(1, 'Vui lòng chọn nhóm banner').optional(),
+  groupId: z.string().optional(),
   type: z.enum(['TEXT', 'IMAGE']),
   position: z.enum(['MAIN_CAROUSEL', 'SIDE_TOP', 'SIDE_BOTTOM']),
   badge: z.string().optional(),

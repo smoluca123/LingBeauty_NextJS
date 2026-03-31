@@ -1,7 +1,7 @@
 'use client'
-
+'use no memo'
 import { useMemo } from 'react'
-import { UseFormReturn } from 'react-hook-form'
+import { UseFormReturn, useWatch } from 'react-hook-form'
 import {
   FormControl,
   FormField,
@@ -85,7 +85,9 @@ export function CategoryForm({
       : flat
   }, [categoriesData, excludeCategoryId])
 
-  const watchedType = form.watch('type')
+  const watchedType = useWatch({
+    name: 'type',
+  })
 
   const handleImageChange = (file: File | null) => {
     if (file) {
@@ -105,16 +107,16 @@ export function CategoryForm({
   }
 
   return (
-    <div className='space-y-4'>
+    <div className="space-y-4">
       {/* Name */}
       <FormField
         control={form.control}
-        name='name'
+        name="name"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Tên danh mục *</FormLabel>
             <FormControl>
-              <Input placeholder='Nhập tên danh mục' {...field} />
+              <Input placeholder="Nhập tên danh mục" {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -139,7 +141,7 @@ export function CategoryForm({
       {/* Parent Category Select – luôn hiển thị */}
       <FormField
         control={form.control}
-        name='parentId'
+        name="parentId"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Danh mục cha</FormLabel>
@@ -151,7 +153,7 @@ export function CategoryForm({
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder='— Không có (danh mục gốc) —' />
+                  <SelectValue placeholder="— Không có (danh mục gốc) —" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
@@ -171,22 +173,22 @@ export function CategoryForm({
       />
 
       {/* Type + SortOrder row */}
-      <div className='grid grid-cols-2 gap-4'>
+      <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name='type'
+          name="type"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Loại danh mục</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder='Chọn loại' />
+                    <SelectValue placeholder="Chọn loại" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value='CATEGORY'>Danh mục</SelectItem>
-                  <SelectItem value='BRAND'>Thương hiệu</SelectItem>
+                  <SelectItem value="CATEGORY">Danh mục</SelectItem>
+                  <SelectItem value="BRAND">Thương hiệu</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -196,15 +198,15 @@ export function CategoryForm({
 
         <FormField
           control={form.control}
-          name='sortOrder'
+          name="sortOrder"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Thứ tự sắp xếp</FormLabel>
               <FormControl>
                 <Input
-                  type='number'
+                  type="number"
                   min={0}
-                  placeholder='0'
+                  placeholder="0"
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
@@ -219,14 +221,14 @@ export function CategoryForm({
       {watchedType === 'BRAND' && (
         <FormField
           control={form.control}
-          name='brandId'
+          name="brandId"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Thương hiệu liên kết</FormLabel>
               <Select onValueChange={field.onChange} value={field.value ?? ''}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder='Chọn thương hiệu' />
+                    <SelectValue placeholder="Chọn thương hiệu" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -254,9 +256,9 @@ export function CategoryForm({
       {/* isActive */}
       <FormField
         control={form.control}
-        name='isActive'
+        name="isActive"
         render={({ field }) => (
-          <FormItem className='flex items-center justify-between rounded-lg border p-3'>
+          <FormItem className="flex items-center justify-between rounded-lg border p-3">
             <div>
               <FormLabel className="text-sm font-medium">Hiển thị</FormLabel>
               <p className="text-xs text-muted-foreground">
