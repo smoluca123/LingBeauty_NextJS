@@ -166,6 +166,33 @@ export const deleteBlogTopicClientAPI = async (id: string) => {
   }
 }
 
+export const getBlogTopicByIdClientAPI = async (id: string) => {
+  try {
+    return await kyNextInstance
+      .get(`admin/blog-topic/${id}`)
+      .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog topic'),
+    )
+  }
+}
+
+export const createSubTopicClientAPI = async (
+  parentId: string,
+  data: ICreateBlogTopicPayload,
+) => {
+  try {
+    return await kyNextInstance
+      .post(`admin/blog-topic/${parentId}/sub-topic`, { json: data })
+      .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to create sub-topic'),
+    )
+  }
+}
+
 export const uploadTopicImageClientAPI = async (
   id: string,
   formData: FormData,
@@ -246,6 +273,18 @@ export const deleteBlogPostClientAPI = async (id: string) => {
   } catch (error) {
     throw new Error(
       await extractErrorMessage(error, 'Failed to delete blog post'),
+    )
+  }
+}
+
+export const getBlogPostByIdClientAPI = async (id: string) => {
+  try {
+    return await kyNextInstance
+      .get(`admin/blog-post/${id}`)
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog post'),
     )
   }
 }

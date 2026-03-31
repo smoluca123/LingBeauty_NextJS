@@ -1,5 +1,5 @@
-import { uploadPostFeaturedImageAPI } from '@/lib/apis/server/blog-apis'
 import { proxyRoute } from '@/lib/proxy-route'
+import { uploadPostFeaturedImageAPI } from '@/lib/apis/server/blog-apis'
 
 export const POST = async (
   req: Request,
