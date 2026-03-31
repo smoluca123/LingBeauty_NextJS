@@ -9,7 +9,7 @@ import {
 } from '@/components/home/products/top-products-section'
 import HomeCarouselSection from '@/app/(main)/components/home-carousel-section'
 import HomeFlashSaleSection from '@/app/(main)/components/home-flase-sale-section'
-import BeautyBoxSection from '@/components/home/beauty-box'
+import { BlogSectionWrapper, BlogSectionSkeleton } from '@/components/home/blog'
 import { TopTrendSection } from '@/components/home/top-trend'
 import { ProductsSection } from '@/components/home/products/products-section/products-section'
 
@@ -30,7 +30,9 @@ export default function MainPage() {
         </Suspense>
         <HomeFlashSaleSection />
         <TopTrendSection />
-        <BeautyBoxSection />
+        <Suspense fallback={<BlogSectionSkeleton />}>
+          <BlogSectionWrapper />
+        </Suspense>
       </main>
     </div>
     // </Suspense>

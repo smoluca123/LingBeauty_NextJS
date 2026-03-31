@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import {
   blogTopicSchema,
   type BlogTopicFormValues,
@@ -10,6 +11,7 @@ import {
 import {
   useCreateBlogTopicMutation,
   useUpdateBlogTopicMutation,
+  useUploadTopicImageMutation,
 } from '@/hooks/mutations/blog.mutation'
 import type { IBlogTopicDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
 import {
@@ -44,6 +46,8 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
   const isEdit = !!topic
   const createMutation = useCreateBlogTopicMutation()
   const updateMutation = useUpdateBlogTopicMutation()
+  const uploadImageMutation = useUploadTopicImageMutation()
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const form = useForm({
     resolver: zodResolver(blogTopicSchema),
@@ -57,15 +61,33 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
   })
 
   const onSubmit = async (data: BlogTopicFormValues) => {
+    // Remove image from data as it will be handled separately
+    const { image, ...topicData } = data
+
+    let topicId = topic?.id
+
+    // Create or update topic first
     if (isEdit) {
-      await updateMutation.mutateAsync({ id: topic.id, data })
+      await updateMutation.mutateAsync({ id: topic.id, data: topicData })
     } else {
-      await createMutation.mutateAsync(data)
+      const result = await createMutation.mutateAsync(topicData)
+      topicId = result.data.id
     }
+
+    // Upload image if selected
+    if (selectedFile && topicId) {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      await uploadImageMutation.mutateAsync({ id: topicId, formData })
+    }
+
     onClose()
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending
+  const isPending =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    uploadImageMutation.isPending
 
   // Filter out current topic from parent options
   const availableParents = topics.filter((t) => t.id !== topic?.id)
@@ -162,8 +184,23 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
           render={({ field: { value, onChange } }) => (
             <FormItem>
               <ImageUploadDropzone
-                value={value || topic?.imageMedia?.url || null}
-                onChange={onChange}
+                value={
+                  selectedFile
+                    ? URL.createObjectURL(selectedFile)
+                    : topic?.imageMedia?.url || null
+                }
+                onChange={(newValue) => {
+                  if (newValue instanceof File) {
+                    setSelectedFile(newValue)
+                    onChange(newValue)
+                  } else if (typeof newValue === 'string') {
+                    setSelectedFile(null)
+                    onChange(newValue)
+                  } else {
+                    setSelectedFile(null)
+                    onChange(null)
+                  }
+                }}
                 label="Hình ảnh chủ đề"
                 maxSize={5}
               />

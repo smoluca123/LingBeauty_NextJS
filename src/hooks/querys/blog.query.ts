@@ -1,61 +1,93 @@
 import { useQuery } from '@tanstack/react-query'
 import {
-  getAllBlogPostsClientAPI,
-  getBlogPostByIdClientAPI,
   getAllBlogTopicsClientAPI,
-  getBlogTopicByIdClientAPI,
+  getAllBlogPostsClientAPI,
+  getPublicBlogTopicsClientAPI,
+  getPublicBlogPostsClientAPI,
+  getPublicBlogTopicBySlugClientAPI,
+  getPublicBlogPostBySlugClientAPI,
 } from '@/lib/apis/client/blog.apis'
 import type {
-  IBlogPostFilters,
   IBlogTopicFilters,
+  IBlogPostFilters,
 } from '@/lib/types/interfaces/apis/blog.interfaces'
 
-// ============ Query Keys ============
+// ── Query Keys ────────────────────────────────────────────────────────────────
 
-export const blogPostQueryKeys = {
-  all: ['admin', 'blog-posts'] as const,
-  list: (filters: IBlogPostFilters) =>
-    ['admin', 'blog-posts', 'list', filters] as const,
-  detail: (id: string) => ['admin', 'blog-posts', 'detail', id] as const,
+export const blogQueryKeys = {
+  // Admin keys
+  topics: ['admin', 'blog-topics'] as const,
+  topicsList: (params: IBlogTopicFilters) =>
+    ['admin', 'blog-topics', 'list', params] as const,
+  posts: ['admin', 'blog-posts'] as const,
+  postsList: (params: IBlogPostFilters) =>
+    ['admin', 'blog-posts', 'list', params] as const,
+
+  // Public keys
+  publicTopics: ['public', 'blog-topics'] as const,
+  publicTopicsList: (params: IBlogTopicFilters) =>
+    ['public', 'blog-topics', 'list', params] as const,
+  publicTopicBySlug: (slug: string) =>
+    ['public', 'blog-topics', 'slug', slug] as const,
+  publicPosts: ['public', 'blog-posts'] as const,
+  publicPostsList: (params: IBlogPostFilters) =>
+    ['public', 'blog-posts', 'list', params] as const,
+  publicPostBySlug: (slug: string) =>
+    ['public', 'blog-posts', 'slug', slug] as const,
 }
 
-export const blogTopicQueryKeys = {
-  all: ['admin', 'blog-topics'] as const,
-  list: (filters: IBlogTopicFilters) =>
-    ['admin', 'blog-topics', 'list', filters] as const,
-  detail: (id: string) => ['admin', 'blog-topics', 'detail', id] as const,
-}
+// ── Admin Blog Topics ──────────────────────────────────────────────────────────
 
-// ============ Blog Post Queries ============
-
-export const useBlogPostsQuery = (filters: IBlogPostFilters = {}) =>
+export const useBlogTopicsQuery = (params: IBlogTopicFilters = {}) =>
   useQuery({
-    queryKey: blogPostQueryKeys.list(filters),
-    queryFn: () => getAllBlogPostsClientAPI({ ...filters }),
+    queryKey: blogQueryKeys.topicsList(params),
+    queryFn: () => getAllBlogTopicsClientAPI(params),
     staleTime: 1000 * 30, // 30 seconds
+    placeholderData: (prev) => prev,
   })
 
-export const useBlogPostQuery = (id: string) =>
+// ── Admin Blog Posts ───────────────────────────────────────────────────────────
+
+export const useBlogPostsQuery = (params: IBlogPostFilters = {}) =>
   useQuery({
-    queryKey: blogPostQueryKeys.detail(id),
-    queryFn: () => getBlogPostByIdClientAPI(id),
-    enabled: !!id,
-    staleTime: 1000 * 60, // 1 minute
+    queryKey: blogQueryKeys.postsList(params),
+    queryFn: () => getAllBlogPostsClientAPI(params),
+    staleTime: 1000 * 30, // 30 seconds
+    placeholderData: (prev) => prev,
   })
 
-// ============ Blog Topic Queries ============
+// ── Public Blog Topics ─────────────────────────────────────────────────────────
 
-export const useBlogTopicsQuery = (filters: IBlogTopicFilters = {}) =>
+export const usePublicBlogTopicsQuery = (params: IBlogTopicFilters = {}) =>
   useQuery({
-    queryKey: blogTopicQueryKeys.list(filters),
-    queryFn: () => getAllBlogTopicsClientAPI(filters),
-    staleTime: 1000 * 60, // 1 minute
+    queryKey: blogQueryKeys.publicTopicsList(params),
+    queryFn: () => getPublicBlogTopicsClientAPI(params),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: (prev) => prev,
   })
 
-export const useBlogTopicQuery = (id: string) =>
+export const usePublicBlogTopicBySlugQuery = (slug: string | null) =>
   useQuery({
-    queryKey: blogTopicQueryKeys.detail(id),
-    queryFn: () => getBlogTopicByIdClientAPI(id),
-    enabled: !!id,
-    staleTime: 1000 * 60, // 1 minute
+    queryKey: blogQueryKeys.publicTopicBySlug(slug ?? ''),
+    queryFn: () => getPublicBlogTopicBySlugClientAPI(slug!),
+    enabled: !!slug,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+
+// ── Public Blog Posts ──────────────────────────────────────────────────────────
+
+export const usePublicBlogPostsQuery = (params: IBlogPostFilters = {}) =>
+  useQuery({
+    queryKey: blogQueryKeys.publicPostsList(params),
+    queryFn: () => getPublicBlogPostsClientAPI(params),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: (prev) => prev,
+  })
+
+export const usePublicBlogPostBySlugQuery = (slug: string | null) =>
+  useQuery({
+    queryKey: blogQueryKeys.publicPostBySlug(slug ?? ''),
+    queryFn: () => getPublicBlogPostBySlugClientAPI(slug!),
+    enabled: !!slug,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   })
