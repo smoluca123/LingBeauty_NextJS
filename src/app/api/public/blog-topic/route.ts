@@ -1,18 +1,11 @@
+import { getPublicBlogTopicsAPI } from '@/lib/apis/server/blog-apis'
 import { proxyRoute } from '@/lib/proxy-route'
-import {
-  getAllBlogTopicsAPI,
-  createBlogTopicAPI,
-} from '@/lib/apis/server/blog-apis'
 import type { IBlogTopicFilters } from '@/lib/types/interfaces/apis/blog.interfaces'
-import type {
-  IBlogTopicFilters,
-  ICreateBlogTopicPayload,
-} from '@/lib/types/interfaces/apis/blog.interfaces'
 
 export const GET = (req: Request) => {
   const { searchParams } = new URL(req.url)
 
-  const filters: IBlogTopicFilters = {
+  const params: IBlogTopicFilters = {
     page: searchParams.has('page')
       ? Number(searchParams.get('page'))
       : undefined,
@@ -25,10 +18,5 @@ export const GET = (req: Request) => {
       : undefined,
   }
 
-  return proxyRoute(() => getAllBlogTopicsAPI(filters))
-}
-
-export const POST = async (req: Request) => {
-  const body = (await req.json()) as ICreateBlogTopicPayload
-  return proxyRoute(() => createBlogTopicAPI(body))
+  return proxyRoute(() => getPublicBlogTopicsAPI(params))
 }

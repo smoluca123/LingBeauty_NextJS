@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import {
   blogTopicSchema,
   type BlogTopicFormValues,
@@ -10,6 +11,7 @@ import {
 import {
   useCreateBlogTopicMutation,
   useUpdateBlogTopicMutation,
+  useUploadTopicImageMutation,
 } from '@/hooks/mutations/blog.mutation'
 import type { IBlogTopicDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
 import {
@@ -50,6 +52,8 @@ export function BlogTopicForm({
   const isEdit = !!topic
   const createMutation = useCreateBlogTopicMutation()
   const updateMutation = useUpdateBlogTopicMutation()
+  const uploadImageMutation = useUploadTopicImageMutation()
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const form = useForm({
     resolver: zodResolver(blogTopicSchema),
@@ -74,10 +78,21 @@ export function BlogTopicForm({
     } else {
       await createMutation.mutateAsync(payload)
     }
+
+    // Upload image if selected
+    if (selectedFile && topicId) {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      await uploadImageMutation.mutateAsync({ id: topicId, formData })
+    }
+
     onClose()
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending
+  const isPending =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    uploadImageMutation.isPending
 
   // Filter out current topic from parent options
   const availableParents = topics.filter((t) => t.id !== topic?.id)
@@ -182,8 +197,23 @@ export function BlogTopicForm({
           render={({ field: { value, onChange } }) => (
             <FormItem>
               <ImageUploadDropzone
-                value={value || topic?.imageMedia?.url || null}
-                onChange={onChange}
+                value={
+                  selectedFile
+                    ? URL.createObjectURL(selectedFile)
+                    : topic?.imageMedia?.url || null
+                }
+                onChange={(newValue) => {
+                  if (newValue instanceof File) {
+                    setSelectedFile(newValue)
+                    onChange(newValue)
+                  } else if (typeof newValue === 'string') {
+                    setSelectedFile(null)
+                    onChange(newValue)
+                  } else {
+                    setSelectedFile(null)
+                    onChange(null)
+                  }
+                }}
                 label="Hình ảnh chủ đề"
                 maxSize={5}
               />

@@ -18,17 +18,17 @@ export const PATCH = async (
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const body = await req.json()
-
   const { id } = await params
+  const body = (await req.json()) as IUpdateBlogTopicPayload
   return proxyRoute(() => updateBlogTopicAPI(id, body))
 }
 
-export const DELETE = async (
+export const DELETE = (
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) => {
-  const { id } = await params
-
-  return proxyRoute(() => deleteBlogTopicAPI(id))
+  return proxyRoute(async () => {
+    const { id } = await params
+    return deleteBlogTopicAPI(id)
+  })
 }

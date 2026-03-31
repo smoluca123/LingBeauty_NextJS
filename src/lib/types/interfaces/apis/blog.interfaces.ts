@@ -1,31 +1,4 @@
-/**
- * Blog API Interfaces
- * Mapping từ backend DTOs
- */
-
-export enum BlogPostStatus {
-  DRAFT = 'DRAFT',
-  PUBLISHED = 'PUBLISHED',
-  ARCHIVED = 'ARCHIVED',
-}
-
-export interface IMediaDataType {
-  id: string
-  url: string
-  fileName: string
-  fileSize: number
-  mimeType: string
-  width?: number
-  height?: number
-}
-
-export interface IUserDataType {
-  id: string
-  email: string
-  fullName: string
-  avatar?: IMediaDataType
-}
-
+// Blog Topic Interfaces
 export interface IBlogTopicDataType {
   id: string
   name: string
@@ -34,11 +7,44 @@ export interface IBlogTopicDataType {
   parentId?: string
   sortOrder: number
   isActive: boolean
-  imageMedia?: IMediaDataType
+  imageMedia?: {
+    id: string
+    url: string
+    type: string
+  }
   children?: IBlogTopicDataType[]
   postCount?: number
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date
+}
+
+export interface ICreateBlogTopicPayload {
+  name: string
+  description?: string
+  sortOrder?: number
+  isActive?: boolean
+}
+
+export interface IUpdateBlogTopicPayload {
+  name?: string
+  description?: string
+  sortOrder?: number
+  isActive?: boolean
+}
+
+export interface IBlogTopicFilters {
+  page?: number
+  limit?: number
+  search?: string
+  isActive?: boolean
+}
+
+// Blog Post Interfaces
+export enum BlogPostStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export interface IBlogPostDataType {
@@ -55,18 +61,23 @@ export interface IBlogPostDataType {
   metaTitle?: string
   metaDescription?: string
   publishedAt?: Date
-  topic?: {
+  topic?: IBlogTopicDataType
+  author?: {
     id: string
-    name: string
-    slug: string
+    username: string
+    email: string
+    fullName?: string
   }
-  author?: IUserDataType
-  featuredImage?: IMediaDataType
+  featuredImage?: {
+    id: string
+    url: string
+    type: string
+  }
   createdAt: Date
   updatedAt: Date
+  deletedAt?: Date
 }
 
-// Create/Update Payloads
 export interface ICreateBlogPostPayload {
   title: string
   content: string
@@ -76,23 +87,19 @@ export interface ICreateBlogPostPayload {
   tags?: string[]
   metaTitle?: string
   metaDescription?: string
-  featuredImage?: File
 }
 
-export interface IUpdateBlogPostPayload extends Partial<ICreateBlogPostPayload> {}
-
-export interface ICreateBlogTopicPayload {
-  name: string
-  description?: string
-  parentId?: string
-  sortOrder?: number
-  isActive?: boolean
-  image?: File
+export interface IUpdateBlogPostPayload {
+  title?: string
+  content?: string
+  excerpt?: string
+  topicId?: string
+  status?: BlogPostStatus
+  tags?: string[]
+  metaTitle?: string
+  metaDescription?: string
 }
 
-export interface IUpdateBlogTopicPayload extends Partial<ICreateBlogTopicPayload> {}
-
-// Query Filters
 export interface IBlogPostFilters {
   page?: number
   limit?: number
@@ -103,11 +110,4 @@ export interface IBlogPostFilters {
   tag?: string
   sortBy?: 'createdAt' | 'updatedAt' | 'title' | 'viewCount'
   order?: 'asc' | 'desc'
-}
-
-export interface IBlogTopicFilters {
-  page?: number
-  limit?: number
-  search?: string
-  isActive?: boolean
 }

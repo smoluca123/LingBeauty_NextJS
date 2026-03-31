@@ -1,10 +1,12 @@
-import { proxyRoute } from '@/lib/proxy-route'
 import {
   getAllBlogPostsAPI,
   createBlogPostAPI,
 } from '@/lib/apis/server/blog-apis'
-import type { IBlogPostFilters } from '@/lib/types/interfaces/apis/blog.interfaces'
-import { BlogPostStatus } from '@/lib/types/interfaces/apis/blog.interfaces'
+import { proxyRoute } from '@/lib/proxy-route'
+import type {
+  IBlogPostFilters,
+  ICreateBlogPostPayload,
+} from '@/lib/types/interfaces/apis/blog.interfaces'
 
 export const GET = (req: Request) => {
   const { searchParams } = new URL(req.url)

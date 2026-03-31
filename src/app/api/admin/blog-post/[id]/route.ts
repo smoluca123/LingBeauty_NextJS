@@ -4,22 +4,34 @@ import {
   updateBlogPostAPI,
   deleteBlogPostAPI,
 } from '@/lib/apis/server/blog-apis'
+import { proxyRoute } from '@/lib/proxy-route'
+import type { IUpdateBlogPostPayload } from '@/lib/types/interfaces/apis/blog.interfaces'
 
-export const GET = (_req: Request, { params }: { params: { id: string } }) => {
-  return proxyRoute(() => getBlogPostByIdAPI(params.id))
+export const GET = (
+  _req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) => {
+  return proxyRoute(async () => {
+    const { id } = await params
+    return getBlogPostByIdAPI(id)
+  })
 }
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
-  const body = await req.json()
-  return proxyRoute(() => updateBlogPostAPI(params.id, body))
+  const { id } = await params
+  const body = (await req.json()) as IUpdateBlogPostPayload
+  return proxyRoute(() => updateBlogPostAPI(id, body))
 }
 
 export const DELETE = (
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
-  return proxyRoute(() => deleteBlogPostAPI(params.id))
+  return proxyRoute(async () => {
+    const { id } = await params
+    return deleteBlogPostAPI(id)
+  })
 }

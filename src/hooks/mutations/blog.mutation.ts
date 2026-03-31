@@ -1,109 +1,105 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
-  createBlogPostClientAPI,
-  updateBlogPostClientAPI,
-  deleteBlogPostClientAPI,
-  uploadBlogPostFeaturedImageClientAPI,
   createBlogTopicClientAPI,
   updateBlogTopicClientAPI,
   deleteBlogTopicClientAPI,
-  uploadBlogTopicImageClientAPI,
+  uploadTopicImageClientAPI,
+  createBlogPostClientAPI,
+  updateBlogPostClientAPI,
+  deleteBlogPostClientAPI,
+  uploadPostFeaturedImageClientAPI,
 } from '@/lib/apis/client/blog.apis'
-import {
-  blogPostQueryKeys,
-  blogTopicQueryKeys,
-} from '@/hooks/querys/blog.query'
+import { blogQueryKeys } from '@/hooks/querys/blog.query'
 import type {
-  ICreateBlogPostPayload,
-  IUpdateBlogPostPayload,
   ICreateBlogTopicPayload,
   IUpdateBlogTopicPayload,
+  ICreateBlogPostPayload,
+  IUpdateBlogPostPayload,
 } from '@/lib/types/interfaces/apis/blog.interfaces'
 
-// ============ Blog Post Mutations ============
-
-export const useCreateBlogPostMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: ICreateBlogPostPayload) => {
-      const { featuredImage, ...postData } = data
-      const response = await createBlogPostClientAPI(postData)
-
-      if (featuredImage && response.data) {
-        await uploadBlogPostFeaturedImageClientAPI(
-          response.data.id,
-          featuredImage,
-        )
-      }
-
-      return response
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogPostQueryKeys.all })
-      toast.success('Tạo bài viết thành công')
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : 'Tạo bài viết thất bại',
-      )
-    },
-  })
-}
-
-export const useUpdateBlogPostMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({
-      id,
-      data,
-    }: {
-      id: string
-      data: IUpdateBlogPostPayload
-    }) => {
-      const { featuredImage, ...postData } = data
-      const response = await updateBlogPostClientAPI(id, postData)
-
-      if (featuredImage) {
-        await uploadBlogPostFeaturedImageClientAPI(id, featuredImage)
-      }
-
-      return response
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogPostQueryKeys.all })
-      toast.success('Cập nhật bài viết thành công')
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : 'Cập nhật bài viết thất bại',
-      )
-    },
-  })
-}
-
-export const useDeleteBlogPostMutation = () => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: (id: string) => deleteBlogPostClientAPI(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogPostQueryKeys.all })
-      toast.success('Xóa bài viết thành công')
-    },
-    onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : 'Xóa bài viết thất bại',
-      )
-    },
-  })
-}
-
-// ============ Blog Topic Mutations ============
+// ── Blog Topic Mutations ───────────────────────────────────────────────────────
 
 export const useCreateBlogTopicMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (data: ICreateBlogTopicPayload) =>
+      createBlogTopicClientAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      toast.success('Tạo chủ đề blog thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Tạo chủ đề blog thất bại',
+      )
+    },
+  })
+}
+
+export const useUpdateBlogTopicMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: IUpdateBlogTopicPayload }) =>
+      updateBlogTopicClientAPI(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      toast.success('Cập nhật chủ đề blog thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Cập nhật chủ đề blog thất bại',
+      )
+    },
+  })
+}
+
+export const useDeleteBlogTopicMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => deleteBlogTopicClientAPI(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      toast.success('Xóa chủ đề blog thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Xóa chủ đề blog thất bại',
+      )
+    },
+  })
+}
+
+export const useUploadTopicImageMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+      uploadTopicImageClientAPI(id, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      toast.success('Upload ảnh chủ đề thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Upload ảnh thất bại',
+      )
+    },
+  })
+}
+
+// ── Blog Post Mutations ────────────────────────────────────────────────────────
+
+export const useCreateBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -126,13 +122,13 @@ export const useCreateBlogTopicMutation = () => {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Tạo chủ đề thất bại',
+        error instanceof Error ? error.message : 'Tạo bài viết thất bại',
       )
     },
   })
 }
 
-export const useUpdateBlogTopicMutation = () => {
+export const useUpdateBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
@@ -160,24 +156,44 @@ export const useUpdateBlogTopicMutation = () => {
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Cập nhật chủ đề thất bại',
+        error instanceof Error ? error.message : 'Cập nhật bài viết thất bại',
       )
     },
   })
 }
 
-export const useDeleteBlogTopicMutation = () => {
+export const useDeleteBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteBlogTopicClientAPI(id),
+    mutationFn: (id: string) => deleteBlogPostClientAPI(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogTopicQueryKeys.all })
-      toast.success('Xóa chủ đề thành công')
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
+      toast.success('Xóa bài viết thành công')
     },
     onError: (error) => {
       toast.error(
-        error instanceof Error ? error.message : 'Xóa chủ đề thất bại',
+        error instanceof Error ? error.message : 'Xóa bài viết thất bại',
+      )
+    },
+  })
+}
+
+export const useUploadPostFeaturedImageMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
+      uploadPostFeaturedImageClientAPI(id, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
+      toast.success('Upload ảnh bài viết thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Upload ảnh thất bại',
       )
     },
   })

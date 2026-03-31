@@ -20,6 +20,7 @@ export const footerLinks: Record<string, FooterSection> = {
     links: [
       { label: 'Câu chuyện thương hiệu', href: '/about/brand-story' },
       { label: 'Về chúng tôi', href: '/about' },
+      { label: 'Blog làm đẹp', href: '/blog' },
       { label: 'Liên hệ', href: '/contact' },
     ],
   },

@@ -1,184 +1,147 @@
 import { kyNextInstance } from '@/lib/kyInstance/kyNext'
 import { extractErrorMessage } from '@/lib/utils/error-handler'
 import type {
-  IBlogPostDataType,
+  IApiPaginationResponseWrapperType,
+  IApiResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces'
+import type {
   IBlogTopicDataType,
-  IBlogPostFilters,
+  IBlogPostDataType,
   IBlogTopicFilters,
-  ICreateBlogPostPayload,
-  IUpdateBlogPostPayload,
+  IBlogPostFilters,
   ICreateBlogTopicPayload,
   IUpdateBlogTopicPayload,
+  ICreateBlogPostPayload,
+  IUpdateBlogPostPayload,
 } from '@/lib/types/interfaces/apis/blog.interfaces'
-import type {
-  IApiResponseWrapperType,
-  IApiPaginationResponseWrapperType,
-} from '@/lib/types/interfaces/apis/api.interfaces'
 
-// ============ Blog Posts ============
+// Helper: loại bỏ undefined trước khi truyền vào searchParams
+const buildSearchParams = (
+  options: Record<string, string | number | boolean | undefined>,
+): Record<string, string | number | boolean> =>
+  Object.fromEntries(
+    Object.entries(options).filter(([, v]) => v !== undefined),
+  ) as Record<string, string | number | boolean>
 
-export const getAllBlogPostsClientAPI = async (
-  filters: IBlogPostFilters = {},
-) => {
-  try {
-    const searchParams = new URLSearchParams()
+// ────────────────────────────────────────────────────────────────────────────────
+// PUBLIC BLOG TOPIC APIs
+// ────────────────────────────────────────────────────────────────────────────────
 
-    if (filters.page) searchParams.set('page', filters.page.toString())
-    if (filters.limit) searchParams.set('limit', filters.limit.toString())
-    if (filters.search) searchParams.set('search', filters.search)
-    if (filters.topicId) searchParams.set('topicId', filters.topicId)
-    if (filters.authorId) searchParams.set('authorId', filters.authorId)
-    if (filters.status) searchParams.set('status', filters.status)
-    if (filters.tag) searchParams.set('tag', filters.tag)
-    if (filters.sortBy) searchParams.set('sortBy', filters.sortBy)
-    if (filters.order) searchParams.set('order', filters.order)
-
-    return await kyNextInstance
-      .get('admin/blog-post', { searchParams })
-      .json<IApiPaginationResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(
-      await extractErrorMessage(error, 'Không thể tải danh sách bài viết'),
-    )
-  }
-}
-
-export const getBlogPostByIdClientAPI = async (id: string) => {
-  try {
-    return await kyNextInstance
-      .get(`admin/blog-post/${id}`)
-      .json<IApiResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tải bài viết'))
-  }
-}
-
-export const createBlogPostClientAPI = async (
-  data: Omit<ICreateBlogPostPayload, 'featuredImage'>,
+export const getPublicBlogTopicsClientAPI = async (
+  params: IBlogTopicFilters = {},
 ) => {
   try {
     return await kyNextInstance
-      .post('admin/blog-post', { json: data })
-      .json<IApiResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tạo bài viết'))
-  }
-}
-
-export const updateBlogPostClientAPI = async (
-  id: string,
-  data: Omit<IUpdateBlogPostPayload, 'featuredImage'>,
-) => {
-  try {
-    return await kyNextInstance
-      .patch(`admin/blog-post/${id}`, { json: data })
-      .json<IApiResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(
-      await extractErrorMessage(error, 'Không thể cập nhật bài viết'),
-    )
-  }
-}
-
-export const uploadBlogPostFeaturedImageClientAPI = async (
-  postId: string,
-  file: File,
-) => {
-  try {
-    const formData = new FormData()
-    formData.append('file', file) // Backend expects 'file' field name
-
-    return await kyNextInstance
-      .post(`admin/blog-post/${postId}/upload/featured-image`, {
-        body: formData,
+      .get('public/blog-topic', {
+        searchParams: buildSearchParams({
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+          isActive: params.isActive,
+        }),
       })
-      .json<IApiResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tải ảnh lên'))
-  }
-}
-
-export const deleteBlogPostClientAPI = async (id: string) => {
-  try {
-    return await kyNextInstance
-      .delete(`admin/blog-post/${id}`)
-      .json<IApiResponseWrapperType<IBlogPostDataType>>()
-  } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể xóa bài viết'))
-  }
-}
-
-// ============ Blog Topics ============
-
-export const getAllBlogTopicsClientAPI = async (
-  filters: IBlogTopicFilters = {},
-) => {
-  try {
-    const searchParams = new URLSearchParams()
-
-    if (filters.page) searchParams.set('page', filters.page.toString())
-    if (filters.limit) searchParams.set('limit', filters.limit.toString())
-    if (filters.search) searchParams.set('search', filters.search)
-    if (filters.isActive !== undefined)
-      searchParams.set('isActive', filters.isActive.toString())
-
-    return await kyNextInstance
-      .get('admin/blog-topic', { searchParams })
       .json<IApiPaginationResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(
-      await extractErrorMessage(error, 'Không thể tải danh sách chủ đề'),
+      await extractErrorMessage(error, 'Failed to fetch blog topics'),
     )
   }
 }
 
-export const getBlogTopicByIdClientAPI = async (id: string) => {
+export const getPublicBlogTopicBySlugClientAPI = async (slug: string) => {
   try {
     return await kyNextInstance
-      .get(`admin/blog-topic/${id}`)
+      .get(`public/blog-topic/slug/${slug}`)
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tải chủ đề'))
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog topic'),
+    )
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// PUBLIC BLOG POST APIs
+// ────────────────────────────────────────────────────────────────────────────────
+
+export const getPublicBlogPostsClientAPI = async (
+  params: IBlogPostFilters = {},
+) => {
+  try {
+    return await kyNextInstance
+      .get('public/blog-post', {
+        searchParams: buildSearchParams({
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+          topicId: params.topicId,
+          tag: params.tag,
+          sortBy: params.sortBy,
+          order: params.order,
+        }),
+      })
+      .json<IApiPaginationResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog posts'),
+    )
+  }
+}
+
+export const getPublicBlogPostBySlugClientAPI = async (slug: string) => {
+  try {
+    return await kyNextInstance
+      .get(`public/blog-post/slug/${slug}`)
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog post'),
+    )
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// ADMIN BLOG TOPIC APIs
+// ────────────────────────────────────────────────────────────────────────────────
+
+export const getAllBlogTopicsClientAPI = async (
+  params: IBlogTopicFilters = {},
+) => {
+  try {
+    return await kyNextInstance
+      .get('admin/blog-topic', {
+        searchParams: buildSearchParams({
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+          isActive: params.isActive,
+        }),
+      })
+      .json<IApiPaginationResponseWrapperType<IBlogTopicDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog topics'),
+    )
   }
 }
 
 export const createBlogTopicClientAPI = async (
-  data: Omit<ICreateBlogTopicPayload, 'image'>,
+  data: ICreateBlogTopicPayload,
 ) => {
   try {
-    // Nếu có parentId, gọi API tạo sub-topic
-    // Nếu không có parentId, gọi API tạo topic chính
-    const endpoint = data.parentId
-      ? `admin/blog-topic/${data.parentId}/sub-topic`
-      : 'admin/blog-topic'
-
     return await kyNextInstance
-      .post(endpoint, { json: data })
+      .post('admin/blog-topic', { json: data })
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tạo chủ đề'))
-  }
-}
-
-export const uploadBlogTopicImageClientAPI = async (
-  topicId: string,
-  file: File,
-) => {
-  try {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    return await kyNextInstance
-      .post(`admin/blog-topic/${topicId}/upload/image`, { body: formData })
-      .json<IApiResponseWrapperType<IBlogTopicDataType>>()
-  } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể tải ảnh lên'))
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to create blog topic'),
+    )
   }
 }
 
 export const updateBlogTopicClientAPI = async (
   id: string,
-  data: Omit<IUpdateBlogTopicPayload, 'image'>,
+  data: IUpdateBlogTopicPayload,
 ) => {
   try {
     return await kyNextInstance
@@ -186,7 +149,7 @@ export const updateBlogTopicClientAPI = async (
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(
-      await extractErrorMessage(error, 'Không thể cập nhật chủ đề'),
+      await extractErrorMessage(error, 'Failed to update blog topic'),
     )
   }
 }
@@ -197,6 +160,107 @@ export const deleteBlogTopicClientAPI = async (id: string) => {
       .delete(`admin/blog-topic/${id}`)
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
-    throw new Error(await extractErrorMessage(error, 'Không thể xóa chủ đề'))
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete blog topic'),
+    )
+  }
+}
+
+export const uploadTopicImageClientAPI = async (
+  id: string,
+  formData: FormData,
+) => {
+  try {
+    return await kyNextInstance
+      .post(`admin/blog-topic/${id}/upload/image`, { body: formData })
+      .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to upload topic image'),
+    )
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
+// ADMIN BLOG POST APIs
+// ────────────────────────────────────────────────────────────────────────────────
+
+export const getAllBlogPostsClientAPI = async (
+  params: IBlogPostFilters = {},
+) => {
+  try {
+    return await kyNextInstance
+      .get('admin/blog-post', {
+        searchParams: buildSearchParams({
+          page: params.page,
+          limit: params.limit,
+          search: params.search,
+          topicId: params.topicId,
+          authorId: params.authorId,
+          status: params.status,
+          tag: params.tag,
+          sortBy: params.sortBy,
+          order: params.order,
+        }),
+      })
+      .json<IApiPaginationResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to fetch blog posts'),
+    )
+  }
+}
+
+export const createBlogPostClientAPI = async (data: ICreateBlogPostPayload) => {
+  try {
+    return await kyNextInstance
+      .post('admin/blog-post', { json: data })
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to create blog post'),
+    )
+  }
+}
+
+export const updateBlogPostClientAPI = async (
+  id: string,
+  data: IUpdateBlogPostPayload,
+) => {
+  try {
+    return await kyNextInstance
+      .patch(`admin/blog-post/${id}`, { json: data })
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to update blog post'),
+    )
+  }
+}
+
+export const deleteBlogPostClientAPI = async (id: string) => {
+  try {
+    return await kyNextInstance
+      .delete(`admin/blog-post/${id}`)
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to delete blog post'),
+    )
+  }
+}
+
+export const uploadPostFeaturedImageClientAPI = async (
+  id: string,
+  formData: FormData,
+) => {
+  try {
+    return await kyNextInstance
+      .post(`admin/blog-post/${id}/upload/featured-image`, { body: formData })
+      .json<IApiResponseWrapperType<IBlogPostDataType>>()
+  } catch (error) {
+    throw new Error(
+      await extractErrorMessage(error, 'Failed to upload featured image'),
+    )
   }
 }
