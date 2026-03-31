@@ -11,6 +11,7 @@ import {
 import {
   useCreateBlogPostMutation,
   useUpdateBlogPostMutation,
+  useUploadPostFeaturedImageMutation,
 } from '@/hooks/mutations/blog.mutation'
 import type {
   IBlogPostDataType,
@@ -49,7 +50,9 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
   const isEdit = !!post
   const createMutation = useCreateBlogPostMutation()
   const updateMutation = useUpdateBlogPostMutation()
+  const uploadImageMutation = useUploadPostFeaturedImageMutation()
   const [tagInput, setTagInput] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const form = useForm<BlogPostFormValues>({
     resolver: zodResolver(blogPostSchema),
@@ -66,11 +69,26 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
   })
 
   const onSubmit = async (data: BlogPostFormValues) => {
+    // Remove featuredImage from data as it will be handled separately
+    const { featuredImage, ...postData } = data
+
+    let postId = post?.id
+
+    // Create or update post first
     if (isEdit) {
-      await updateMutation.mutateAsync({ id: post.id, data })
+      await updateMutation.mutateAsync({ id: post.id, data: postData })
     } else {
-      await createMutation.mutateAsync(data)
+      const result = await createMutation.mutateAsync(postData)
+      postId = result.data.id
     }
+
+    // Upload image if selected
+    if (selectedFile && postId) {
+      const formData = new FormData()
+      formData.append('file', selectedFile)
+      await uploadImageMutation.mutateAsync({ id: postId, formData })
+    }
+
     onClose()
   }
 
@@ -89,7 +107,10 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
     )
   }
 
-  const isPending = createMutation.isPending || updateMutation.isPending
+  const isPending =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    uploadImageMutation.isPending
 
   return (
     <Form {...form}>
@@ -250,8 +271,23 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
           render={({ field: { value, onChange } }) => (
             <FormItem>
               <ImageUploadDropzone
-                value={value || post?.featuredImage?.url || null}
-                onChange={onChange}
+                value={
+                  selectedFile
+                    ? URL.createObjectURL(selectedFile)
+                    : post?.featuredImage?.url || null
+                }
+                onChange={(newValue) => {
+                  if (newValue instanceof File) {
+                    setSelectedFile(newValue)
+                    onChange(newValue)
+                  } else if (typeof newValue === 'string') {
+                    setSelectedFile(null)
+                    onChange(newValue)
+                  } else {
+                    setSelectedFile(null)
+                    onChange(null)
+                  }
+                }}
                 label="Ảnh đại diện"
                 maxSize={5}
               />
