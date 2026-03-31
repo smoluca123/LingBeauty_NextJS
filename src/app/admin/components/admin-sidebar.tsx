@@ -15,6 +15,7 @@ import {
   MessageSquare,
   HelpCircle,
   ShoppingCart,
+  FileText,
 } from 'lucide-react'
 
 import {
@@ -82,6 +83,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'Nội dung',
     items: [
+      { icon: FileText, label: 'Blog', href: '/admin/blog' },
       { icon: MessageSquare, label: 'Đánh giá', href: '/admin/reviews' },
       { icon: HelpCircle, label: 'Câu hỏi sản phẩm', href: '/admin/qanda' },
     ],
