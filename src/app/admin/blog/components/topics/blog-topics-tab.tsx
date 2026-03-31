@@ -20,6 +20,8 @@ export function BlogTopicsTab() {
   const [selectedTopic, setSelectedTopic] = useState<IBlogTopicDataType | null>(
     null,
   )
+  const [parentTopicForSubTopic, setParentTopicForSubTopic] =
+    useState<IBlogTopicDataType | null>(null)
 
   const { data: topicsData, isLoading } = useBlogTopicsQuery({
     limit: 100,
@@ -39,6 +41,16 @@ export function BlogTopicsTab() {
   const handleDelete = (topic: IBlogTopicDataType) => {
     setSelectedTopic(topic)
     setDeleteDialogOpen(true)
+  }
+
+  const handleAddSubTopic = (parentTopic: IBlogTopicDataType) => {
+    setParentTopicForSubTopic(parentTopic)
+    setCreateDialogOpen(true)
+  }
+
+  const handleCloseCreateDialog = () => {
+    setCreateDialogOpen(false)
+    setParentTopicForSubTopic(null)
   }
 
   return (
@@ -86,13 +98,15 @@ export function BlogTopicsTab() {
           topics={topics}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onAddSubTopic={handleAddSubTopic}
         />
       )}
 
       <CreateTopicDialog
         open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
+        onOpenChange={handleCloseCreateDialog}
         topics={topics}
+        parentTopic={parentTopicForSubTopic}
       />
 
       <EditTopicDialog

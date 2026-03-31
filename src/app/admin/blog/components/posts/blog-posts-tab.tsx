@@ -1,13 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Loader2,
-  FileText,
-  ChevronLeft,
-  ChevronRight,
-  Plus,
-} from 'lucide-react'
+import { Loader2, FileText, Plus } from 'lucide-react'
 import {
   useBlogPostsQuery,
   useBlogTopicsQuery,
@@ -31,11 +25,13 @@ import { CreatePostDialog } from './create-post-dialog'
 import { EditPostDialog } from './edit-post-dialog'
 import { DeletePostDialog } from './delete-post-dialog'
 import { BlogPostStatus } from '@/lib/types/interfaces/apis/blog.interfaces'
+import { TablePagination } from '@/components/table-pagination'
 
 const PAGE_SIZE = 10
 
 export function BlogPostsTab() {
   const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(PAGE_SIZE)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [selectedStatus, setSelectedStatus] = useState<BlogPostStatus | null>(
@@ -51,7 +47,7 @@ export function BlogPostsTab() {
   const { data: topicsData } = useBlogTopicsQuery({ limit: 100 })
   const { data: postsData, isLoading } = useBlogPostsQuery({
     page,
-    limit: PAGE_SIZE,
+    limit: pageSize,
     search: searchQuery || undefined,
     topicId: selectedTopicId ?? undefined,
     status: selectedStatus ?? undefined,
@@ -70,7 +66,12 @@ export function BlogPostsTab() {
     | undefined
   const posts: IBlogPostDataType[] = postsResult?.data?.items ?? []
   const totalCount: number = postsResult?.data?.totalCount ?? 0
-  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size)
+    setPage(1)
+  }
 
   const handleEdit = (post: IBlogPostDataType) => {
     setSelectedPost(post)
@@ -178,38 +179,16 @@ export function BlogPostsTab() {
           />
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-1">
-            <p className="text-sm text-muted-foreground">
-              Hiển thị{' '}
-              <span className="font-medium">
-                {(page - 1) * PAGE_SIZE + 1}–
-                {Math.min(page * PAGE_SIZE, totalCount)}
-              </span>{' '}
-              trong <span className="font-medium">{totalCount}</span> bài viết
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1 || isLoading}
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Trước
-              </Button>
-              <span className="text-sm text-muted-foreground px-1">
-                Trang {page} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages || isLoading}
-              >
-                Tiếp
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="shrink-0">
+            <TablePagination
+              currentPage={page}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={totalCount}
+              onPageChange={setPage}
+              onPageSizeChange={handlePageSizeChange}
+              ariaLabel="Điều hướng phân trang bài viết"
+            />
           </div>
         </div>
       )}

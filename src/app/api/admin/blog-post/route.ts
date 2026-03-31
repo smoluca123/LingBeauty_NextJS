@@ -11,7 +11,7 @@ import type {
 export const GET = (req: Request) => {
   const { searchParams } = new URL(req.url)
 
-  const params: IBlogPostFilters = {
+  const filters: IBlogPostFilters = {
     page: searchParams.has('page')
       ? Number(searchParams.get('page'))
       : undefined,
@@ -21,19 +21,21 @@ export const GET = (req: Request) => {
     search: searchParams.get('search') ?? undefined,
     topicId: searchParams.get('topicId') ?? undefined,
     authorId: searchParams.get('authorId') ?? undefined,
-    status:
-      (searchParams.get('status') as IBlogPostFilters['status']) ?? undefined,
+    status: searchParams.get('status') as BlogPostStatus | undefined,
     tag: searchParams.get('tag') ?? undefined,
-    sortBy:
-      (searchParams.get('sortBy') as IBlogPostFilters['sortBy']) ?? undefined,
-    order:
-      (searchParams.get('order') as IBlogPostFilters['order']) ?? undefined,
+    sortBy: searchParams.get('sortBy') as
+      | 'createdAt'
+      | 'updatedAt'
+      | 'title'
+      | 'viewCount'
+      | undefined,
+    order: searchParams.get('order') as 'asc' | 'desc' | undefined,
   }
 
-  return proxyRoute(() => getAllBlogPostsAPI(params))
+  return proxyRoute(() => getAllBlogPostsAPI(filters))
 }
 
 export const POST = async (req: Request) => {
-  const body = (await req.json()) as ICreateBlogPostPayload
+  const body = await req.json()
   return proxyRoute(() => createBlogPostAPI(body))
 }

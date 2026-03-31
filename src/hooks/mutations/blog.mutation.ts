@@ -103,11 +103,22 @@ export const useCreateBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: ICreateBlogPostPayload) => createBlogPostClientAPI(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
-      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
-      toast.success('Tạo bài viết thành công')
+    mutationFn: async (data: ICreateBlogTopicPayload) => {
+      const { image, ...topicData } = data
+
+      // Phân loại API: có parentId thì gọi API tạo sub-topic, không có thì gọi API tạo topic chính
+      const response = await createBlogTopicClientAPI(topicData)
+
+      return { response, image }
+    },
+    onSuccess: async ({ response, image }) => {
+      // Upload ảnh sau khi tạo topic thành công (nếu có)
+      if (image && response.data) {
+        await uploadBlogTopicImageClientAPI(response.data.id, image)
+      }
+
+      queryClient.invalidateQueries({ queryKey: blogTopicQueryKeys.all })
+      toast.success('Tạo chủ đề thành công')
     },
     onError: (error) => {
       toast.error(
@@ -121,12 +132,27 @@ export const useUpdateBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: IUpdateBlogPostPayload }) =>
-      updateBlogPostClientAPI(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
-      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
-      toast.success('Cập nhật bài viết thành công')
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: IUpdateBlogTopicPayload
+    }) => {
+      const { image, ...topicData } = data
+      const response = await updateBlogTopicClientAPI(id, topicData)
+
+      return { response, image, id }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onSuccess: async ({ response, image, id }) => {
+      // Upload ảnh mới sau khi update topic thành công (nếu có)
+      if (image) {
+        await uploadBlogTopicImageClientAPI(id, image)
+      }
+
+      queryClient.invalidateQueries({ queryKey: blogTopicQueryKeys.all })
+      toast.success('Cập nhật chủ đề thành công')
     },
     onError: (error) => {
       toast.error(

@@ -1,3 +1,4 @@
+import { proxyRoute } from '@/lib/proxy-route'
 import {
   getBlogPostByIdAPI,
   updateBlogPostAPI,
