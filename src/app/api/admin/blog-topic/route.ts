@@ -3,7 +3,6 @@ import {
   getAllBlogTopicsAPI,
   createBlogTopicAPI,
 } from '@/lib/apis/server/blog-apis'
-import type { IBlogTopicFilters } from '@/lib/types/interfaces/apis/blog.interfaces'
 import type {
   IBlogTopicFilters,
   ICreateBlogTopicPayload,

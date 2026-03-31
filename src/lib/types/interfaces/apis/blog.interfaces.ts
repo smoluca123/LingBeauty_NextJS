@@ -22,6 +22,7 @@ export interface IBlogTopicDataType {
 export interface ICreateBlogTopicPayload {
   name: string
   description?: string
+  parentId?: string
   sortOrder?: number
   isActive?: boolean
 }
@@ -29,6 +30,7 @@ export interface ICreateBlogTopicPayload {
 export interface IUpdateBlogTopicPayload {
   name?: string
   description?: string
+  parentId?: string
   sortOrder?: number
   isActive?: boolean
 }

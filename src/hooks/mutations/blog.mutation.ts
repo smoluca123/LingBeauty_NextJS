@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import {
   createBlogTopicClientAPI,
+  createSubTopicClientAPI,
   updateBlogTopicClientAPI,
   deleteBlogTopicClientAPI,
   uploadTopicImageClientAPI,
@@ -12,11 +13,9 @@ import {
 } from '@/lib/apis/client/blog.apis'
 import { blogQueryKeys } from '@/hooks/querys/blog.query'
 import type {
-  ICreateBlogTopicPayload,
-  IUpdateBlogTopicPayload,
-  ICreateBlogPostPayload,
-  IUpdateBlogPostPayload,
-} from '@/lib/types/interfaces/apis/blog.interfaces'
+  BlogTopicFormValues,
+  BlogPostFormValues,
+} from '@/lib/schemas/blog.schema'
 
 // ── Blog Topic Mutations ───────────────────────────────────────────────────────
 
@@ -24,9 +23,22 @@ export const useCreateBlogTopicMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: ICreateBlogTopicPayload) =>
-      createBlogTopicClientAPI(data),
-    onSuccess: () => {
+    mutationFn: async (data: BlogTopicFormValues) => {
+      const { image, ...topicData } = data
+
+      // Tạo topic trước
+      const response = await createBlogTopicClientAPI(topicData)
+
+      return { response, image }
+    },
+    onSuccess: async ({ response, image }) => {
+      // Upload ảnh sau khi tạo topic thành công (nếu có)
+      if (image && response.data) {
+        const formData = new FormData()
+        formData.append('file', image)
+        await uploadTopicImageClientAPI(response.data.id, formData)
+      }
+
       queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
       queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
       toast.success('Tạo chủ đề blog thành công')
@@ -39,15 +51,75 @@ export const useCreateBlogTopicMutation = () => {
   })
 }
 
+export const useCreateSubTopicMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      parentId,
+      data,
+    }: {
+      parentId: string
+      data: BlogTopicFormValues
+    }) => {
+      const { image, ...topicData } = data
+
+      // Tạo sub-topic trước
+      const response = await createSubTopicClientAPI(parentId, topicData)
+
+      return { response, image }
+    },
+    onSuccess: async ({ response, image }) => {
+      // Upload ảnh sau khi tạo sub-topic thành công (nếu có)
+      if (image && response.data) {
+        const formData = new FormData()
+        formData.append('file', image)
+        await uploadTopicImageClientAPI(response.data.id, formData)
+      }
+
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      toast.success('Tạo chủ đề con thành công')
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error ? error.message : 'Tạo chủ đề con thất bại',
+      )
+    },
+  })
+}
+
 export const useUpdateBlogTopicMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: IUpdateBlogTopicPayload }) =>
-      updateBlogTopicClientAPI(id, data),
-    onSuccess: () => {
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string
+      data: BlogTopicFormValues
+    }) => {
+      const { image, ...topicData } = data
+
+      // Update topic trước
+      const response = await updateBlogTopicClientAPI(id, topicData)
+
+      return { response, image, id }
+    },
+    onSuccess: async ({ image, id }) => {
+      // Upload ảnh mới sau khi update topic thành công (nếu có)
+      if (image) {
+        const formData = new FormData()
+        formData.append('file', image)
+        await uploadTopicImageClientAPI(id, formData)
+      }
+
       queryClient.invalidateQueries({ queryKey: blogQueryKeys.topics })
       queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicTopics })
+      queryClient.invalidateQueries({
+        queryKey: blogQueryKeys.topicById(id),
+      })
       toast.success('Cập nhật chủ đề blog thành công')
     },
     onError: (error) => {
@@ -103,22 +175,34 @@ export const useCreateBlogPostMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: ICreateBlogTopicPayload) => {
-      const { image, ...topicData } = data
+    mutationFn: async (data: BlogPostFormValues) => {
+      const { featuredImage, ...postData } = data
 
-      // Phân loại API: có parentId thì gọi API tạo sub-topic, không có thì gọi API tạo topic chính
-      const response = await createBlogTopicClientAPI(topicData)
+      // Tạo post trước
+      const response = await createBlogPostClientAPI(postData)
 
-      return { response, image }
+      return { response, featuredImage }
     },
-    onSuccess: async ({ response, image }) => {
-      // Upload ảnh sau khi tạo topic thành công (nếu có)
-      if (image && response.data) {
-        await uploadBlogTopicImageClientAPI(response.data.id, image)
+    onSuccess: async ({ response, featuredImage }) => {
+      // Upload ảnh featured sau khi tạo post thành công (nếu có)
+      if (featuredImage && response.data) {
+        try {
+          const formData = new FormData()
+          formData.append('file', featuredImage)
+          await uploadPostFeaturedImageClientAPI(response.data.id, formData)
+        } catch (error) {
+          console.error('Upload featured image failed:', error)
+          toast.error(
+            error instanceof Error
+              ? error.message
+              : 'Upload ảnh đại diện thất bại',
+          )
+        }
       }
 
-      queryClient.invalidateQueries({ queryKey: blogTopicQueryKeys.all })
-      toast.success('Tạo chủ đề thành công')
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
+      toast.success('Tạo bài viết thành công')
     },
     onError: (error) => {
       toast.error(
@@ -137,22 +221,27 @@ export const useUpdateBlogPostMutation = () => {
       data,
     }: {
       id: string
-      data: IUpdateBlogTopicPayload
+      data: BlogPostFormValues
     }) => {
-      const { image, ...topicData } = data
-      const response = await updateBlogTopicClientAPI(id, topicData)
+      const { featuredImage, ...postData } = data
 
-      return { response, image, id }
+      // Update post trước
+      const response = await updateBlogPostClientAPI(id, postData)
+
+      return { response, featuredImage, id }
     },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSuccess: async ({ response, image, id }) => {
-      // Upload ảnh mới sau khi update topic thành công (nếu có)
-      if (image) {
-        await uploadBlogTopicImageClientAPI(id, image)
+    onSuccess: async ({ featuredImage, id }) => {
+      // Upload ảnh featured mới sau khi update post thành công (nếu có)
+      if (featuredImage) {
+        const formData = new FormData()
+        formData.append('file', featuredImage)
+        await uploadPostFeaturedImageClientAPI(id, formData)
       }
 
-      queryClient.invalidateQueries({ queryKey: blogTopicQueryKeys.all })
-      toast.success('Cập nhật chủ đề thành công')
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.posts })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.publicPosts })
+      queryClient.invalidateQueries({ queryKey: blogQueryKeys.postById(id) })
+      toast.success('Cập nhật bài viết thành công')
     },
     onError: (error) => {
       toast.error(

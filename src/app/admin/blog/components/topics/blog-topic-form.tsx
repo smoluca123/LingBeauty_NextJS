@@ -10,8 +10,8 @@ import {
 } from '@/lib/schemas/blog.schema'
 import {
   useCreateBlogTopicMutation,
+  useCreateSubTopicMutation,
   useUpdateBlogTopicMutation,
-  useUploadTopicImageMutation,
 } from '@/hooks/mutations/blog.mutation'
 import type { IBlogTopicDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
 import {
@@ -51,39 +51,36 @@ export function BlogTopicForm({
 }: BlogTopicFormProps) {
   const isEdit = !!topic
   const createMutation = useCreateBlogTopicMutation()
+  const createSubTopicMutation = useCreateSubTopicMutation()
   const updateMutation = useUpdateBlogTopicMutation()
-  const uploadImageMutation = useUploadTopicImageMutation()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  const form = useForm({
+  const form = useForm<BlogTopicFormValues>({
     resolver: zodResolver(blogTopicSchema),
     defaultValues: {
       name: topic?.name ?? '',
       description: topic?.description ?? '',
-      parentId: topic?.parentId ?? parentTopic?.id,
+      parentId: topic?.parentId ?? parentTopic?.id ?? undefined,
       sortOrder: topic?.sortOrder ?? 0,
       isActive: topic?.isActive ?? true,
     },
   })
 
   const onSubmit = async (data: BlogTopicFormValues) => {
-    // Xử lý parentId: nếu là "none" hoặc undefined thì không gửi
-    const payload = {
-      ...data,
-      parentId: data.parentId === 'none' ? undefined : data.parentId,
-    }
-
+    // Mutation sẽ tự động xử lý upload ảnh trong onSuccess
     if (isEdit) {
-      await updateMutation.mutateAsync({ id: topic.id, data: payload })
+      await updateMutation.mutateAsync({ id: topic.id, data })
     } else {
-      await createMutation.mutateAsync(payload)
-    }
-
-    // Upload image if selected
-    if (selectedFile && topicId) {
-      const formData = new FormData()
-      formData.append('file', selectedFile)
-      await uploadImageMutation.mutateAsync({ id: topicId, formData })
+      // Nếu có parentId thì gọi API tạo sub-topic, không có thì tạo topic chính
+      if (data.parentId) {
+        const { parentId, ...subTopicData } = data
+        await createSubTopicMutation.mutateAsync({
+          parentId,
+          data: subTopicData,
+        })
+      } else {
+        await createMutation.mutateAsync(data)
+      }
     }
 
     onClose()
@@ -91,10 +88,10 @@ export function BlogTopicForm({
 
   const isPending =
     createMutation.isPending ||
-    updateMutation.isPending ||
-    uploadImageMutation.isPending
+    createSubTopicMutation.isPending ||
+    updateMutation.isPending
 
-  // Filter out current topic from parent options
+  // Filter out current topic and its children from parent options
   const availableParents = topics.filter((t) => t.id !== topic?.id)
 
   return (
@@ -130,8 +127,8 @@ export function BlogTopicForm({
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
-          {/* Parent Topic */}
+        {/* Parent Topic - Only show when creating new topic */}
+        {!isEdit && (
           <FormField
             control={form.control}
             name="parentId"
@@ -139,17 +136,19 @@ export function BlogTopicForm({
               <FormItem>
                 <FormLabel>Chủ đề cha</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) =>
+                    field.onChange(value === 'none' ? undefined : value)
+                  }
                   value={field.value || 'none'}
                   disabled={!!parentTopic}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Không có" />
+                      <SelectValue placeholder="Không có (Chủ đề gốc)" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="none">Không có</SelectItem>
+                    <SelectItem value="none">Không có (Chủ đề gốc)</SelectItem>
                     {availableParents.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
                         {t.name}
@@ -160,13 +159,15 @@ export function BlogTopicForm({
                 <FormDescription>
                   {parentTopic
                     ? `Chủ đề con của "${parentTopic.name}"`
-                    : 'Để trống nếu là chủ đề gốc'}
+                    : 'Chọn chủ đề cha nếu muốn tạo chủ đề con'}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+        )}
 
+        <div className="grid grid-cols-2 gap-4">
           {/* Sort Order */}
           <FormField
             control={form.control}
@@ -194,7 +195,7 @@ export function BlogTopicForm({
         <FormField
           control={form.control}
           name="image"
-          render={({ field: { value, onChange } }) => (
+          render={({ field: { onChange } }) => (
             <FormItem>
               <ImageUploadDropzone
                 value={
