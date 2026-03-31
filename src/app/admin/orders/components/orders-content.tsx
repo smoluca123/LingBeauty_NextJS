@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Loader2 } from 'lucide-react'
-import { TablePagination } from '@/app/admin/components'
+import { TablePagination } from '@/components/table-pagination'
 import { usePagination } from '@/hooks/use-pagination'
 import { OrderFilters, OrderTable } from './order-table'
 import { OrderDetailDialog } from './order-detail-dialog'

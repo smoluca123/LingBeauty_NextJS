@@ -99,41 +99,43 @@ export const getBlogTopicByIdAPI = async (id: string) => {
     .json<IApiResponseWrapperType<IBlogTopicDataType>>()
 }
 
-export const createBlogTopicAPI = async (data: ICreateBlogTopicPayload) => {
-  const formData = new FormData()
-
-  formData.append('name', data.name)
-  if (data.description) formData.append('description', data.description)
-  if (data.parentId) formData.append('parentId', data.parentId)
-  if (data.sortOrder !== undefined)
-    formData.append('sortOrder', data.sortOrder.toString())
-  if (data.isActive !== undefined)
-    formData.append('isActive', data.isActive.toString())
-  if (data.image) formData.append('image', data.image)
+export const createBlogTopicAPI = async (
+  data: Omit<ICreateBlogTopicPayload, 'image'>,
+) => {
+  // Phân loại: có parentId thì gọi API tạo sub-topic
+  const endpoint = data.parentId
+    ? `blog-topic/${data.parentId}/sub-topic`
+    : 'blog-topic'
 
   return kyInstance
-    .post('blog-topic', { body: formData })
+    .post(endpoint, { json: data })
+    .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+}
+
+export const createSubTopicAPI = async (
+  parentId: string,
+  data: Omit<ICreateBlogTopicPayload, 'image' | 'parentId'>,
+) => {
+  return kyInstance
+    .post(`blog-topic/${parentId}/sub-topic`, { json: data })
+    .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+}
+
+export const uploadBlogTopicImageAPI = async (topicId: string, file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  return kyInstance
+    .post(`blog-topic/${topicId}/upload/image`, { body: formData })
     .json<IApiResponseWrapperType<IBlogTopicDataType>>()
 }
 
 export const updateBlogTopicAPI = async (
   id: string,
-  data: IUpdateBlogTopicPayload,
+  data: Omit<IUpdateBlogTopicPayload, 'image'>,
 ) => {
-  const formData = new FormData()
-
-  if (data.name) formData.append('name', data.name)
-  if (data.description !== undefined)
-    formData.append('description', data.description)
-  if (data.parentId !== undefined) formData.append('parentId', data.parentId)
-  if (data.sortOrder !== undefined)
-    formData.append('sortOrder', data.sortOrder.toString())
-  if (data.isActive !== undefined)
-    formData.append('isActive', data.isActive.toString())
-  if (data.image) formData.append('image', data.image)
-
   return kyInstance
-    .patch(`blog-topic/${id}`, { body: formData })
+    .patch(`blog-topic/${id}`, { json: data })
     .json<IApiResponseWrapperType<IBlogTopicDataType>>()
 }
 

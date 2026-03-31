@@ -1,73 +1,85 @@
-'use client';
+'use client'
 
-import { useState, useCallback, useMemo } from 'react';
-import { Ban, Plus, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { TablePagination } from '@/app/admin/components';
+import { useState, useCallback, useMemo } from 'react'
+import { Ban, Plus, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { TablePagination } from '@/components/table-pagination'
 import {
   IAdminUserDataType,
   UserSortBy,
   UserSortOrder,
-} from '@/lib/types/interfaces/apis/admin-user.interfaces';
+} from '@/lib/types/interfaces/apis/admin-user.interfaces'
 import {
   useAdminUsersQuery,
   useAdminUserRolesQuery,
-} from '@/hooks/querys/admin-user.query';
+} from '@/hooks/querys/admin-user.query'
 import {
   useBanUserMutation,
   useBanUserBulkMutation,
   useUpdateUserByAdminMutation,
   useCreateUserMutation,
-} from '@/hooks/mutations/admin-user.mutation';
-import { UsersFilters } from './users-filters';
-import { UsersTable } from './users-table';
-import { DeleteUserDialog } from './delete-user-dialog';
-import { BanUserDialog } from './ban-user-dialog';
-import { EditUserDialog, UserFormData } from './edit-user-dialog';
-import { AddUserDialog } from './add-user-dialog';
+} from '@/hooks/mutations/admin-user.mutation'
+import { UsersFilters } from './users-filters'
+import { UsersTable } from './users-table'
+import { DeleteUserDialog } from './delete-user-dialog'
+import { BanUserDialog } from './ban-user-dialog'
+import { EditUserDialog, UserFormData } from './edit-user-dialog'
+import { AddUserDialog } from './add-user-dialog'
 
 // ============ Constants ============
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10
 
 // ============ Component ============
 
 export function UsersContent() {
   // ── Filter state ──────────────────────────────────────────────────────────
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'banned'>('all');
-  const [verifiedFilter, setVerifiedFilter] = useState<'all' | 'verified' | 'unverified'>('all');
-  const [sortBy, setSortBy] = useState<UserSortBy>('createdAt');
-  const [order, setOrder] = useState<UserSortOrder>('desc');
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'inactive' | 'banned'
+  >('all')
+  const [verifiedFilter, setVerifiedFilter] = useState<
+    'all' | 'verified' | 'unverified'
+  >('all')
+  const [sortBy, setSortBy] = useState<UserSortBy>('createdAt')
+  const [order, setOrder] = useState<UserSortOrder>('desc')
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(DEFAULT_PAGE_SIZE)
 
   // ── Selection state ────────────────────────────────────────────────────────
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // ── Dialog state ──────────────────────────────────────────────────────────
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [banDialogOpen, setBanDialogOpen] = useState(false);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<IAdminUserDataType | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [banDialogOpen, setBanDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<IAdminUserDataType | null>(
+    null,
+  )
 
   // ── Derive BE params from filter state ───────────────────────────────────
   const isActive =
-    statusFilter === 'active' ? true
-    : statusFilter === 'inactive' ? false
-    : undefined;
+    statusFilter === 'active'
+      ? true
+      : statusFilter === 'inactive'
+        ? false
+        : undefined
 
   const isBanned =
-    statusFilter === 'banned' ? true
-    : statusFilter === 'active' || statusFilter === 'inactive' ? false
-    : undefined;
+    statusFilter === 'banned'
+      ? true
+      : statusFilter === 'active' || statusFilter === 'inactive'
+        ? false
+        : undefined
 
   const isVerified =
-    verifiedFilter === 'verified' ? true
-    : verifiedFilter === 'unverified' ? false
-    : undefined;
+    verifiedFilter === 'verified'
+      ? true
+      : verifiedFilter === 'unverified'
+        ? false
+        : undefined
 
   // ── Queries ───────────────────────────────────────────────────────────────
   const { data: usersData, isLoading: isUsersLoading } = useAdminUsersQuery({
@@ -79,127 +91,132 @@ export function UsersContent() {
     order,
     page,
     limit,
-  });
+  })
 
-  const { data: rolesData } = useAdminUserRolesQuery();
+  const { data: rolesData } = useAdminUserRolesQuery()
 
   // ── Mutations ─────────────────────────────────────────────────────────────
-  const banMutation = useBanUserMutation();
-  const banBulkMutation = useBanUserBulkMutation();
-  const updateMutation = useUpdateUserByAdminMutation();
-  const createMutation = useCreateUserMutation();
+  const banMutation = useBanUserMutation()
+  const banBulkMutation = useBanUserBulkMutation()
+  const updateMutation = useUpdateUserByAdminMutation()
+  const createMutation = useCreateUserMutation()
 
   // ── Derived data ──────────────────────────────────────────────────────────
-  const users = useMemo(() => usersData?.data?.items ?? [], [usersData?.data?.items]);
-  const totalCount = usersData?.data?.totalCount ?? 0;
-  const totalPage = usersData?.data?.totalPage ?? 1;
-  const roles = rolesData?.data ?? [];
+  const users = useMemo(
+    () => usersData?.data?.items ?? [],
+    [usersData?.data?.items],
+  )
+  const totalCount = usersData?.data?.totalCount ?? 0
+  const totalPage = usersData?.data?.totalPage ?? 1
+  const roles = rolesData?.data ?? []
 
   // ── Filter/sort/page reset helpers ────────────────────────────────────────
-  const resetPage = () => setPage(1);
+  const resetPage = () => setPage(1)
 
   const handleSearchChange = (value: string) => {
-    setSearch(value);
-    resetPage();
-  };
+    setSearch(value)
+    resetPage()
+  }
 
-  const handleStatusChange = (value: 'all' | 'active' | 'inactive' | 'banned') => {
-    setStatusFilter(value);
-    resetPage();
-  };
+  const handleStatusChange = (
+    value: 'all' | 'active' | 'inactive' | 'banned',
+  ) => {
+    setStatusFilter(value)
+    resetPage()
+  }
 
   const handleVerifiedChange = (value: 'all' | 'verified' | 'unverified') => {
-    setVerifiedFilter(value);
-    resetPage();
-  };
+    setVerifiedFilter(value)
+    resetPage()
+  }
 
   const handleSortByChange = (value: UserSortBy) => {
-    setSortBy(value);
-    resetPage();
-  };
+    setSortBy(value)
+    resetPage()
+  }
 
   const handleOrderChange = (value: UserSortOrder) => {
-    setOrder(value);
-    resetPage();
-  };
+    setOrder(value)
+    resetPage()
+  }
 
   const handlePageSizeChange = (size: number) => {
-    setLimit(size);
-    resetPage();
-  };
+    setLimit(size)
+    resetPage()
+  }
 
   // ── Selection handlers ────────────────────────────────────────────────────
   const handleToggleSelect = useCallback((userId: string) => {
     setSelectedIds((prev) => {
-      const next = new Set(prev);
+      const next = new Set(prev)
       if (next.has(userId)) {
-        next.delete(userId);
+        next.delete(userId)
       } else {
-        next.add(userId);
+        next.add(userId)
       }
-      return next;
-    });
-  }, []);
+      return next
+    })
+  }, [])
 
   const handleToggleSelectAll = useCallback(() => {
-    const allSelected = users.every((u) => selectedIds.has(u.id));
+    const allSelected = users.every((u) => selectedIds.has(u.id))
     if (allSelected) {
-      setSelectedIds(new Set());
+      setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(users.map((u) => u.id)));
+      setSelectedIds(new Set(users.map((u) => u.id)))
     }
-  }, [users, selectedIds]);
+  }, [users, selectedIds])
 
-  const clearSelection = () => setSelectedIds(new Set());
+  const clearSelection = () => setSelectedIds(new Set())
 
   // ── Bulk Ban handlers ─────────────────────────────────────────────────────
   const handleBulkBan = (newBanState: boolean) => {
     const items = Array.from(selectedIds).map((userId) => ({
       userId,
       isBanned: newBanState,
-    }));
+    }))
     banBulkMutation.mutate(items, {
       onSuccess: () => clearSelection(),
-    });
-  };
+    })
+  }
 
   // ── Single dialog handlers ────────────────────────────────────────────────
   const handleEdit = (user: IAdminUserDataType) => {
-    setSelectedUser(user);
-    setEditDialogOpen(true);
-  };
+    setSelectedUser(user)
+    setEditDialogOpen(true)
+  }
 
   const handleDelete = (user: IAdminUserDataType) => {
-    setSelectedUser(user);
-    setDeleteDialogOpen(true);
-  };
+    setSelectedUser(user)
+    setDeleteDialogOpen(true)
+  }
 
   const handleBan = (user: IAdminUserDataType) => {
-    setSelectedUser(user);
-    setBanDialogOpen(true);
-  };
+    setSelectedUser(user)
+    setBanDialogOpen(true)
+  }
 
   const confirmBan = () => {
-    if (!selectedUser) return;
+    if (!selectedUser) return
     banMutation.mutate(
       { userId: selectedUser.id, isBanned: !selectedUser.isBanned },
       {
         onSuccess: () => {
-          setBanDialogOpen(false);
-          setSelectedUser(null);
+          setBanDialogOpen(false)
+          setSelectedUser(null)
         },
       },
-    );
-  };
+    )
+  }
 
   const confirmDelete = () => {
     // TODO: implement delete API when BE provides endpoint
-    setDeleteDialogOpen(false);
-    setSelectedUser(null);
-  };
+    setDeleteDialogOpen(false)
+    setSelectedUser(null)
+  }
 
   const handleSaveEdit = (data: UserFormData) => {
-    if (!selectedUser) return;
+    if (!selectedUser) return
     updateMutation.mutate(
       {
         userId: selectedUser.id,
@@ -219,12 +236,12 @@ export function UsersContent() {
       },
       {
         onSuccess: () => {
-          setEditDialogOpen(false);
-          setSelectedUser(null);
+          setEditDialogOpen(false)
+          setSelectedUser(null)
         },
       },
-    );
-  };
+    )
+  }
 
   const handleAddUser = (data: UserFormData) => {
     createMutation.mutate(
@@ -235,18 +252,18 @@ export function UsersContent() {
         lastName: data.lastName,
         phone: data.phone,
         username: data.username,
-        roleId: data.roleIds[0],          // BE chỉ hỗ trợ 1 roleId khi tạo
+        roleId: data.roleIds[0], // BE chỉ hỗ trợ 1 roleId khi tạo
         isActive: data.isActive ?? true,
         isEmailVerified: data.isEmailVerified ?? false,
         isPhoneVerified: data.isPhoneVerified ?? false,
       },
       {
         onSuccess: () => {
-          setAddDialogOpen(false);
+          setAddDialogOpen(false)
         },
       },
-    );
-  };
+    )
+  }
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -259,7 +276,11 @@ export function UsersContent() {
             Quản lý tất cả người dùng trong hệ thống
           </p>
         </div>
-        <Button onClick={() => setAddDialogOpen(true)} variant="primary-pink" className="w-full sm:w-auto">
+        <Button
+          onClick={() => setAddDialogOpen(true)}
+          variant="primary-pink"
+          className="w-full sm:w-auto"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Thêm người dùng
         </Button>
@@ -378,5 +399,5 @@ export function UsersContent() {
         availableRoles={roles}
       />
     </div>
-  );
+  )
 }

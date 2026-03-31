@@ -6,6 +6,7 @@ import {
   Trash2,
   CheckCircle2,
   XCircle,
+  Plus,
 } from 'lucide-react'
 import type { IBlogTopicDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
 import {
@@ -21,6 +22,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -29,19 +31,29 @@ interface BlogTopicsTableProps {
   topics: IBlogTopicDataType[]
   onEdit: (topic: IBlogTopicDataType) => void
   onDelete: (topic: IBlogTopicDataType) => void
+  onAddSubTopic?: (parentTopic: IBlogTopicDataType) => void
 }
 
 export function BlogTopicsTable({
   topics,
   onEdit,
   onDelete,
+  onAddSubTopic,
 }: BlogTopicsTableProps) {
+  // Tìm tên parent topic
+  const getParentName = (parentId?: string) => {
+    if (!parentId) return null
+    const parent = topics.find((t) => t.id === parentId)
+    return parent?.name
+  }
+
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Tên chủ đề</TableHead>
+            <TableHead>Chủ đề cha</TableHead>
             <TableHead>Mô tả</TableHead>
             <TableHead>Thứ tự</TableHead>
             <TableHead>Trạng thái</TableHead>
@@ -62,6 +74,15 @@ export function BlogTopicsTable({
                   )}
                   <span className="font-medium">{topic.name}</span>
                 </div>
+              </TableCell>
+              <TableCell>
+                {getParentName(topic.parentId) ? (
+                  <Badge variant="outline" className="font-normal">
+                    {getParentName(topic.parentId)}
+                  </Badge>
+                ) : (
+                  <span className="text-sm text-muted-foreground">—</span>
+                )}
               </TableCell>
               <TableCell>
                 <span className="text-sm text-muted-foreground line-clamp-2">
@@ -96,6 +117,13 @@ export function BlogTopicsTable({
                       <Edit className="h-4 w-4 mr-2" />
                       Chỉnh sửa
                     </DropdownMenuItem>
+                    {onAddSubTopic && !topic.parentId && (
+                      <DropdownMenuItem onClick={() => onAddSubTopic(topic)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Thêm chủ đề con
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => onDelete(topic)}
                       className="text-destructive"

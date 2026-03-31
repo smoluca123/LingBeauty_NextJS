@@ -7,7 +7,7 @@ import {
   IAdminProductDataType,
   IAdminProductFilters,
 } from '@/lib/types/interfaces/apis/admin-product.interfaces'
-import { TablePagination } from '@/app/admin/components'
+import { TablePagination } from '@/components/table-pagination'
 import { usePagination } from '@/hooks/use-pagination'
 import { AddProductDialog } from './add-product-dialog'
 import {

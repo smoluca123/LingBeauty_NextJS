@@ -38,9 +38,15 @@ interface BlogTopicFormProps {
   topic?: IBlogTopicDataType
   topics: IBlogTopicDataType[]
   onClose: () => void
+  parentTopic?: IBlogTopicDataType | null
 }
 
-export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
+export function BlogTopicForm({
+  topic,
+  topics,
+  onClose,
+  parentTopic,
+}: BlogTopicFormProps) {
   const isEdit = !!topic
   const createMutation = useCreateBlogTopicMutation()
   const updateMutation = useUpdateBlogTopicMutation()
@@ -50,17 +56,23 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
     defaultValues: {
       name: topic?.name ?? '',
       description: topic?.description ?? '',
-      parentId: topic?.parentId,
+      parentId: topic?.parentId ?? parentTopic?.id,
       sortOrder: topic?.sortOrder ?? 0,
       isActive: topic?.isActive ?? true,
     },
   })
 
   const onSubmit = async (data: BlogTopicFormValues) => {
+    // Xử lý parentId: nếu là "none" hoặc undefined thì không gửi
+    const payload = {
+      ...data,
+      parentId: data.parentId === 'none' ? undefined : data.parentId,
+    }
+
     if (isEdit) {
-      await updateMutation.mutateAsync({ id: topic.id, data })
+      await updateMutation.mutateAsync({ id: topic.id, data: payload })
     } else {
-      await createMutation.mutateAsync(data)
+      await createMutation.mutateAsync(payload)
     }
     onClose()
   }
@@ -111,7 +123,11 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Chủ đề cha</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || 'none'}
+                  disabled={!!parentTopic}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Không có" />
@@ -126,7 +142,11 @@ export function BlogTopicForm({ topic, topics, onClose }: BlogTopicFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>Để trống nếu là chủ đề gốc</FormDescription>
+                <FormDescription>
+                  {parentTopic
+                    ? `Chủ đề con của "${parentTopic.name}"`
+                    : 'Để trống nếu là chủ đề gốc'}
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

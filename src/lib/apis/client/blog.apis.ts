@@ -34,7 +34,7 @@ export const getAllBlogPostsClientAPI = async (
     if (filters.order) searchParams.set('order', filters.order)
 
     return await kyNextInstance
-      .get('admin/blog-posts', { searchParams })
+      .get('admin/blog-post', { searchParams })
       .json<IApiPaginationResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(
@@ -46,7 +46,7 @@ export const getAllBlogPostsClientAPI = async (
 export const getBlogPostByIdClientAPI = async (id: string) => {
   try {
     return await kyNextInstance
-      .get(`admin/blog-posts/${id}`)
+      .get(`admin/blog-post/${id}`)
       .json<IApiResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể tải bài viết'))
@@ -58,7 +58,7 @@ export const createBlogPostClientAPI = async (
 ) => {
   try {
     return await kyNextInstance
-      .post('admin/blog-posts', { json: data })
+      .post('admin/blog-post', { json: data })
       .json<IApiResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể tạo bài viết'))
@@ -71,7 +71,7 @@ export const updateBlogPostClientAPI = async (
 ) => {
   try {
     return await kyNextInstance
-      .patch(`admin/blog-posts/${id}`, { json: data })
+      .patch(`admin/blog-post/${id}`, { json: data })
       .json<IApiResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(
@@ -89,7 +89,9 @@ export const uploadBlogPostFeaturedImageClientAPI = async (
     formData.append('file', file) // Backend expects 'file' field name
 
     return await kyNextInstance
-      .post(`admin/blog-posts/${postId}/upload-image`, { body: formData })
+      .post(`admin/blog-post/${postId}/upload/featured-image`, {
+        body: formData,
+      })
       .json<IApiResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể tải ảnh lên'))
@@ -99,7 +101,7 @@ export const uploadBlogPostFeaturedImageClientAPI = async (
 export const deleteBlogPostClientAPI = async (id: string) => {
   try {
     return await kyNextInstance
-      .delete(`admin/blog-posts/${id}`)
+      .delete(`admin/blog-post/${id}`)
       .json<IApiResponseWrapperType<IBlogPostDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể xóa bài viết'))
@@ -121,7 +123,7 @@ export const getAllBlogTopicsClientAPI = async (
       searchParams.set('isActive', filters.isActive.toString())
 
     return await kyNextInstance
-      .get('admin/blog-topics', { searchParams })
+      .get('admin/blog-topic', { searchParams })
       .json<IApiPaginationResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(
@@ -133,7 +135,7 @@ export const getAllBlogTopicsClientAPI = async (
 export const getBlogTopicByIdClientAPI = async (id: string) => {
   try {
     return await kyNextInstance
-      .get(`admin/blog-topics/${id}`)
+      .get(`admin/blog-topic/${id}`)
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể tải chủ đề'))
@@ -141,47 +143,46 @@ export const getBlogTopicByIdClientAPI = async (id: string) => {
 }
 
 export const createBlogTopicClientAPI = async (
-  data: ICreateBlogTopicPayload,
+  data: Omit<ICreateBlogTopicPayload, 'image'>,
 ) => {
   try {
-    const formData = new FormData()
-
-    formData.append('name', data.name)
-    if (data.description) formData.append('description', data.description)
-    if (data.parentId) formData.append('parentId', data.parentId)
-    if (data.sortOrder !== undefined)
-      formData.append('sortOrder', data.sortOrder.toString())
-    if (data.isActive !== undefined)
-      formData.append('isActive', data.isActive.toString())
-    if (data.image) formData.append('image', data.image)
+    // Nếu có parentId, gọi API tạo sub-topic
+    // Nếu không có parentId, gọi API tạo topic chính
+    const endpoint = data.parentId
+      ? `admin/blog-topic/${data.parentId}/sub-topic`
+      : 'admin/blog-topic'
 
     return await kyNextInstance
-      .post('admin/blog-topics', { body: formData })
+      .post(endpoint, { json: data })
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể tạo chủ đề'))
   }
 }
 
-export const updateBlogTopicClientAPI = async (
-  id: string,
-  data: IUpdateBlogTopicPayload,
+export const uploadBlogTopicImageClientAPI = async (
+  topicId: string,
+  file: File,
 ) => {
   try {
     const formData = new FormData()
-
-    if (data.name) formData.append('name', data.name)
-    if (data.description !== undefined)
-      formData.append('description', data.description)
-    if (data.parentId !== undefined) formData.append('parentId', data.parentId)
-    if (data.sortOrder !== undefined)
-      formData.append('sortOrder', data.sortOrder.toString())
-    if (data.isActive !== undefined)
-      formData.append('isActive', data.isActive.toString())
-    if (data.image) formData.append('image', data.image)
+    formData.append('file', file)
 
     return await kyNextInstance
-      .patch(`admin/blog-topics/${id}`, { body: formData })
+      .post(`admin/blog-topic/${topicId}/upload/image`, { body: formData })
+      .json<IApiResponseWrapperType<IBlogTopicDataType>>()
+  } catch (error) {
+    throw new Error(await extractErrorMessage(error, 'Không thể tải ảnh lên'))
+  }
+}
+
+export const updateBlogTopicClientAPI = async (
+  id: string,
+  data: Omit<IUpdateBlogTopicPayload, 'image'>,
+) => {
+  try {
+    return await kyNextInstance
+      .patch(`admin/blog-topic/${id}`, { json: data })
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(
@@ -193,7 +194,7 @@ export const updateBlogTopicClientAPI = async (
 export const deleteBlogTopicClientAPI = async (id: string) => {
   try {
     return await kyNextInstance
-      .delete(`admin/blog-topics/${id}`)
+      .delete(`admin/blog-topic/${id}`)
       .json<IApiResponseWrapperType<IBlogTopicDataType>>()
   } catch (error) {
     throw new Error(await extractErrorMessage(error, 'Không thể xóa chủ đề'))
