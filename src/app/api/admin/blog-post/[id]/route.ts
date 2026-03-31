@@ -4,7 +4,6 @@ import {
   updateBlogPostAPI,
   deleteBlogPostAPI,
 } from '@/lib/apis/server/blog-apis'
-import { proxyRoute } from '@/lib/proxy-route'
 import type { IUpdateBlogPostPayload } from '@/lib/types/interfaces/apis/blog.interfaces'
 
 export const GET = (

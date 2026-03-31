@@ -11,7 +11,6 @@ import {
 import {
   useCreateBlogPostMutation,
   useUpdateBlogPostMutation,
-  useUploadPostFeaturedImageMutation,
 } from '@/hooks/mutations/blog.mutation'
 import type {
   IBlogPostDataType,
@@ -50,7 +49,6 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
   const isEdit = !!post
   const createMutation = useCreateBlogPostMutation()
   const updateMutation = useUpdateBlogPostMutation()
-  const uploadImageMutation = useUploadPostFeaturedImageMutation()
   const [tagInput, setTagInput] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
@@ -65,28 +63,16 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
       tags: post?.tags ?? [],
       metaTitle: post?.metaTitle ?? '',
       metaDescription: post?.metaDescription ?? '',
+      featuredImage: undefined,
     },
   })
 
   const onSubmit = async (data: BlogPostFormValues) => {
-    // Remove featuredImage from data as it will be handled separately
-    const { featuredImage, ...postData } = data
-
-    let postId = post?.id
-
-    // Create or update post first
-    if (isEdit) {
-      await updateMutation.mutateAsync({ id: post.id, data: postData })
+    // Mutation sẽ tự động xử lý upload ảnh trong onSuccess
+    if (isEdit && post) {
+      await updateMutation.mutateAsync({ id: post.id, data })
     } else {
-      const result = await createMutation.mutateAsync(postData)
-      postId = result.data.id
-    }
-
-    // Upload image if selected
-    if (selectedFile && postId) {
-      const formData = new FormData()
-      formData.append('file', selectedFile)
-      await uploadImageMutation.mutateAsync({ id: postId, formData })
+      await createMutation.mutateAsync(data)
     }
 
     onClose()
@@ -94,23 +80,22 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
 
   const handleAddTag = () => {
     const tag = tagInput.trim()
-    if (tag && !form.getValues('tags').includes(tag)) {
-      form.setValue('tags', [...form.getValues('tags'), tag])
+    const currentTags = form.getValues('tags') || []
+    if (tag && !currentTags.includes(tag)) {
+      form.setValue('tags', [...currentTags, tag])
       setTagInput('')
     }
   }
 
   const handleRemoveTag = (tagToRemove: string) => {
+    const currentTags = form.getValues('tags') || []
     form.setValue(
       'tags',
-      form.getValues('tags').filter((tag) => tag !== tagToRemove),
+      currentTags.filter((tag: string) => tag !== tagToRemove),
     )
   }
 
-  const isPending =
-    createMutation.isPending ||
-    updateMutation.isPending ||
-    uploadImageMutation.isPending
+  const isPending = createMutation.isPending || updateMutation.isPending
 
   return (
     <Form {...form}>
@@ -142,7 +127,7 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Nhập nội dung bài viết..."
-                  availableHashtags={form.getValues('tags')}
+                  availableHashtags={form.getValues('tags') || []}
                   showPreview={true}
                 />
               </FormControl>
@@ -246,7 +231,7 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
                 </Button>
               </div>
               <div className="flex flex-wrap gap-2 mt-2">
-                {field.value.map((tag) => (
+                {(field.value || []).map((tag: string) => (
                   <Badge key={tag} variant="secondary">
                     {tag}
                     <button
@@ -268,7 +253,7 @@ export function BlogPostForm({ post, topics, onClose }: BlogPostFormProps) {
         <FormField
           control={form.control}
           name="featuredImage"
-          render={({ field: { value, onChange } }) => (
+          render={({ field: { onChange } }) => (
             <FormItem>
               <ImageUploadDropzone
                 value={

@@ -5,6 +5,9 @@ import type { IBlogPostFilters } from '@/lib/types/interfaces/apis/blog.interfac
 export const GET = (req: Request) => {
   const { searchParams } = new URL(req.url)
 
+  const sortByParam = searchParams.get('sortBy')
+  const orderParam = searchParams.get('order')
+
   const params: IBlogPostFilters = {
     page: searchParams.has('page')
       ? Number(searchParams.get('page'))
@@ -16,9 +19,13 @@ export const GET = (req: Request) => {
     topicId: searchParams.get('topicId') ?? undefined,
     tag: searchParams.get('tag') ?? undefined,
     sortBy:
-      (searchParams.get('sortBy') as IBlogPostFilters['sortBy']) ?? undefined,
+      sortByParam && sortByParam !== 'null'
+        ? (sortByParam as IBlogPostFilters['sortBy'])
+        : undefined,
     order:
-      (searchParams.get('order') as IBlogPostFilters['order']) ?? undefined,
+      orderParam && orderParam !== 'null'
+        ? (orderParam as IBlogPostFilters['order'])
+        : undefined,
   }
 
   return proxyRoute(() => getPublicBlogPostsAPI(params))

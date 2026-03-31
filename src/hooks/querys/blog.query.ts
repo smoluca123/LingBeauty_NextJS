@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import {
   getAllBlogTopicsClientAPI,
   getAllBlogPostsClientAPI,
+  getBlogTopicByIdClientAPI,
+  getBlogPostByIdClientAPI,
   getPublicBlogTopicsClientAPI,
   getPublicBlogPostsClientAPI,
   getPublicBlogTopicBySlugClientAPI,
@@ -19,9 +21,11 @@ export const blogQueryKeys = {
   topics: ['admin', 'blog-topics'] as const,
   topicsList: (params: IBlogTopicFilters) =>
     ['admin', 'blog-topics', 'list', params] as const,
+  topicById: (id: string) => ['admin', 'blog-topics', 'detail', id] as const,
   posts: ['admin', 'blog-posts'] as const,
   postsList: (params: IBlogPostFilters) =>
     ['admin', 'blog-posts', 'list', params] as const,
+  postById: (id: string) => ['admin', 'blog-posts', 'detail', id] as const,
 
   // Public keys
   publicTopics: ['public', 'blog-topics'] as const,
@@ -46,6 +50,14 @@ export const useBlogTopicsQuery = (params: IBlogTopicFilters = {}) =>
     placeholderData: (prev) => prev,
   })
 
+export const useBlogTopicByIdQuery = (id: string | null) =>
+  useQuery({
+    queryKey: blogQueryKeys.topicById(id ?? ''),
+    queryFn: () => getBlogTopicByIdClientAPI(id!),
+    enabled: !!id,
+    staleTime: 1000 * 30, // 30 seconds
+  })
+
 // ── Admin Blog Posts ───────────────────────────────────────────────────────────
 
 export const useBlogPostsQuery = (params: IBlogPostFilters = {}) =>
@@ -54,6 +66,14 @@ export const useBlogPostsQuery = (params: IBlogPostFilters = {}) =>
     queryFn: () => getAllBlogPostsClientAPI(params),
     staleTime: 1000 * 30, // 30 seconds
     placeholderData: (prev) => prev,
+  })
+
+export const useBlogPostByIdQuery = (id: string | null) =>
+  useQuery({
+    queryKey: blogQueryKeys.postById(id ?? ''),
+    queryFn: () => getBlogPostByIdClientAPI(id!),
+    enabled: !!id,
+    staleTime: 1000 * 30, // 30 seconds
   })
 
 // ── Public Blog Topics ─────────────────────────────────────────────────────────

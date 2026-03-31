@@ -4,6 +4,7 @@ import {
   updateBlogTopicAPI,
   deleteBlogTopicAPI,
 } from '@/lib/apis/server/blog-apis'
+import type { IUpdateBlogTopicPayload } from '@/lib/types/interfaces/apis/blog.interfaces'
 
 export const GET = async (
   _req: Request,
