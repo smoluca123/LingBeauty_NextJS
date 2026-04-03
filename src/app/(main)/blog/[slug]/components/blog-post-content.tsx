@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Calendar, Eye, ArrowLeft, Tag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { CommentSection } from './comment-section'
 import type { IBlogPostDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
 
 interface BlogPostContentProps {
@@ -91,6 +92,8 @@ export function BlogPostContent({ post }: BlogPostContentProps) {
           </div>
         )}
       </article>
+
+      <CommentSection postId={post.id} />
     </div>
   )
 }
