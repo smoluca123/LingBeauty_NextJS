@@ -237,6 +237,9 @@ export function ReviewsContent() {
         <ReviewGrid
           reviews={reviews}
           isLoading={isLoading}
+          isFetchingNextPage={false}
+          hasNextPage={false}
+          fetchNextPage={() => {}}
           onViewDetail={handleViewDetail}
           onApprove={handleApprove}
           onReject={handleReject}
