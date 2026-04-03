@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Trash2 } from 'lucide-react'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,14 +10,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog'
 
 interface DeleteConfirmationDialogProps {
-  open: boolean;
-  addressName: string | null;
-  onConfirm: () => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
+  open: boolean
+  addressName: string | null
+  onConfirm: () => void
+  onCancel: () => void
+  isSubmitting: boolean
 }
 
 export function DeleteConfirmationDialog({
@@ -48,10 +48,9 @@ export function DeleteConfirmationDialog({
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Hủy</AlertDialogCancel>
           <AlertDialogAction
-            variant="destructive"
             onClick={(e) => {
-              e.preventDefault();
-              onConfirm();
+              e.preventDefault()
+              onConfirm()
             }}
             disabled={isSubmitting}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -71,5 +70,5 @@ export function DeleteConfirmationDialog({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

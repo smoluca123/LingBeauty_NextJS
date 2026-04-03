@@ -5,13 +5,17 @@ import {
   deleteBlogTopicAPI,
 } from '@/lib/apis/server/blog-apis'
 
-export const GET = (req: Request, { params }: { params: { id: string } }) => {
-  return proxyRoute(() => getBlogTopicByIdAPI(params.id))
+export const GET = async (
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) => {
+  const { id } = await params
+  return proxyRoute(() => getBlogTopicByIdAPI(id))
 }
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   const formData = await req.formData()
 
@@ -28,12 +32,14 @@ export const PATCH = async (
     image: formData.get('image') as File | undefined,
   }
 
-  return proxyRoute(() => updateBlogTopicAPI(params.id, data))
+  const { id } = await params
+  return proxyRoute(() => updateBlogTopicAPI(id, data))
 }
 
-export const DELETE = (
+export const DELETE = async (
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
-  return proxyRoute(() => deleteBlogTopicAPI(params.id))
+  const { id } = await params
+  return proxyRoute(() => deleteBlogTopicAPI(id))
 }

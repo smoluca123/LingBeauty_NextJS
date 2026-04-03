@@ -1,5 +1,5 @@
 import { proxyRoute } from '@/lib/proxy-route'
-import { uploadBlogPostFeaturedImageAPI } from '@/lib/apis/server/blog-apis'
+import { uploadPostFeaturedImageAPI } from '@/lib/apis/server/blog-apis'
 
 export const POST = async (
   req: Request,
@@ -17,5 +17,5 @@ export const POST = async (
     })
   }
 
-  return proxyRoute(() => uploadBlogPostFeaturedImageAPI(id, file))
+  return proxyRoute(() => uploadPostFeaturedImageAPI(id, formData))
 }
