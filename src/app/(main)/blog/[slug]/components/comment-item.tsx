@@ -11,7 +11,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { useAuthStore } from '@/stores/auth.store'
 import { CommentForm } from './comment-form'
 import { CommentReplies } from './comment-replies'
@@ -37,9 +36,9 @@ export function CommentItem({ comment, postId, isReply }: CommentItemProps) {
   const isOwner = user?.id === comment.userId
   const fullName = `${comment.user.firstName} ${comment.user.lastName}`.trim()
   const displayName = fullName || comment.user.username
-  const initials = fullName
-    ? `${comment.user.firstName[0]}${comment.user.lastName[0]}`
-    : comment.user.username[0]
+  // const initials = fullName
+  //   ? `${comment.user.firstName[0]}${comment.user.lastName[0]}`
+  //   : comment.user.username[0]
 
   const timeAgo = formatDistanceToNow(new Date(comment.createdAt), {
     addSuffix: true,
