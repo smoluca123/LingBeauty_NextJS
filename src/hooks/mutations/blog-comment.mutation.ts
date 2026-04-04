@@ -1,4 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import {
+  useMutation,
+  useQueryClient,
+  InfiniteData,
+} from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { blogCommentQueryKeys } from '@/hooks/querys/blog-comment.query'
 import {
@@ -11,7 +15,9 @@ import type {
   ICreateBlogCommentPayload,
   IUpdateBlogCommentPayload,
   ICreateBlogCommentReportPayload,
+  IBlogCommentDataType,
 } from '@/lib/types/interfaces/apis/blog-comment.interfaces'
+import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
 
 // ── Create Comment ────────────────────────────────────────────────────────────
 
@@ -21,13 +27,74 @@ export const useCreateBlogCommentMutation = (postId: string) => {
   return useMutation({
     mutationFn: (data: ICreateBlogCommentPayload) =>
       createBlogCommentClientAPI(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: blogCommentQueryKeys.all,
-      })
-      queryClient.invalidateQueries({
-        queryKey: blogCommentQueryKeys.list({ postId }),
-      })
+    onSuccess: (response) => {
+      const newComment = response.data
+
+      // Update infinite query data - prepend new comment to the first page
+      queryClient.setQueriesData<
+        InfiniteData<IApiPaginationResponseWrapperType<IBlogCommentDataType>>
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            // Match infinite queries for this post
+            if (
+              key[0] === 'blog-comments' &&
+              key[1] === 'infinite' &&
+              key[2] &&
+              typeof key[2] === 'object'
+            ) {
+              const params = key[2] as Record<string, unknown>
+              return params.postId === postId
+            }
+            return false
+          },
+        },
+        (oldData) => {
+          if (!oldData || !oldData.pages.length) return oldData
+
+          // Determine if this is a top-level comment or reply
+          const isTopLevel = !newComment.parentId
+          const firstPageItems = oldData.pages[0]?.data.items
+          const targetParentId = firstPageItems?.[0]?.parentId
+
+          // Only update if the query matches the comment type
+          if (isTopLevel && targetParentId === undefined) {
+            // Add new top-level comment to the first page
+            const firstPage = {
+              ...oldData.pages[0],
+              data: {
+                ...oldData.pages[0].data,
+                items: [newComment, ...oldData.pages[0].data.items],
+                totalCount: oldData.pages[0].data.totalCount + 1,
+              },
+            }
+
+            return {
+              ...oldData,
+              pages: [firstPage, ...oldData.pages.slice(1)],
+            }
+          } else if (!isTopLevel && targetParentId === newComment.parentId) {
+            // Add new reply to the first page
+            const firstPage = {
+              ...oldData.pages[0],
+              data: {
+                ...oldData.pages[0].data,
+                items: [newComment, ...oldData.pages[0].data.items],
+                totalCount: oldData.pages[0].data.totalCount + 1,
+              },
+            }
+
+            return {
+              ...oldData,
+              pages: [firstPage, ...oldData.pages.slice(1)],
+            }
+          }
+
+          return oldData
+        },
+      )
+
       toast.success('Bình luận thành công')
     },
     onError: (error) => {
@@ -49,13 +116,37 @@ export const useUpdateBlogCommentMutation = () => {
       id: string
       data: IUpdateBlogCommentPayload
     }) => updateBlogCommentClientAPI(id, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: blogCommentQueryKeys.all,
-      })
-      queryClient.invalidateQueries({
-        queryKey: blogCommentQueryKeys.detail(variables.id),
-      })
+    onSuccess: (response, variables) => {
+      const updatedComment = response.data
+
+      // Update infinite query data - update the comment in all pages
+      queryClient.setQueriesData<
+        InfiniteData<IApiPaginationResponseWrapperType<IBlogCommentDataType>>
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'blog-comments' && key[1] === 'infinite'
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((comment) =>
+                  comment.id === variables.id ? updatedComment : comment,
+                ),
+              },
+            })),
+          }
+        },
+      )
+
       toast.success('Cập nhật bình luận thành công')
     },
     onError: (error) => {
@@ -73,10 +164,36 @@ export const useDeleteBlogCommentMutation = () => {
 
   return useMutation({
     mutationFn: (id: string) => deleteBlogCommentClientAPI(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: blogCommentQueryKeys.all,
-      })
+    onSuccess: (_, commentId) => {
+      // Update infinite query data - remove the comment from all pages
+      queryClient.setQueriesData<
+        InfiniteData<IApiPaginationResponseWrapperType<IBlogCommentDataType>>
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'blog-comments' && key[1] === 'infinite'
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.filter(
+                  (comment) => comment.id !== commentId,
+                ),
+                totalCount: Math.max(0, page.data.totalCount - 1),
+              },
+            })),
+          }
+        },
+      )
+
       toast.success('Xóa bình luận thành công')
     },
     onError: (error) => {

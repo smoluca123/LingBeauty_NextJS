@@ -1,10 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useBlogCommentsQuery } from '@/hooks/querys/blog-comment.query'
+import { useInfiniteBlogCommentsQuery } from '@/hooks/querys/blog-comment.query'
 import { CommentItem } from './comment-item'
 import { Button } from '@/components/ui/button'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import InfiniteScrollContainer from '@/components/InfiniteScrollContainer'
 
 interface CommentRepliesProps {
   commentId: string
@@ -13,13 +14,14 @@ interface CommentRepliesProps {
 
 export function CommentReplies({ commentId, postId }: CommentRepliesProps) {
   const [showReplies, setShowReplies] = useState(false)
-  const { data, isLoading } = useBlogCommentsQuery({
-    parentId: commentId,
-    limit: 50,
-  })
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteBlogCommentsQuery({
+      parentId: commentId,
+      limit: 20,
+    })
 
-  const replies = data?.data.items ?? []
-  const replyCount = data?.data.totalCount ?? 0
+  const replies = data?.pages.flatMap((page) => page.data.items) ?? []
+  const replyCount = data?.pages[0]?.data.totalCount ?? 0
 
   if (!showReplies && replyCount === 0) return null
 
@@ -47,20 +49,37 @@ export function CommentReplies({ commentId, postId }: CommentRepliesProps) {
       )}
 
       {showReplies && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-4">
           {isLoading ? (
-            <div className="text-sm text-muted-foreground ml-8">
-              Đang tải câu trả lời...
+            <div className="flex justify-center py-4">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            replies.map((reply) => (
-              <CommentItem
-                key={reply.id}
-                comment={reply}
-                postId={postId}
-                isReply
-              />
-            ))
+            <InfiniteScrollContainer
+              onBottomReached={() => {
+                if (hasNextPage && !isFetchingNextPage) {
+                  fetchNextPage()
+                }
+              }}
+              isShowInViewElement={hasNextPage && !isFetchingNextPage}
+            >
+              <div className="space-y-4">
+                {replies.map((reply) => (
+                  <CommentItem
+                    key={reply.id}
+                    comment={reply}
+                    postId={postId}
+                    isReply
+                  />
+                ))}
+              </div>
+            </InfiniteScrollContainer>
+          )}
+
+          {isFetchingNextPage && (
+            <div className="flex justify-center py-2 mt-2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+            </div>
           )}
         </div>
       )}
