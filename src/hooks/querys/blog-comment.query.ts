@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query'
 import {
   getBlogCommentsClientAPI,
   getBlogCommentByIdClientAPI,
@@ -20,6 +20,8 @@ export const blogCommentQueryKeys = {
   all: ['blog-comments'] as const,
   list: (params: IBlogCommentFilters) =>
     ['blog-comments', 'list', params] as const,
+  infinite: (params: Omit<IBlogCommentFilters, 'page'>) =>
+    ['blog-comments', 'infinite', params] as const,
   detail: (id: string) => ['blog-comments', 'detail', id] as const,
 
   // Admin keys
@@ -38,6 +40,7 @@ export const blogCommentQueryKeys = {
 // ────────────────────────────────────────────────────────────────────────────────
 // Public Blog Comment Queries
 // ────────────────────────────────────────────────────────────────────────────────
+
 
 export const useBlogCommentsQuery = (params: IBlogCommentFilters = {}) =>
   useQuery({
@@ -77,6 +80,25 @@ export const useBlogCommentReportsQuery = (
     queryFn: () => getAllBlogCommentReportsClientAPI(params),
     staleTime: 1000 * 30,
   })
+// ── Get All Comments (Infinite Scroll) ────────────────────────────────────────
+
+export const useInfiniteBlogCommentsQuery = (
+  params: Omit<IBlogCommentFilters, 'page'> = {},
+) =>
+  useInfiniteQuery({
+    queryKey: blogCommentQueryKeys.infinite(params),
+    queryFn: ({ pageParam = 1 }) =>
+      getBlogCommentsClientAPI({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const hasNextPage = lastPage.data.hasNextPage
+      const currentPage = lastPage.data.currentPage
+      return hasNextPage ? currentPage + 1 : undefined
+    },
+    staleTime: 1000 * 30,
+  })
+
+// ── Get Comment By ID ─────────────────────────────────────────────────────────
 
 export const useBlogCommentReportByIdQuery = (id: string) =>
   useQuery({
