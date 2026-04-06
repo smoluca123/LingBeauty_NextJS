@@ -273,6 +273,8 @@ client/src/app/admin/blog-comment-reports/
 - [ ] User có thể report comment của người khác
 - [ ] User không thể report comment của mình
 - [ ] Nested replies hiển thị đúng
+- [ ] Infinite scroll hoạt động cho top-level comments
+- [ ] Infinite scroll hoạt động cho replies
 - [ ] Loading states hoạt động
 - [ ] Error messages hiển thị đúng
 - [ ] Toast notifications hoạt động
@@ -283,4 +285,4 @@ client/src/app/admin/blog-comment-reports/
 
 ---
 
-**Lưu ý**: Hệ thống comment đã được implement đầy đủ theo đúng phong cách và cấu trúc của dự án. Tất cả các files đã được tạo và tích hợp vào blog post page.
+**Lưu ý**: Hệ thống comment đã được implement đầy đủ với infinite scroll theo đúng phong cách và cấu trúc của dự án. Tất cả các files đã được tạo và tích hợp vào blog post page.
