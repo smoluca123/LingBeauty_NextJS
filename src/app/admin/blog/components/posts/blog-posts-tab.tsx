@@ -24,6 +24,7 @@ import { BlogPostsTable } from './blog-posts-table'
 import { CreatePostDialog } from './create-post-dialog'
 import { EditPostDialog } from './edit-post-dialog'
 import { DeletePostDialog } from './delete-post-dialog'
+import { ViewCommentsDialog } from './view-comments-dialog'
 import { BlogPostStatus } from '@/lib/types/interfaces/apis/blog.interfaces'
 import { TablePagination } from '@/components/table-pagination'
 
@@ -40,6 +41,7 @@ export function BlogPostsTab() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [viewCommentsDialogOpen, setViewCommentsDialogOpen] = useState(false)
   const [selectedPost, setSelectedPost] = useState<IBlogPostDataType | null>(
     null,
   )
@@ -81,6 +83,11 @@ export function BlogPostsTab() {
   const handleDelete = (post: IBlogPostDataType) => {
     setSelectedPost(post)
     setDeleteDialogOpen(true)
+  }
+
+  const handleViewComments = (post: IBlogPostDataType) => {
+    setSelectedPost(post)
+    setViewCommentsDialogOpen(true)
   }
 
   return (
@@ -176,6 +183,7 @@ export function BlogPostsTab() {
             posts={posts}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onViewComments={handleViewComments}
           />
 
           {/* Pagination */}
@@ -209,6 +217,12 @@ export function BlogPostsTab() {
       <DeletePostDialog
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
+        post={selectedPost}
+      />
+
+      <ViewCommentsDialog
+        open={viewCommentsDialogOpen}
+        onOpenChange={setViewCommentsDialogOpen}
         post={selectedPost}
       />
     </div>

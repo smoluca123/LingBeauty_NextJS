@@ -3,10 +3,9 @@ import { proxyRoute } from '@/lib/proxy-route'
 
 export const GET = (
   _req: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
-  return proxyRoute(async () => {
-    const { id } = await params
+  context: { params: Promise<{ id: string }> },
+) =>
+  proxyRoute(async () => {
+    const { id } = await context.params
     return getBlogCommentReportByIdAPI(id)
   })
-}

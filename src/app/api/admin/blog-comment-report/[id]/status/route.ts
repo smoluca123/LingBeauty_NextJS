@@ -4,11 +4,9 @@ import type { IUpdateBlogCommentReportStatusPayload } from '@/lib/types/interfac
 
 export const PATCH = async (
   req: Request,
-  { params }: { params: Promise<{ id: string }> },
+  context: { params: Promise<{ id: string }> },
 ) => {
+  const { id } = await context.params
   const body = (await req.json()) as IUpdateBlogCommentReportStatusPayload
-  return proxyRoute(async () => {
-    const { id } = await params
-    return updateBlogCommentReportStatusAPI(id, body)
-  })
+  return proxyRoute(() => updateBlogCommentReportStatusAPI(id, body))
 }
