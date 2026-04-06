@@ -114,7 +114,7 @@ export const getAllBlogCommentReportsAPI = async (
   params: IBlogCommentReportFilters = {},
 ) => {
   return kyInstance
-    .get('admin/blog-comment-report', {
+    .get('blog-comment-report', {
       searchParams: buildSearchParams({
         page: params.page,
         limit: params.limit,
@@ -143,8 +143,38 @@ export const updateBlogCommentReportStatusAPI = async (
   data: IUpdateBlogCommentReportStatusPayload,
 ) => {
   return kyInstance
-    .patch(`admin/blog-comment-report/${id}/status`, { json: data })
+    .patch(`blog-comment-report/${id}/status`, { json: data })
     .json<IApiResponseWrapperType<IBlogCommentReportDataType>>()
+}
+
+/**
+ * Get all comments for admin (admin)
+ */
+export const getAllAdminBlogCommentsAPI = async (
+  params: IBlogCommentFilters = {},
+) => {
+  return kyInstance
+    .get('blog-comment', {
+      searchParams: buildSearchParams({
+        page: params.page,
+        limit: params.limit,
+        postId: params.postId,
+        userId: params.userId,
+      }),
+    })
+    .json<IApiPaginationResponseWrapperType<IBlogCommentDataType>>()
+}
+
+/**
+ * Update comment (admin)
+ */
+export const updateAdminBlogCommentAPI = async (
+  id: string,
+  data: IUpdateBlogCommentPayload,
+) => {
+  return kyInstance
+    .patch(`admin/blog-comment/${id}`, { json: data })
+    .json<IApiResponseWrapperType<IBlogCommentDataType>>()
 }
 
 /**
@@ -152,6 +182,6 @@ export const updateBlogCommentReportStatusAPI = async (
  */
 export const adminDeleteBlogCommentAPI = async (id: string) => {
   return kyInstance
-    .delete(`admin/blog-comment-report/comment/${id}`)
+    .delete(`admin/blog-comment/${id}`)
     .json<IApiResponseWrapperType<{ message: string }>>()
 }

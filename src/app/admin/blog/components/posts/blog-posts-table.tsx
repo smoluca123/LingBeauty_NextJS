@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react'
+import { MoreHorizontal, Edit, Trash2, Eye, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
 import { vi } from 'date-fns/locale'
 import type { IBlogPostDataType } from '@/lib/types/interfaces/apis/blog.interfaces'
@@ -26,6 +26,7 @@ interface BlogPostsTableProps {
   posts: IBlogPostDataType[]
   onEdit: (post: IBlogPostDataType) => void
   onDelete: (post: IBlogPostDataType) => void
+  onViewComments: (post: IBlogPostDataType) => void
 }
 
 const statusConfig = {
@@ -50,6 +51,7 @@ export function BlogPostsTable({
   posts,
   onEdit,
   onDelete,
+  onViewComments,
 }: BlogPostsTableProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -109,6 +111,10 @@ export function BlogPostsTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onViewComments(post)}>
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Xem bình luận
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEdit(post)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Chỉnh sửa
