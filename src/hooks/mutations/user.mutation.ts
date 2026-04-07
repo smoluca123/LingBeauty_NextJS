@@ -44,7 +44,9 @@ export const useUploadAvatarMutation = () => {
       toast.success('Cập nhật ảnh đại diện thành công')
     },
     onError: (error) => {
-      console.log(error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Avatar update error:', error)
+      }
       toast.error(getErrorMessage(error, 'Cập nhật ảnh đại diện thất bại'))
     },
   })

@@ -116,11 +116,11 @@ export function ProductCard2({
       <ProductBadges product={product} />
 
       <div className="mt-3 space-y-1 flex-1">
-        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground line-clamp-1">
           {brand.name}
         </p>
         <Link href={`/products/${product.slug}`}>
-          <h3 className="text-base font-semibold text-foreground line-clamp-2 hover:text-primary-pink transition-colors ">
+          <h3 className="text-base font-semibold text-foreground line-clamp-2 hover:text-primary-pink transition-colors min-h-12">
             {name}
           </h3>
         </Link>

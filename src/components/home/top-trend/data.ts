@@ -1,17 +1,23 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// TODO: Replace with API data from backend
+// Currently using mock data - needs backend endpoint for trends/featured products
+// See CODE-REVIEW-REPORT.md #3 for details
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export type TrendCategory = {
-  id: string;
-  label: string;
-};
+  id: string
+  label: string
+}
 
 export type TrendProduct = {
-  id: string;
-  title: string;
-  subtitle: string;
-  image: string;
-  backgroundColor: string;
-  buttonText: string;
-  categories: string[];
-};
+  id: string
+  title: string
+  subtitle: string
+  image: string
+  backgroundColor: string
+  buttonText: string
+  categories: string[]
+}
 
 export const trendCategories: TrendCategory[] = [
   { id: 'all', label: 'Tất cả' },
@@ -20,8 +26,9 @@ export const trendCategories: TrendCategory[] = [
   { id: 'mat-na', label: 'mặt nạ' },
   { id: 'sua-rua-mat', label: 'sữa rửa mặt' },
   { id: 'kem-chong-nang', label: 'kem chống nắng' },
-];
+]
 
+// TODO: Replace with API call - this is temporary mock data
 export const trendProducts: TrendProduct[] = [
   {
     id: 'miffy',
@@ -59,13 +66,13 @@ export const trendProducts: TrendProduct[] = [
     buttonText: 'XEM NGAY',
     categories: ['all', 'kem-chong-nang'],
   },
-];
+]
 
 export function getProductsByCategory(categoryId: string): TrendProduct[] {
   if (categoryId === 'all') {
-    return trendProducts;
+    return trendProducts
   }
   return trendProducts.filter((product) =>
-    product.categories.includes(categoryId)
-  );
+    product.categories.includes(categoryId),
+  )
 }

@@ -29,20 +29,19 @@ export function ExpandableContent({
     <div className="space-y-3">
       <div
         ref={contentRef}
-        className={cn(
-          'relative overflow-hidden transition-all duration-300',
-          !isExpanded && shouldShowButton && `max-h-[${maxHeight}px]`,
-        )}
-        style={
-          !isExpanded && shouldShowButton
-            ? { maxHeight: `${maxHeight}px` }
-            : undefined
-        }
+        className="relative overflow-hidden transition-all duration-300 ease-in-out"
+        style={{
+          maxHeight:
+            !isExpanded && shouldShowButton ? `${maxHeight}px` : 'none',
+        }}
       >
         {children}
-        {/* Gradient overlay khi thu gọn */}
+        {/* Gradient overlay khi thu gọn - responsive height */}
         {!isExpanded && shouldShowButton && (
-          <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-background to-transparent" />
+          <div
+            className="pointer-events-none absolute bottom-0 left-0 right-0 bg-linear-to-t from-background to-transparent"
+            style={{ height: `${Math.min(96, maxHeight * 0.3)}px` }}
+          />
         )}
       </div>
 

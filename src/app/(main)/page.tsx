@@ -15,7 +15,6 @@ import { ProductsSection } from '@/components/home/products/products-section/pro
 
 export default function MainPage() {
   return (
-    // <Suspense>
     <div className="font-sans">
       <main className="container space-y-10 py-4 md:py-6">
         <HomeCarouselSection />
@@ -35,6 +34,5 @@ export default function MainPage() {
         </Suspense>
       </main>
     </div>
-    // </Suspense>
   )
 }

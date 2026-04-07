@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils/style-utils'
 import { HorizontalScroller } from '@/components/home/horizontal-scroller'
@@ -43,13 +44,15 @@ export const TopProducts = ({ initialData }: TopProductsProps) => {
       </HorizontalScroller>
 
       <div className="text-center">
-        <Button
-          className={cn(
-            'rounded-full bg-primary-pink px-6 text-white hover:bg-primary-pink/90',
-          )}
-        >
-          Xem thêm ưu đãi
-        </Button>
+        <Link href="/products?sortBy=hot">
+          <Button
+            className={cn(
+              'rounded-full bg-primary-pink px-6 text-white hover:bg-primary-pink/90',
+            )}
+          >
+            Xem thêm ưu đãi
+          </Button>
+        </Link>
       </div>
     </section>
   )
