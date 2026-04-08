@@ -1,50 +1,59 @@
-import { addMyAddressAPI } from "@/lib/apis/client/actions/address.actions";
-import { kyNextInstance } from "@/lib/kyInstance/kyNext";
-import { queryClient } from "@/lib/query-client/query-client";
-import { IAddressDataType } from "@/lib/types/interfaces/apis/address.interfaces";
+import { addMyAddressAPI } from '@/lib/apis/client/actions/address.actions'
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import { queryClient } from '@/lib/query-client/query-client'
+import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces'
 import {
   IApiResponseWrapperType,
   INextApiResponseWrapperType,
-} from "@/lib/types/interfaces/apis/api.interfaces";
-import type { AddressFormValues } from "@/lib/types/forms";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
+  IApiPaginationResponseWrapperType,
+} from '@/lib/types/interfaces/apis/api.interfaces'
+import type { AddressFormValues } from '@/lib/types/forms'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 export const useAddMyAddress = () => {
-  // const queryClient = useQueryClient();
   const addMyAddress = async (data: AddressFormValues) => {
     try {
-      const response = await addMyAddressAPI(data);
-      return response;
+      const response = await addMyAddressAPI(data)
+      return response
     } catch (error) {
-      throw new Error(error as string);
+      throw new Error(error as string)
     }
-  };
+  }
 
   return useMutation({
     mutationFn: addMyAddress,
-    onSuccess: (data) => {
-      // Invalidate queries to refetch addresses
-      // queryClient.invalidateQueries({
-      //   queryKey: getMyAddressesQueryKey({ page: values., limit }),
-      // });
+    onSuccess: (response) => {
+      // Update cache with new address
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAddressDataType>
+      >({ queryKey: ['addresses'] }, (oldData) => {
+        if (!oldData || !response.data) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: [response.data, ...(oldData.data?.items || [])],
+            totalCount: (oldData.data?.totalCount || 0) + 1,
+          },
+        }
+      })
 
-      // Show success toast
-      toast.success(data.message || "Thêm địa chỉ thành công!");
+      toast.success(response.message || 'Thêm địa chỉ thành công!')
     },
     onError: (error) => {
-      toast.error(error.message || "Thêm địa chỉ thất bại!");
+      toast.error(error.message || 'Thêm địa chỉ thất bại!')
     },
-  });
-};
+  })
+}
 
 export const useUpdateMyAddress = () => {
   const updateMyAddress = async ({
     id,
     data,
   }: {
-    id: string;
-    data: AddressFormValues;
+    id: string
+    data: AddressFormValues
   }) => {
     try {
       const response = await kyNextInstance
@@ -53,35 +62,42 @@ export const useUpdateMyAddress = () => {
         })
         .json<
           INextApiResponseWrapperType<IApiResponseWrapperType<IAddressDataType>>
-        >();
-      return response.data;
+        >()
+      return response.data
     } catch (error) {
       if (error instanceof Error) {
-        throw error;
+        throw error
       }
-      throw new Error("Failed to update address");
+      throw new Error('Failed to update address')
     }
-  };
+  }
 
   return useMutation({
     mutationFn: updateMyAddress,
-    onSuccess: async (data) => {
-      // Invalidate queries to refetch addresses
-      // queryClient.invalidateQueries({
-      //   queryKey: getMyAddressesQueryKey({ page: values., limit }),
-      // });
+    onSuccess: (response, variables) => {
+      // Update cache with updated address
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAddressDataType>
+      >({ queryKey: ['addresses'] }, (oldData) => {
+        if (!oldData || !response.data) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data?.items?.map((addr) =>
+              addr.id === variables.id ? response.data : addr,
+            ),
+          },
+        }
+      })
 
-      await queryClient.invalidateQueries({
-        queryKey: ["addresses"],
-      });
-      // Show success toast
-      toast.success(data.message || "Cập nhật địa chỉ thành công!");
+      toast.success(response.message || 'Cập nhật địa chỉ thành công!')
     },
     onError: (error) => {
-      toast.error(error.message || "Cập nhật địa chỉ thất bại!");
+      toast.error(error.message || 'Cập nhật địa chỉ thất bại!')
     },
-  });
-};
+  })
+}
 
 export const useDeleteMyAddress = () => {
   const deleteMyAddress = async (id: string) => {
@@ -89,38 +105,44 @@ export const useDeleteMyAddress = () => {
       const response = await kyNextInstance.delete(`me/address/${id}`).json<
         INextApiResponseWrapperType<
           IApiResponseWrapperType<{
-            message: string;
+            message: string
           }>
         >
-      >();
-      return response.data;
+      >()
+      return response.data
     } catch (error) {
       if (error instanceof Error) {
-        throw error;
+        throw error
       }
-      throw new Error("Failed to delete address");
+      throw new Error('Failed to delete address')
     }
-  };
+  }
 
   return useMutation({
     mutationFn: deleteMyAddress,
-    onSuccess: async () => {
-      // Invalidate queries to refetch addresses
-      // queryClient.invalidateQueries({
-      //   queryKey: getMyAddressesQueryKey({ page: values., limit }),
-      // });
+    onSuccess: (_response, deletedId) => {
+      // Update cache by removing deleted address
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAddressDataType>
+      >({ queryKey: ['addresses'] }, (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data?.items?.filter((addr) => addr.id !== deletedId),
+            totalCount: Math.max((oldData.data?.totalCount || 0) - 1, 0),
+          },
+        }
+      })
 
-      await queryClient.invalidateQueries({
-        queryKey: ["addresses"],
-      });
-
-      toast.success("Địa chỉ đã được xóa thành công");
+      toast.success('Địa chỉ đã được xóa thành công')
     },
     onError: (error) => {
-      toast.error(error.message || "Xóa địa chỉ thất bại!");
+      toast.error(error.message || 'Xóa địa chỉ thất bại!')
     },
-  });
-};
+  })
+}
 
 export const useSetDefaultMyAddress = () => {
   const setDefaultMyAddress = async (id: string) => {
@@ -133,29 +155,40 @@ export const useSetDefaultMyAddress = () => {
         })
         .json<
           INextApiResponseWrapperType<IApiResponseWrapperType<IAddressDataType>>
-        >();
-      return response.data;
+        >()
+      return response.data
     } catch (error) {
       if (error instanceof Error) {
-        throw error;
+        throw error
       }
-      throw new Error("Failed to delete address");
+      throw new Error('Failed to set default address')
     }
-  };
+  }
 
   return useMutation({
     mutationFn: setDefaultMyAddress,
-    onSuccess: async () => {
-      // Invalidate queries to refetch addresses
-      await queryClient.invalidateQueries({
-        queryKey: ["addresses"],
-      });
+    onSuccess: (_response, newDefaultId) => {
+      // Update cache: set all addresses to non-default, then set the selected one as default
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAddressDataType>
+      >({ queryKey: ['addresses'] }, (oldData) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data?.items?.map((addr) => ({
+              ...addr,
+              isDefault: addr.id === newDefaultId,
+            })),
+          },
+        }
+      })
 
-      // Show success toast
-      toast.success("Đặt làm địa chỉ mặc định thành công!");
+      toast.success('Đặt làm địa chỉ mặc định thành công!')
     },
     onError: (error) => {
-      toast.error(error.message || "Đặt làm địa chỉ mặc định thất bại!");
+      toast.error(error.message || 'Đặt làm địa chỉ mặc định thất bại!')
     },
-  });
-};
+  })
+}
