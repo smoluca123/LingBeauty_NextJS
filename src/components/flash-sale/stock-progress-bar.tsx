@@ -34,7 +34,7 @@ export function StockProgressBar({
           )}
           style={{ width: `${stockPercent}%` }}
         />
-        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-pink-800">
+        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-semibold text-white drop-shadow-md">
           còn {remaining} sản phẩm
         </span>
       </div>

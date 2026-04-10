@@ -1,46 +1,50 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { X } from 'lucide-react';
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { X } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { IAdminUserDataType, IAdminRoleDataType, getUserRoles } from '@/lib/types/interfaces/apis/admin-user.interfaces';
-import { BasicInfoTab } from './basic-info-tab';
-import { RolesTab } from './roles-tab';
-import { StatusTab } from './status-tab';
+} from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Form } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
+import {
+  IAdminUserDataType,
+  IAdminRoleDataType,
+  getUserRoles,
+} from '@/lib/types/interfaces/apis/admin-user.interfaces'
+import { BasicInfoTab } from './basic-info-tab'
+import { RolesTab } from './roles-tab'
+import { StatusTab } from './status-tab'
 
 // ============ Types ============
 interface EditUserDialogProps {
-  user: IAdminUserDataType | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSave: (data: UserFormData) => void;
-  availableRoles?: IAdminRoleDataType[];
+  user: IAdminUserDataType | null
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSave: (data: UserFormData) => void
+  availableRoles?: IAdminRoleDataType[]
 }
 
 export interface UserFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  username: string;
-  roleIds: string[];
-  isActive: boolean;
-  isVerified: boolean;
-  isBanned: boolean;
-  isEmailVerified: boolean;
-  isPhoneVerified: boolean;
+  email: string
+  firstName: string
+  lastName: string
+  phone: string
+  username: string
+  roleIds: string[]
+  isActive: boolean
+  isVerified: boolean
+  isBanned: boolean
+  isEmailVerified: boolean
+  isPhoneVerified: boolean
   // Optional fields for creating new users
-  password?: string;
-  confirmPassword?: string;
+  password?: string
+  confirmPassword?: string
 }
 
 // ============ Component ============
@@ -65,7 +69,7 @@ export function EditUserDialog({
       isEmailVerified: false,
       isPhoneVerified: false,
     },
-  });
+  })
 
   // Reset form when user changes
   useEffect(() => {
@@ -82,24 +86,26 @@ export function EditUserDialog({
         isBanned: user.isBanned,
         isEmailVerified: user.isEmailVerified,
         isPhoneVerified: user.isPhoneVerified,
-      });
+      })
     }
-  }, [user, open, form]);
+  }, [user, open, form])
 
   const handleSubmit = (data: UserFormData) => {
-    console.log(data)
-    onSave(data);
-    onOpenChange(false);
-  };
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Edit user data:', data)
+    }
+    onSave(data)
+    onOpenChange(false)
+  }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      form.reset();
+      form.reset()
     }
-    onOpenChange(newOpen);
-  };
+    onOpenChange(newOpen)
+  }
 
-  if (!user) return null;
+  if (!user) return null
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -122,8 +128,14 @@ export function EditUserDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="flex-1 overflow-hidden flex flex-col">
-            <Tabs defaultValue="basic" className="flex-1 overflow-hidden flex flex-col">
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex-1 overflow-hidden flex flex-col"
+          >
+            <Tabs
+              defaultValue="basic"
+              className="flex-1 overflow-hidden flex flex-col"
+            >
               <TabsList className="w-full justify-start">
                 <TabsTrigger value="basic">Thông tin cơ bản</TabsTrigger>
                 <TabsTrigger value="roles">Vai trò</TabsTrigger>
@@ -146,7 +158,11 @@ export function EditUserDialog({
             </Tabs>
 
             <div className="flex justify-end gap-2 border-t pt-4">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+              >
                 Hủy
               </Button>
               <Button type="submit" variant="primary-pink">
@@ -157,7 +173,5 @@ export function EditUserDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }
-
-

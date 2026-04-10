@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Star } from 'lucide-react'
 
 import { cn } from '@/lib/utils/style-utils'
@@ -7,7 +8,7 @@ type RatingStarsProps = {
   reviewCount?: number
 }
 
-export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
+export const RatingStars = memo(({ rating, reviewCount }: RatingStarsProps) => {
   if (!rating) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -38,4 +39,6 @@ export function RatingStars({ rating, reviewCount }: RatingStarsProps) {
       )}
     </div>
   )
-}
+})
+
+RatingStars.displayName = 'RatingStars'

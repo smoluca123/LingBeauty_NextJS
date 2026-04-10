@@ -1,0 +1,24 @@
+{
+  "extends": ["./.eslintrc.json"],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "@typescript-eslint/no-explicit-any": "error",
+    "react/jsx-no-bind": [
+      "warn",
+      {
+        "allowArrowFunctions": false,
+        "allowBind": false,
+        "ignoreRefs": true
+      }
+    ],
+    "react-hooks/exhaustive-deps": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.tsx"],
+      "rules": {
+        "react/display-name": "error"
+      }
+    }
+  ]
+}

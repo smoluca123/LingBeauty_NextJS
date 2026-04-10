@@ -1,7 +1,7 @@
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
   FormControl,
@@ -9,19 +9,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces';
-import { useUpdateUserInfomationMutation } from '@/hooks/mutations/user.mutation';
-import LoadingButton from '@/components/ui/loading-button';
-import ChangePasswordButton from '@/components/change-password/change-password-button';
-import { accountFormSchema } from '@/lib/schemas';
-import type { AccountFormValues } from '@/lib/types/forms';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { IUserDataType } from '@/lib/types/interfaces/apis/user.interfaces'
+import { useUpdateUserInfomationMutation } from '@/hooks/mutations/user.mutation'
+import LoadingButton from '@/components/ui/loading-button'
+import ChangePasswordButton from '@/components/change-password/change-password-button'
+import { accountFormSchema } from '@/lib/schemas'
+import type { AccountFormValues } from '@/lib/types/forms'
 
 // ============ Component ============
 export function AccountForm({ user }: { user: IUserDataType }) {
   const { mutate, isPending: isPendingUpdateUserInfomation } =
-    useUpdateUserInfomationMutation();
+    useUpdateUserInfomationMutation()
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
@@ -31,19 +31,15 @@ export function AccountForm({ user }: { user: IUserDataType }) {
       phone: user.phone || '',
     },
     mode: 'onTouched',
-  });
+  })
 
   const onSubmit = (data: AccountFormValues) => {
     // TODO: Replace with actual API call when available
-    console.log('📝 Profile update form data:', data);
-    console.log('---');
-    console.log('First Name:', data.firstName);
-    console.log('Last Name:', data.lastName);
-    console.log('Email:', data.email);
-    console.log('Phone:', data.phone);
-    console.log('---');
-    mutate(data);
-  };
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📝 Profile update form data:', data)
+    }
+    mutate(data)
+  }
 
   return (
     <>
@@ -154,5 +150,5 @@ export function AccountForm({ user }: { user: IUserDataType }) {
         </form>
       </Form>
     </>
-  );
+  )
 }

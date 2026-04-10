@@ -71,8 +71,8 @@ export default function WishlistPage() {
 
   return (
     <div className="container py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
+      <div className="mb-6  flex md:flex-row flex-col items-center justify-center md:justify-between">
+        <div className="text-center md:text-left">
           <h1 className="text-2xl font-bold">Danh sách yêu thích</h1>
           <p className="text-gray-600">{totalCount} sản phẩm</p>
         </div>

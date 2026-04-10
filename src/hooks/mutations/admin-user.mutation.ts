@@ -9,6 +9,8 @@ import {
   type ICreateUserByAdminPayload,
 } from '@/lib/apis/client/admin-user.apis'
 import { adminUserQueryKeys } from '@/hooks/querys/admin-user.query'
+import type { IAdminUserDataType } from '@/lib/types/interfaces/apis/admin-user.interfaces'
+import type { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
 
 // ── Ban / Unban User ──────────────────────────────────────────────────────────
 
@@ -18,8 +20,23 @@ export const useBanUserMutation = () => {
   return useMutation({
     mutationFn: ({ userId, isBanned }: { userId: string; isBanned: boolean }) =>
       banUserClientAPI(userId, isBanned),
-    onSuccess: (_, { isBanned }) => {
-      queryClient.invalidateQueries({ queryKey: adminUserQueryKeys.all })
+    onSuccess: (response, { userId, isBanned }) => {
+      // Update cache: find and update the user's isBanned status
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAdminUserDataType>
+      >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
+        if (!oldData || !response.data) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data.items.map((user) =>
+              user.id === userId ? response.data : user,
+            ),
+          },
+        }
+      })
+
       toast.success(isBanned ? 'Đã cấm người dùng' : 'Đã bỏ cấm người dùng')
     },
     onError: (error) => {
@@ -40,10 +57,33 @@ export const useBanUserBulkMutation = () => {
   return useMutation({
     mutationFn: (items: { userId: string; isBanned: boolean }[]) =>
       banUserBulkClientAPI(items),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: adminUserQueryKeys.all })
-      const count =
-        (data as { data?: { updatedCount?: number } })?.data?.updatedCount ?? 0
+    onSuccess: (response, items) => {
+      // Update cache: update multiple users' isBanned status
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAdminUserDataType>
+      >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
+        if (!oldData) return oldData
+
+        const userIdMap = new Map(
+          items.map((item) => [item.userId, item.isBanned]),
+        )
+
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data.items.map((user) => {
+              const newBannedStatus = userIdMap.get(user.id)
+              if (newBannedStatus !== undefined) {
+                return { ...user, isBanned: newBannedStatus }
+              }
+              return user
+            }),
+          },
+        }
+      })
+
+      const count = response.data?.updatedCount ?? 0
       toast.success(`Đã cập nhật trạng thái cho ${count} người dùng`)
     },
     onError: (error) => {
@@ -67,8 +107,23 @@ export const useUpdateUserByAdminMutation = () => {
       userId: string
       data: IUpdateUserByAdminPayload
     }) => updateUserByAdminClientAPI(userId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminUserQueryKeys.all })
+    onSuccess: (response, { userId }) => {
+      // Update cache: replace updated user
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAdminUserDataType>
+      >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
+        if (!oldData || !response.data) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: oldData.data.items.map((user) =>
+              user.id === userId ? response.data : user,
+            ),
+          },
+        }
+      })
+
       toast.success('Cập nhật thông tin người dùng thành công')
     },
     onError: (error) => {
@@ -88,8 +143,22 @@ export const useCreateUserMutation = () => {
 
   return useMutation({
     mutationFn: (data: ICreateUserByAdminPayload) => createUserClientAPI(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminUserQueryKeys.all })
+    onSuccess: (response) => {
+      // Update cache: add new user to the beginning of the list
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IAdminUserDataType>
+      >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
+        if (!oldData || !response.data) return oldData
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            items: [response.data, ...oldData.data.items],
+            totalCount: oldData.data.totalCount + 1,
+          },
+        }
+      })
+
       toast.success('Tạo tài khoản người dùng thành công')
     },
     onError: (error) => {

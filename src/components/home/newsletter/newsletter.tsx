@@ -1,37 +1,40 @@
-'use client';
+'use client'
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 
-import { newsletterSchema, type NewsletterFormValues } from './schema';
+import { newsletterSchema, type NewsletterFormValues } from './schema'
 
-export  function Newsletter() {
+export function Newsletter() {
   const form = useForm<NewsletterFormValues>({
     resolver: zodResolver(newsletterSchema),
     defaultValues: {
       email: '',
     },
-  });
+  })
 
   function onSubmit(data: NewsletterFormValues) {
-    console.log('Newsletter subscription:', data);
+    // TODO: Implement newsletter subscription API
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Newsletter subscription:', data)
+    }
   }
 
   return (
     <section className="relative py-4 md:py-5 overflow-hidden bg-linear-to-r from-primary-pink via-primary-pink to-primary-pink/95">
       {/* Subtle gradient overlay for depth */}
       <div className="absolute inset-0 bg-linear-to-br from-transparent via-white/5 to-transparent pointer-events-none" />
-      
+
       <div className="container mx-auto px-4 relative z-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8">
           {/* Text Content */}
@@ -81,5 +84,5 @@ export  function Newsletter() {
         </div>
       </div>
     </section>
-  );
+  )
 }

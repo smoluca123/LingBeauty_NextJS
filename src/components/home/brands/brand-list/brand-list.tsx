@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { HorizontalScroller } from '@/components/home/horizontal-scroller';
-import Image from 'next/image';
-import Link from 'next/link';
-import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces';
+import { HorizontalScroller } from '@/components/home/horizontal-scroller'
+import Image from 'next/image'
+import Link from 'next/link'
+import { IBrandDataType } from '@/lib/types/interfaces/apis/header.interfaces'
 
 interface IProps {
-  initialData: IBrandDataType[];
+  initialData: IBrandDataType[]
 }
 
 export function BrandList({ initialData }: IProps) {
-  const brands = initialData;
+  const brands = initialData
 
   return (
     <HorizontalScroller
@@ -20,7 +20,7 @@ export function BrandList({ initialData }: IProps) {
       {brands.map((brand) => (
         <Link
           key={brand.id}
-          href={`/brands/${brand.id}`}
+          href={`/collections/${brand.slug}`}
           className="group flex h-20 items-center justify-center rounded-xl border border-border bg-white p-3 shadow-sm transition-all hover:border-primary-pink hover:shadow-lg"
         >
           <Image
@@ -33,5 +33,5 @@ export function BrandList({ initialData }: IProps) {
         </Link>
       ))}
     </HorizontalScroller>
-  );
+  )
 }

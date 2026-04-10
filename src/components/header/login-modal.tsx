@@ -39,7 +39,10 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
   })
 
   function onSubmit(data: LoginFormValues) {
-    console.log('Login form data:', data)
+    // TODO: Implement login API
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Login form data:', data)
+    }
     onOpenChange(false)
   }
 
@@ -78,11 +81,7 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
                 <FormItem>
                   <FormLabel>Mật khẩu</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="••••••••"
-                      {...field}
-                    />
+                    <Input type="password" placeholder="••••••••" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -104,4 +103,3 @@ export function LoginModal({ open, onOpenChange }: LoginModalProps) {
     </Dialog>
   )
 }
-

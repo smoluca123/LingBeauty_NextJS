@@ -15,7 +15,17 @@ import type {
   IUpdateWishlistItemDto,
   ICreateSharedWishlistDto,
   IMoveToCartDto,
+  IWishlistResponseType,
+  IWishlistStatusResponse,
+  ISharedWishlistType,
 } from '@/lib/types/interfaces/apis/wishlist.interfaces'
+import type { IApiResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
+
+// Type for infinite query data
+interface IInfiniteWishlistData {
+  pages: IApiResponseWrapperType<IWishlistResponseType>[]
+  pageParams: number[]
+}
 
 /**
  * Hook to add product to wishlist with optimistic updates
@@ -60,8 +70,42 @@ export const useAddToWishlist = () => {
           },
         },
       )
-      // Invalidate list to refresh counts
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.list() })
+
+      // Add to infinite query data
+      queryClient.setQueriesData<IInfiniteWishlistData | undefined>(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return (
+              key[0] === 'wishlist' &&
+              key[1] === 'list' &&
+              !key.includes('shared')
+            )
+          },
+        },
+        (oldData) => {
+          if (!oldData?.pages) return oldData
+
+          // Add to first page
+          const newPages = [...oldData.pages]
+          if (newPages[0]) {
+            newPages[0] = {
+              ...newPages[0],
+              data: {
+                ...newPages[0].data,
+                items: [response.data, ...newPages[0].data.items],
+                totalCount: newPages[0].data.totalCount + 1,
+              },
+            }
+          }
+
+          return {
+            ...oldData,
+            pages: newPages,
+          }
+        },
+      )
+
       toast.success(response.message || 'Đã thêm vào danh sách yêu thích')
     },
     onError: (error, variables, context) => {
@@ -96,7 +140,38 @@ export const useUpdateWishlistItem = () => {
       data: IUpdateWishlistItemDto
     }) => updateWishlistItemClientAPI(itemId, data),
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.all })
+      const updatedItem = response.data
+
+      // Update infinite query data for wishlist
+      queryClient.setQueriesData<IInfiniteWishlistData | undefined>(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return (
+              key[0] === 'wishlist' &&
+              key[1] === 'list' &&
+              !key.includes('shared')
+            )
+          },
+        },
+        (oldData) => {
+          if (!oldData?.pages) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.map((item) =>
+                  item.id === updatedItem.id ? updatedItem : item,
+                ),
+              },
+            })),
+          }
+        },
+      )
+
       toast.success(response.message || 'Đã cập nhật ghi chú')
     },
     onError: (error) => {
@@ -143,9 +218,9 @@ export const useRemoveFromWishlist = () => {
         },
       )
 
-      return { previousStatus }
+      return { previousStatus, itemId: variables.itemId }
     },
-    onSuccess: (response, variables) => {
+    onSuccess: (response, variables, context) => {
       // Confirm the optimistic update
       queryClient.setQueryData(
         wishlistKeys.status(variables.productId, variables.variantId),
@@ -156,8 +231,38 @@ export const useRemoveFromWishlist = () => {
           },
         },
       )
-      // Invalidate list to refresh counts
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.list() })
+
+      // Remove item from infinite query data
+      queryClient.setQueriesData<IInfiniteWishlistData | undefined>(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return (
+              key[0] === 'wishlist' &&
+              key[1] === 'list' &&
+              !key.includes('shared')
+            )
+          },
+        },
+        (oldData) => {
+          if (!oldData?.pages) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.filter(
+                  (item) => item.id !== context?.itemId,
+                ),
+                totalCount: Math.max(0, page.data.totalCount - 1),
+              },
+            })),
+          }
+        },
+      )
+
       toast.success(response.data.message || 'Đã xóa khỏi danh sách yêu thích')
     },
     onError: (error, variables, context) => {
@@ -186,7 +291,58 @@ export const useClearWishlist = () => {
   return useMutation({
     mutationFn: clearWishlistClientAPI,
     onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.all })
+      // Clear all wishlist data immediately
+      queryClient.setQueriesData<IInfiniteWishlistData | undefined>(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return (
+              key[0] === 'wishlist' &&
+              key[1] === 'list' &&
+              !key.includes('shared')
+            )
+          },
+        },
+        (oldData) => {
+          if (!oldData?.pages) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: [],
+                totalCount: 0,
+              },
+            })),
+          }
+        },
+      )
+
+      // Clear all status queries
+      queryClient.setQueriesData<
+        IApiResponseWrapperType<IWishlistStatusResponse> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'wishlist' && key[1] === 'status'
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              isInWishlist: false,
+              wishlistItemId: null,
+            },
+          }
+        },
+      )
+
       toast.success(
         response.data.message || 'Đã xóa toàn bộ danh sách yêu thích',
       )
@@ -208,10 +364,43 @@ export const useMoveToCart = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: IMoveToCartDto) => moveToCartClientAPI(data),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.all })
+    mutationFn: ({ data }: { data: IMoveToCartDto; itemId: string }) =>
+      moveToCartClientAPI(data),
+    onSuccess: (response, variables) => {
+      // Remove item from wishlist infinite query
+      queryClient.setQueriesData<IInfiniteWishlistData | undefined>(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return (
+              key[0] === 'wishlist' &&
+              key[1] === 'list' &&
+              !key.includes('shared')
+            )
+          },
+        },
+        (oldData) => {
+          if (!oldData?.pages) return oldData
+
+          return {
+            ...oldData,
+            pages: oldData.pages.map((page) => ({
+              ...page,
+              data: {
+                ...page.data,
+                items: page.data.items.filter(
+                  (item) => item.id !== variables.itemId,
+                ),
+                totalCount: Math.max(0, page.data.totalCount - 1),
+              },
+            })),
+          }
+        },
+      )
+
+      // Invalidate cart to refetch with new item
       queryClient.invalidateQueries({ queryKey: ['cart'] })
+
       toast.success(response.data.message || 'Đã chuyển vào giỏ hàng')
     },
     onError: (error) => {
@@ -254,8 +443,19 @@ export const useDeleteSharedWishlist = () => {
   return useMutation({
     mutationFn: (sharedWishlistId: string) =>
       deleteSharedWishlistClientAPI(sharedWishlistId),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({ queryKey: wishlistKeys.sharedList() })
+    onSuccess: (response, sharedWishlistId) => {
+      // Remove from shared list immediately
+      queryClient.setQueryData<
+        IApiResponseWrapperType<ISharedWishlistType[]> | undefined
+      >(wishlistKeys.sharedList(), (oldData) => {
+        if (!oldData?.data) return oldData
+
+        return {
+          ...oldData,
+          data: oldData.data.filter((item) => item.id !== sharedWishlistId),
+        }
+      })
+
       toast.success(response.data.message || 'Đã xóa link chia sẻ')
     },
     onError: (error) => {

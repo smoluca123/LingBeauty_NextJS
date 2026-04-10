@@ -50,7 +50,9 @@ export function ShareWishlistDialog() {
       )
     } catch (error) {
       // Error handled by mutation
-      console.log(error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Share wishlist error:', error)
+      }
     }
   }
 

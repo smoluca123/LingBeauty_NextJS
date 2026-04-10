@@ -78,7 +78,7 @@ export const useCreateQuestionMutation = (productId: string) => {
 
 /**
  * Mutation hook to update a question
- * Uses setQueryData to update the question in cache immediately
+ * Uses optimistic update for instant feedback
  */
 export const useUpdateQuestionMutation = (
   questionId: string,
@@ -87,8 +87,103 @@ export const useUpdateQuestionMutation = (
   return useMutation({
     mutationFn: (data: { question: string }) =>
       updateQuestionAPI(questionId, data),
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return (
+            (key[0] === 'product-questions' && key[1] === productId) ||
+            key[0] === 'my-questions'
+          )
+        },
+      })
+
+      // Snapshot previous values
+      const previousProductQuestions = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'product-questions' && key[1] === productId
+        },
+      })
+
+      const previousMyQuestions = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'my-questions'
+        },
+      })
+
+      // Optimistically update product questions
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'product-questions' && key[1] === productId
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: oldData.data.items.map((q) =>
+                q.id === questionId
+                  ? {
+                      ...q,
+                      question: variables.question,
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : q,
+              ),
+            },
+          }
+        },
+      )
+
+      // Optimistically update my questions
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'my-questions'
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: oldData.data.items.map((q) =>
+                q.id === questionId
+                  ? {
+                      ...q,
+                      question: variables.question,
+                      updatedAt: new Date().toISOString(),
+                    }
+                  : q,
+              ),
+            },
+          }
+        },
+      )
+
+      return { previousProductQuestions, previousMyQuestions }
+    },
     onSuccess: (response) => {
-      // Update the product questions list
+      // Update with real data from server
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IProductQuestion> | undefined
       >(
@@ -113,7 +208,7 @@ export const useUpdateQuestionMutation = (
         },
       )
 
-      // Update my questions list for profile page
+      // Update my questions list
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IProductQuestion> | undefined
       >(
@@ -140,7 +235,18 @@ export const useUpdateQuestionMutation = (
 
       toast.success('Câu hỏi đã được cập nhật!')
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousProductQuestions) {
+        context.previousProductQuestions.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
+      if (context?.previousMyQuestions) {
+        context.previousMyQuestions.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
       toast.error(error.message || 'Không thể cập nhật câu hỏi.')
     },
   })
@@ -148,7 +254,7 @@ export const useUpdateQuestionMutation = (
 
 /**
  * Mutation hook to delete a question
- * Uses setQueryData to remove the question from cache immediately
+ * Uses optimistic update for instant feedback
  */
 export const useDeleteQuestionMutation = (
   questionId: string,
@@ -156,8 +262,38 @@ export const useDeleteQuestionMutation = (
 ) => {
   return useMutation({
     mutationFn: () => deleteQuestionAPI(questionId),
-    onSuccess: () => {
-      // Update the product questions list - remove deleted question immediately
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return (
+            (key[0] === 'product-questions' && key[1] === productId) ||
+            key[0] === 'my-questions'
+          )
+        },
+      })
+
+      // Snapshot previous values
+      const previousProductQuestions = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'product-questions' && key[1] === productId
+        },
+      })
+
+      const previousMyQuestions = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IProductQuestion>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'my-questions'
+        },
+      })
+
+      // Optimistically remove from product questions
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IProductQuestion> | undefined
       >(
@@ -175,13 +311,13 @@ export const useDeleteQuestionMutation = (
             data: {
               ...oldData.data,
               items: oldData.data.items.filter((q) => q.id !== questionId),
-              totalCount: oldData.data.totalCount - 1,
+              totalCount: Math.max(0, oldData.data.totalCount - 1),
             },
           }
         },
       )
 
-      // Update my questions list for profile page
+      // Optimistically remove from my questions
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IProductQuestion> | undefined
       >(
@@ -199,15 +335,29 @@ export const useDeleteQuestionMutation = (
             data: {
               ...oldData.data,
               items: oldData.data.items.filter((q) => q.id !== questionId),
-              totalCount: oldData.data.totalCount - 1,
+              totalCount: Math.max(0, oldData.data.totalCount - 1),
             },
           }
         },
       )
 
+      return { previousProductQuestions, previousMyQuestions }
+    },
+    onSuccess: () => {
       toast.success('Câu hỏi đã được xóa!')
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousProductQuestions) {
+        context.previousProductQuestions.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
+      if (context?.previousMyQuestions) {
+        context.previousMyQuestions.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
       toast.error(error.message || 'Không thể xóa câu hỏi.')
     },
   })

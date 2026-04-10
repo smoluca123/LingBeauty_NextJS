@@ -17,7 +17,6 @@ export function AvatarSection({ user }: IAvatarSectionProps) {
 
   const avatarUrl = user.avatar?.media?.url
   const fullName = `${user.firstName} ${user.lastName}`.trim() || user.username
-  console.log(user)
 
   return (
     <>

@@ -1,12 +1,12 @@
-import { Suspense } from 'react';
+import { Suspense } from 'react'
 
-import { Logo } from '@/components/logo';
-import { getCategoriesServerAPI } from '@/lib/apis/server/category-apis';
-import { NavigationBarLoading } from '@/components/header/navigation-bar-loading';
-import { SearchBar } from './search-bar';
-import { HeaderActions } from './header-actions';
-import { NavigationBarClient } from './navigation-bar-client';
-import { MobileNavigationMenu } from './mobile-navigation-menu';
+import { Logo } from '@/components/logo'
+import { getCategoriesServerAPI } from '@/lib/apis/server/category-apis'
+import { NavigationBarLoading } from '@/components/header/navigation-bar-loading'
+import { SearchBar } from './search-bar'
+import { HeaderActions } from './header-actions'
+import { NavigationBarClient } from './navigation-bar-client'
+import { MobileNavigationMenu } from './mobile-navigation-menu'
 
 /**
  * Async server component that fetches categories data
@@ -33,10 +33,10 @@ export default function Header() {
       {/* Main Header Section */}
       <div className="container mx-auto px-2 sm:px-4">
         {/* Mobile: Stack vertical, Desktop: Horizontal */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4 py-3 md:py-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-3 py-3 md:py-4">
           {/* Logo and Mobile Menu - Mobile: left side with menu, Desktop: left */}
           <div className="w-full md:w-auto flex items-center justify-between md:justify-start md:shrink-0">
-            <div className="flex items-center gap-2 md:gap-0">
+            <div className="flex items-center gap-3 md:gap-0">
               {/* Mobile Menu Button - async content with loading fallback */}
               <div className="md:hidden">
                 <Suspense
@@ -81,21 +81,21 @@ export default function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }
 
 /**
  * Wrapper component for mobile menu - fetches categories and renders the mobile menu button
  */
 async function MobileNavigationMenuWrapper() {
-  const categories = await getCategoriesServerAPI();
-  return <MobileNavigationMenu categories={categories} />;
+  const categories = await getCategoriesServerAPI()
+  return <MobileNavigationMenu categories={categories} />
 }
 
 /**
  * Wrapper component for desktop navbar - fetches categories and renders navbar
  */
 async function DesktopNavigationBarWrapper() {
-  const categories = await getCategoriesServerAPI();
-  return <NavigationBarClient categories={categories} />;
+  const categories = await getCategoriesServerAPI()
+  return <NavigationBarClient categories={categories} />
 }

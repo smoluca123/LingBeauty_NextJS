@@ -1,16 +1,16 @@
-'use client';
-'use no memo';
+'use client'
+'use no memo'
 
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useState, useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -18,37 +18,35 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   useVietnameseProvinces,
   type ApiVersion,
   isProvinceV1,
   isProvinceV2,
-} from '@/hooks/useVietnameseProvinces';
-import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces';
-import {
-  addressFormSchema,
-} from '@/lib/schemas';
-import type { AddressFormValues } from '@/lib/types/forms';
+} from '@/hooks/useVietnameseProvinces'
+import { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces'
+import { addressFormSchema } from '@/lib/schemas'
+import type { AddressFormValues } from '@/lib/types/forms'
 
 interface AddressFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (data: AddressFormValues) => void | Promise<void>;
-  editAddress?: IAddressDataType | null;
-  isSubmitting?: boolean;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSubmit: (data: AddressFormValues) => void | Promise<void>
+  editAddress?: IAddressDataType | null
+  isSubmitting?: boolean
 }
 
 export function AddressFormDialog({
@@ -58,12 +56,12 @@ export function AddressFormDialog({
   editAddress,
   isSubmitting = false,
 }: AddressFormDialogProps) {
-  const [apiVersion] = useState<ApiVersion>('v1');
+  const [apiVersion] = useState<ApiVersion>('v1')
   const { provinces, loading: loadingProvinces } = useVietnameseProvinces({
     version: apiVersion,
-  });
-  const [selectedProvince, setSelectedProvince] = useState<string>('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  })
+  const [selectedProvince, setSelectedProvince] = useState<string>('')
+  const [selectedDistrict, setSelectedDistrict] = useState<string>('')
 
   const form = useForm<AddressFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,37 +89,37 @@ export function AddressFormDialog({
           type: 'HOME',
           isDefault: false,
         },
-  });
+  })
 
   // Get available districts based on selected province (v1 only)
   const availableDistricts = (() => {
-    const province = provinces.find((p) => p.name === selectedProvince);
+    const province = provinces.find((p) => p.name === selectedProvince)
     if (!province || !isProvinceV1(province)) {
-      return [];
+      return []
     }
-    return province.districts;
-  })();
+    return province.districts
+  })()
 
   // Get available wards based on API version
   const availableWards = (() => {
-    const province = provinces.find((p) => p.name === selectedProvince);
-    if (!province) return [];
+    const province = provinces.find((p) => p.name === selectedProvince)
+    if (!province) return []
 
     // V2: wards directly in province
     if (isProvinceV2(province)) {
-      return province.wards;
+      return province.wards
     }
 
     // V1: wards in districts
     if (isProvinceV1(province)) {
       const district = province.districts.find(
         (d) => d.name === selectedDistrict,
-      );
-      return district?.wards || [];
+      )
+      return district?.wards || []
     }
 
-    return [];
-  })();
+    return []
+  })()
 
   // Reset form values when editAddress changes or dialog opens
   useEffect(() => {
@@ -138,10 +136,10 @@ export function AddressFormDialog({
           postalCode: editAddress.postalCode,
           type: editAddress.type,
           isDefault: editAddress.isDefault,
-        });
+        })
         // Set local state for dropdowns
-        setSelectedProvince(editAddress.province);
-        setSelectedDistrict(editAddress.city);
+        setSelectedProvince(editAddress.province)
+        setSelectedDistrict(editAddress.city)
       } else {
         // Add mode: reset to default values
         form.reset({
@@ -154,28 +152,28 @@ export function AddressFormDialog({
           postalCode: '',
           type: 'HOME',
           isDefault: false,
-        });
-        setSelectedProvince('');
-        setSelectedDistrict('');
+        })
+        setSelectedProvince('')
+        setSelectedDistrict('')
       }
     }
-  }, [editAddress, open, form]);
+  }, [editAddress, open, form])
 
   // Handle province change
   const handleProvinceChange = (value: string) => {
-    setSelectedProvince(value);
-    setSelectedDistrict('');
-    form.setValue('province', value);
-    form.setValue('city', '');
-    form.setValue('postalCode', '');
-  };
+    setSelectedProvince(value)
+    setSelectedDistrict('')
+    form.setValue('province', value)
+    form.setValue('city', '')
+    form.setValue('postalCode', '')
+  }
 
   // Handle district change
   const handleDistrictChange = (value: string) => {
-    setSelectedDistrict(value);
-    form.setValue('city', value);
-    form.setValue('postalCode', '');
-  };
+    setSelectedDistrict(value)
+    form.setValue('city', value)
+    form.setValue('postalCode', '')
+  }
 
   // Handle version change - reset selections
   // const handleVersionChange = (newVersion: ApiVersion) => {
@@ -190,29 +188,31 @@ export function AddressFormDialog({
   // Handle form submission
   const handleSubmit = async (data: AddressFormValues) => {
     try {
-      console.log('📝 Form submitted:', data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📝 Form submitted:', data)
+      }
       // Ensure isDefault is always a boolean
       const submissionData = {
         ...data,
         isDefault: data.isDefault ?? false,
-      };
-      await onSubmit(submissionData);
+      }
+      await onSubmit(submissionData)
     } catch (error) {
-      console.error('📝 Form submission failed:', error);
+      console.error('📝 Form submission failed:', error)
     } finally {
-      form.reset();
-      setSelectedProvince('');
-      setSelectedDistrict('');
+      form.reset()
+      setSelectedProvince('')
+      setSelectedDistrict('')
     }
-  };
+  }
 
   // Handle dialog close
   const handleClose = () => {
-    form.reset();
-    setSelectedProvince('');
-    setSelectedDistrict('');
-    onOpenChange(false);
-  };
+    form.reset()
+    setSelectedProvince('')
+    setSelectedDistrict('')
+    onOpenChange(false)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -316,8 +316,8 @@ export function AddressFormDialog({
                       <FormLabel>Tỉnh/Thành phố</FormLabel>
                       <Select
                         onValueChange={(value) => {
-                          handleProvinceChange(value);
-                          field.onChange(value);
+                          handleProvinceChange(value)
+                          field.onChange(value)
                         }}
                         value={field.value}
                       >
@@ -361,8 +361,8 @@ export function AddressFormDialog({
                           <FormLabel>Quận/Huyện</FormLabel>
                           <Select
                             onValueChange={(value) => {
-                              handleDistrictChange(value);
-                              field.onChange(value);
+                              handleDistrictChange(value)
+                              field.onChange(value)
                             }}
                             value={field.value}
                             disabled={!selectedProvince}
@@ -535,5 +535,5 @@ export function AddressFormDialog({
         </Form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

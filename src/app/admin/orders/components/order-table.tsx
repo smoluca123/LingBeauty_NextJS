@@ -1,6 +1,7 @@
 'use client'
 
-import { Search, X, Eye } from 'lucide-react'
+import { Search, X, Eye, Package } from 'lucide-react'
+import Image from 'next/image'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -154,44 +155,87 @@ export function OrderTable({ orders, onViewDetail }: OrderTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-[180px]">Mã đơn hàng</TableHead>
+              <TableHead className="min-w-[300px]">Sản phẩm</TableHead>
               <TableHead className="w-[150px]">Trạng thái</TableHead>
-              <TableHead className="w-[120px]">Số sản phẩm</TableHead>
               <TableHead className="w-[140px]">Tổng tiền</TableHead>
               <TableHead className="w-[180px]">Ngày tạo</TableHead>
               <TableHead className="w-[100px] text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell className="font-medium">
-                  {order.orderNumber}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    className={`${ORDER_STATUS_COLORS[order.status]} border-0`}
-                  >
-                    {ORDER_STATUS_LABELS[order.status]}
-                  </Badge>
-                </TableCell>
-                <TableCell>{order.itemCount}</TableCell>
-                <TableCell className="font-semibold">
-                  {formatCurrency(Number(order.total))}
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  {formatDate(order.createdAt)}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onViewDetail(order)}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {orders.map((order) => {
+              const firstItem = order.items?.[0]
+              const remainingCount = order.itemCount - 1
+
+              return (
+                <TableRow key={order.id}>
+                  <TableCell className="font-medium">
+                    {order.orderNumber}
+                  </TableCell>
+                  <TableCell>
+                    {firstItem ? (
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-12 h-12 rounded-md overflow-hidden bg-muted shrink-0">
+                          {firstItem.product.images?.[0]?.media?.url ? (
+                            <Image
+                              src={firstItem.product.images[0].media.url}
+                              alt={firstItem.name}
+                              fill
+                              className="object-cover"
+                              sizes="48px"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {firstItem.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {firstItem.quantity} x{' '}
+                            {formatCurrency(Number(firstItem.price))}
+                          </p>
+                          {remainingCount > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              +{remainingCount} sản phẩm khác
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        {order.itemCount} sản phẩm
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`${ORDER_STATUS_COLORS[order.status]} border-0`}
+                    >
+                      {ORDER_STATUS_LABELS[order.status]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="font-semibold">
+                    {formatCurrency(Number(order.total))}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDate(order.createdAt)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onViewDetail(order)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </div>
