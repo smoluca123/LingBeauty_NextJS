@@ -47,6 +47,22 @@ export interface IProductDataType {
   inventory?: IProductInventoryDataType | null
 }
 
+/**
+ * Minimal product info for embedding in other responses (e.g. inventory, order list).
+ * Matches backend ProductSummaryResponseDto
+ */
+export interface IProductSummaryDataType {
+  id: string
+  name: string
+  slug: string
+  sku: string | null
+  basePrice: string
+  comparePrice?: string | null
+  isActive: boolean
+  brand?: IProductBrandDataType | null
+  images: IProductImageDataType[]
+}
+
 export interface IProductVariantDataType {
   id: string
   sku: string
@@ -58,6 +74,22 @@ export interface IProductVariantDataType {
   sortOrder: number
   displayType: VariantDisplayType
   inventory: IProductInventoryDataType
+  images: IProductImageDataType[]
+}
+
+/**
+ * Minimal variant info for embedding in other responses (e.g. inventory, order list).
+ * Matches backend VariantSummaryResponseDto
+ */
+export interface IVariantSummaryDataType {
+  id: string
+  sku: string
+  name: string
+  color: string | null
+  size: string | null
+  type: string | null
+  price: string
+  displayType: VariantDisplayType
   images: IProductImageDataType[]
 }
 

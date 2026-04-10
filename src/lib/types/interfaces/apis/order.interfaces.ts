@@ -1,5 +1,10 @@
 import type { IAddressDataType } from '@/lib/types/interfaces/apis/address.interfaces'
-import type { IProductDataType } from '@/lib/types/interfaces/apis/product.interfaces'
+import type {
+  IProductDataType,
+  IProductVariantDataType,
+  IProductSummaryDataType,
+  IVariantSummaryDataType,
+} from '@/lib/types/interfaces/apis/product.interfaces'
 
 // ============ Enums ============
 
@@ -35,15 +40,7 @@ export interface IOrderItemDataType {
   total: string
   createdAt: Date
   product: IProductDataType
-  variant: {
-    id: string
-    sku: string
-    name: string
-    color: string | null
-    size: string | null
-    type: string | null
-    price: string
-  }
+  variant: IProductVariantDataType
 }
 
 export interface IOrderPaymentDataType {
@@ -88,6 +85,20 @@ export interface IOrderListItemDataType {
   createdAt: Date
   updatedAt: Date
   itemCount: number
+  items: Array<{
+    id: string
+    orderId: string
+    productId: string
+    variantId: string
+    name: string
+    sku: string
+    price: string
+    quantity: number
+    total: string
+    createdAt: Date
+    product: IProductSummaryDataType
+    variant: IVariantSummaryDataType
+  }>
 }
 
 // ============ Request Interfaces ============

@@ -23,7 +23,6 @@ import {
 } from '@/lib/types/interfaces/apis/review.interfaces'
 import { IApiPaginationResponseWrapperType } from '@/lib/types/interfaces/apis/api.interfaces'
 import {
-  getProductReviewsQueryKey,
   getProductReviewSummaryQueryKey,
   getPublicReviewByIdQueryKey,
 } from '@/hooks/querys/review.query'
@@ -31,20 +30,41 @@ import { toast } from 'sonner'
 
 /**
  * Mutation hook to create a new review
- * Uses invalidateQueries to refresh all related review data
+ * Uses setQueriesData to add the new review to cache immediately
  */
 export const useCreateReviewMutation = (productId: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (data: ICreateReviewDataType) => createReviewAPI(data),
-    onSuccess: () => {
-      // Invalidate and refetch product reviews
-      queryClient.invalidateQueries({
-        queryKey: getProductReviewsQueryKey(productId),
-      })
+    onSuccess: (response) => {
+      const newReview = response.data
 
-      // Invalidate review summary to recalculate stats
+      // Add new review to all review list queries for this product
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'reviews' && key[1] === productId
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: [newReview, ...oldData.data.items],
+              totalCount: oldData.data.totalCount + 1,
+            },
+          }
+        },
+      )
+
+      // Invalidate review summary to recalculate stats (rating distribution, average)
       queryClient.invalidateQueries({
         queryKey: getProductReviewSummaryQueryKey(productId),
       })
@@ -59,18 +79,69 @@ export const useCreateReviewMutation = (productId: string) => {
 
 /**
  * Mutation hook to mark a review as helpful
- * Uses setQueryData to update the specific review in cache
+ * Uses setQueriesData with optimistic update
  */
 export const useMarkHelpfulMutation = (reviewId: string, productId: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: () => markHelpfulAPI(reviewId),
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'reviews' && key[1] === productId
+        },
+      })
+
+      // Snapshot previous values
+      const previousData = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'reviews' && key[1] === productId
+        },
+      })
+
+      // Optimistically update
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'reviews' && key[1] === productId
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: oldData.data.items.map((review) =>
+                review.id === reviewId
+                  ? {
+                      ...review,
+                      helpfulCount: review.helpfulCount + 1,
+                      hasMarked: true,
+                    }
+                  : review,
+              ),
+            },
+          }
+        },
+      )
+
+      return { previousData }
+    },
     onSuccess: (response) => {
       const { helpfulCount } = response.data
 
-      // Update the specific review in all review list queries
-      // Use predicate to match all review queries for this product (with any params)
+      // Update with real data from server
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IReviewDataType> | undefined
       >(
@@ -97,7 +168,13 @@ export const useMarkHelpfulMutation = (reviewId: string, productId: string) => {
         },
       )
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
       toast.error(error.message || 'Không thể đánh dấu hữu ích.')
     },
   })
@@ -105,7 +182,7 @@ export const useMarkHelpfulMutation = (reviewId: string, productId: string) => {
 
 /**
  * Mutation hook to unmark helpful from a review
- * Uses setQueryData to update the specific review in cache
+ * Uses setQueriesData with optimistic update
  */
 export const useUnmarkHelpfulMutation = (
   reviewId: string,
@@ -115,11 +192,62 @@ export const useUnmarkHelpfulMutation = (
 
   return useMutation({
     mutationFn: () => unmarkHelpfulAPI(reviewId),
+    onMutate: async () => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'reviews' && key[1] === productId
+        },
+      })
+
+      // Snapshot previous values
+      const previousData = queryClient.getQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType>
+      >({
+        predicate: (query) => {
+          const key = query.queryKey
+          return key[0] === 'reviews' && key[1] === productId
+        },
+      })
+
+      // Optimistically update
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'reviews' && key[1] === productId
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: oldData.data.items.map((review) =>
+                review.id === reviewId
+                  ? {
+                      ...review,
+                      helpfulCount: Math.max(0, review.helpfulCount - 1),
+                      hasMarked: false,
+                    }
+                  : review,
+              ),
+            },
+          }
+        },
+      )
+
+      return { previousData }
+    },
     onSuccess: (response) => {
       const { helpfulCount } = response.data
 
-      // Update the specific review in all review list queries
-      // Use predicate to match all review queries for this product (with any params)
+      // Update with real data from server
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IReviewDataType> | undefined
       >(
@@ -146,7 +274,13 @@ export const useUnmarkHelpfulMutation = (
         },
       )
     },
-    onError: (error: Error) => {
+    onError: (error: Error, _variables, context) => {
+      // Rollback on error
+      if (context?.previousData) {
+        context.previousData.forEach(([queryKey, data]) => {
+          queryClient.setQueryData(queryKey, data)
+        })
+      }
       toast.error(error.message || 'Không thể bỏ đánh dấu.')
     },
   })
@@ -268,7 +402,7 @@ export const useUpdateReviewMutation = (
 
 /**
  * Mutation hook to delete a review
- * Uses setQueryData to remove the review from cache and invalidates related queries
+ * Uses setQueriesData to remove the review from cache immediately
  */
 export const useDeleteReviewMutation = (
   reviewId: string,
@@ -279,10 +413,31 @@ export const useDeleteReviewMutation = (
   return useMutation({
     mutationFn: () => deleteReviewAPI(reviewId),
     onSuccess: () => {
-      // Invalidate and refetch product reviews
-      queryClient.invalidateQueries({
-        queryKey: getProductReviewsQueryKey(productId),
-      })
+      // Remove review from all review list queries for this product
+      queryClient.setQueriesData<
+        IApiPaginationResponseWrapperType<IReviewDataType> | undefined
+      >(
+        {
+          predicate: (query) => {
+            const key = query.queryKey
+            return key[0] === 'reviews' && key[1] === productId
+          },
+        },
+        (oldData) => {
+          if (!oldData) return oldData
+
+          return {
+            ...oldData,
+            data: {
+              ...oldData.data,
+              items: oldData.data.items.filter(
+                (review) => review.id !== reviewId,
+              ),
+              totalCount: Math.max(0, oldData.data.totalCount - 1),
+            },
+          }
+        },
+      )
 
       // Invalidate review summary to recalculate stats
       queryClient.invalidateQueries({

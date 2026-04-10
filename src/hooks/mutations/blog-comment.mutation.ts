@@ -4,7 +4,6 @@ import {
   InfiniteData,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { blogCommentQueryKeys } from '@/hooks/querys/blog-comment.query'
 import {
   createBlogCommentClientAPI,
   updateBlogCommentClientAPI,
@@ -53,45 +52,20 @@ export const useCreateBlogCommentMutation = (postId: string) => {
         (oldData) => {
           if (!oldData || !oldData.pages.length) return oldData
 
-          // Determine if this is a top-level comment or reply
-          const isTopLevel = !newComment.parentId
-          const firstPageItems = oldData.pages[0]?.data.items
-          const targetParentId = firstPageItems?.[0]?.parentId
-
-          // Only update if the query matches the comment type
-          if (isTopLevel && targetParentId === undefined) {
-            // Add new top-level comment to the first page
-            const firstPage = {
-              ...oldData.pages[0],
-              data: {
-                ...oldData.pages[0].data,
-                items: [newComment, ...oldData.pages[0].data.items],
-                totalCount: oldData.pages[0].data.totalCount + 1,
-              },
-            }
-
-            return {
-              ...oldData,
-              pages: [firstPage, ...oldData.pages.slice(1)],
-            }
-          } else if (!isTopLevel && targetParentId === newComment.parentId) {
-            // Add new reply to the first page
-            const firstPage = {
-              ...oldData.pages[0],
-              data: {
-                ...oldData.pages[0].data,
-                items: [newComment, ...oldData.pages[0].data.items],
-                totalCount: oldData.pages[0].data.totalCount + 1,
-              },
-            }
-
-            return {
-              ...oldData,
-              pages: [firstPage, ...oldData.pages.slice(1)],
-            }
+          // Add new comment to the first page
+          const firstPage = {
+            ...oldData.pages[0],
+            data: {
+              ...oldData.pages[0].data,
+              items: [newComment, ...oldData.pages[0].data.items],
+              totalCount: oldData.pages[0].data.totalCount + 1,
+            },
           }
 
-          return oldData
+          return {
+            ...oldData,
+            pages: [firstPage, ...oldData.pages.slice(1)],
+          }
         },
       )
 
@@ -119,7 +93,7 @@ export const useUpdateBlogCommentMutation = () => {
     onSuccess: (response, variables) => {
       const updatedComment = response.data
 
-      // Update infinite query data - update the comment in all pages
+      // Update infinite query data - update the comment in matching pages only
       queryClient.setQueriesData<
         InfiniteData<IApiPaginationResponseWrapperType<IBlogCommentDataType>>
       >(
@@ -131,6 +105,14 @@ export const useUpdateBlogCommentMutation = () => {
         },
         (oldData) => {
           if (!oldData) return oldData
+
+          // Check if this comment exists in this query
+          const commentExists = oldData.pages.some((page) =>
+            page.data.items.some((comment) => comment.id === variables.id),
+          )
+
+          // Only update if the comment exists in this query
+          if (!commentExists) return oldData
 
           return {
             ...oldData,
@@ -165,7 +147,7 @@ export const useDeleteBlogCommentMutation = () => {
   return useMutation({
     mutationFn: (id: string) => deleteBlogCommentClientAPI(id),
     onSuccess: (_, commentId) => {
-      // Update infinite query data - remove the comment from all pages
+      // Update infinite query data - remove the comment from matching pages only
       queryClient.setQueriesData<
         InfiniteData<IApiPaginationResponseWrapperType<IBlogCommentDataType>>
       >(
@@ -177,6 +159,14 @@ export const useDeleteBlogCommentMutation = () => {
         },
         (oldData) => {
           if (!oldData) return oldData
+
+          // Check if this comment exists in this query
+          const commentExists = oldData.pages.some((page) =>
+            page.data.items.some((comment) => comment.id === commentId),
+          )
+
+          // Only update if the comment exists in this query
+          if (!commentExists) return oldData
 
           return {
             ...oldData,
