@@ -36,9 +36,10 @@ export function generateProductJsonLd(product: IProductDataType) {
       url: `${process.env.NEXT_PUBLIC_SITE_URL}/products/${product.slug}`,
       priceCurrency: 'VND',
       price: basePrice,
-      ...(comparePrice && comparePrice > basePrice && { highPrice: comparePrice }),
+      ...(comparePrice &&
+        comparePrice > basePrice && { highPrice: comparePrice }),
       availability:
-        product.displayStatus === 'OUT_OF_STOCK'
+        product.inventory?.displayStatus === 'OUT_OF_STOCK'
           ? 'https://schema.org/OutOfStock'
           : 'https://schema.org/InStock',
     },
@@ -124,13 +125,13 @@ export function generateOrganizationJsonLd() {
 }
 
 /**
- * Component to render JSON-LD script tag
+ * Helper to serialize JSON-LD data for script tag
+ * Usage in component:
+ * <script
+ *   type="application/ld+json"
+ *   dangerouslySetInnerHTML={{ __html: serializeJsonLd(data) }}
+ * />
  */
-export function JsonLd({ data }: { data: object }) {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
-  )
+export function serializeJsonLd(data: object): string {
+  return JSON.stringify(data)
 }
