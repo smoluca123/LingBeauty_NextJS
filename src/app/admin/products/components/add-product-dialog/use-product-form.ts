@@ -112,7 +112,17 @@ export function useProductForm() {
     payload.isActive = formData.isActive
     payload.isFeatured = formData.isFeatured
 
-    if (formData.variants.length > 0) {
+    // Product type and affiliate fields
+    if (formData.productType) payload.productType = formData.productType
+    if (formData.affiliateLink) payload.affiliateLink = formData.affiliateLink
+    if (formData.affiliateSource)
+      payload.affiliateSource = formData.affiliateSource
+
+    // Only add variants for inventory products
+    if (
+      formData.variants.length > 0 &&
+      (!formData.productType || formData.productType === 'INVENTORY')
+    ) {
       payload.variants = formData.variants.map((v) => ({
         ...v,
         sku: v.sku || generateSku(formData.name),
@@ -129,7 +139,10 @@ export function useProductForm() {
   const isValid =
     formData.name.trim() !== '' &&
     formData.categoryIds.length > 0 &&
-    formData.basePrice > 0
+    formData.basePrice > 0 &&
+    // Affiliate products must have affiliate link
+    (formData.productType !== 'AFFILIATE' ||
+      (formData.affiliateLink && formData.affiliateLink.trim() !== ''))
 
   const resetForm = useCallback(() => {
     setFormData(INITIAL_FORM_DATA)
