@@ -1,22 +1,18 @@
-'use client'
-
-import { use } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronLeft, MapPin, CreditCard, Package, Loader2 } from 'lucide-react'
+import { ChevronLeft, MapPin, CreditCard, Package } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useGetOrderByIdQuery } from '@/hooks/querys/order.query'
-import { useCancelOrderMutation } from '@/hooks/mutations/order.mutation'
+import { getOrderByIdServerAPI } from '@/lib/apis/server/order.apis'
 import {
   ORDER_STATUS_LABELS,
   ORDER_STATUS_COLORS,
   CANCELLABLE_STATUSES,
 } from '@/lib/types/interfaces/apis/order.interfaces'
 import { formatCurrency } from '@/lib/utils/format-utils'
+import { CancelOrderButton } from './components/cancel-order-button'
+import { notFound } from 'next/navigation'
 
 function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString('vi-VN', {
@@ -28,35 +24,23 @@ function formatDate(date: Date | string) {
   })
 }
 
-export default function OrderDetailPage({
+export default async function OrderDetailPage({
   params,
 }: {
   params: Promise<{ orderId: string }>
 }) {
-  const { orderId } = use(params)
-  const { data, isLoading } = useGetOrderByIdQuery(orderId)
-  const cancelMutation = useCancelOrderMutation(orderId)
-  const order = data?.data
+  const { orderId } = await params
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-48 w-full rounded-xl" />
-        <Skeleton className="h-64 w-full rounded-xl" />
-      </div>
-    )
+  let order
+  try {
+    const response = await getOrderByIdServerAPI(orderId)
+    order = response.data
+  } catch (error) {
+    notFound()
   }
 
   if (!order) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground mb-4">Không tìm thấy đơn hàng.</p>
-        <Link href="/profile/orders">
-          <Button variant="outline">Quay lại danh sách đơn hàng</Button>
-        </Link>
-      </div>
-    )
+    notFound()
   }
 
   const canCancel = CANCELLABLE_STATUSES.includes(order.status)
@@ -72,20 +56,7 @@ export default function OrderDetailPage({
           <ChevronLeft className="h-4 w-4 mr-1" />
           Đơn hàng của tôi
         </Link>
-        {canCancel && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-destructive text-destructive hover:bg-destructive/10"
-            onClick={() => cancelMutation.mutate({})}
-            disabled={cancelMutation.isPending}
-          >
-            {cancelMutation.isPending && (
-              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-            )}
-            Hủy đơn hàng
-          </Button>
-        )}
+        {canCancel && <CancelOrderButton orderId={orderId} />}
       </div>
 
       {/* Order Info */}
@@ -176,9 +147,13 @@ export default function OrderDetailPage({
             {order.items.map((item) => (
               <div key={item.id} className="flex gap-4">
                 <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 border">
-                  {item.product?.images?.find((img) => img.isPrimary)?.media?.url ? (
+                  {item.product?.images?.find((img) => img.isPrimary)?.media
+                    ?.url ? (
                     <Image
-                      src={item.product.images.find((img) => img.isPrimary)!.media.url}
+                      src={
+                        item.product.images.find((img) => img.isPrimary)!.media
+                          .url
+                      }
                       alt={item.name}
                       fill
                       className="object-cover"
