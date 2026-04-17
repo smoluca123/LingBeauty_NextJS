@@ -8,6 +8,8 @@ import type {
  *  Low-stock is NOT a DB status; it is derived by comparing quantity <= lowStockThreshold. */
 export type ProductInventoryDisplayStatus = 'IN_STOCK' | 'OUT_OF_STOCK'
 
+export type ProductType = 'INVENTORY' | 'AFFILIATE'
+
 // Re-export shared types from admin-product for consistency
 export type { VariantDisplayType, ProductBadgeType }
 export type ProductBadgeVariantType = 'INFO' | 'PRIMARY' | 'NEUTRAL'
@@ -36,6 +38,9 @@ export interface IProductDataType {
   isFeatured: boolean
   metaTitle?: string
   metaDesc?: string
+  productType: ProductType
+  affiliateLink?: string
+  affiliateSource?: string
   brand: IProductBrandDataType
   // primaryImage?: IProductImageDataType
   productCategories: IProductCategoryDataType[]
@@ -59,6 +64,9 @@ export interface IProductSummaryDataType {
   basePrice: string
   comparePrice?: string | null
   isActive: boolean
+  productType: ProductType
+  affiliateLink?: string
+  affiliateSource?: string
   brand?: IProductBrandDataType | null
   images: IProductImageDataType[]
 }

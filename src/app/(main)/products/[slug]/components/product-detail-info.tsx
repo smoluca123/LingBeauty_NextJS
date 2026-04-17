@@ -178,6 +178,7 @@ export function ProductDetailInfo({ product }: ProductDetailInfoProps) {
 
       {/* Action buttons */}
       <ProductActions
+        product={product}
         productId={product.id}
         selectedVariant={selectedVariant}
         isOutOfStock={isOutOfStock}

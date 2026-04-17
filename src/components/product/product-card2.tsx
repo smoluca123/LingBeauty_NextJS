@@ -2,7 +2,7 @@
 
 import { useRef } from 'react'
 import Link from 'next/link'
-import { Package } from 'lucide-react'
+import { ExternalLink, Package } from 'lucide-react'
 
 import { cn } from '@/lib/utils/style-utils'
 import { IPropsWithClassName } from '@/lib/types/interfaces/utils.interfaces'
@@ -41,11 +41,14 @@ export function ProductCard2({
   maxQuantity,
   showAddToCart = false,
 }: ProductCardProps) {
-  const { name, brand, stats } = product
+  const { name, brand, stats, productType, affiliateLink, affiliateSource } =
+    product
   const basePrice = Number(product.basePrice)
   const comparePrice = product.comparePrice
     ? Number(product.comparePrice)
     : null
+
+  const isAffiliate = productType === 'AFFILIATE'
 
   const carouselRef = useRef<ProductImageCarouselRef>(null)
   const allImages = useProductImages(product)
@@ -115,6 +118,16 @@ export function ProductCard2({
       </div>
       <ProductBadges product={product} />
 
+      {/* Affiliate badge */}
+      {isAffiliate && affiliateSource && (
+        <div className="mt-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-[11px] font-semibold text-blue-700 border border-blue-200">
+            <ExternalLink className="h-3 w-3" />
+            Từ {affiliateSource}
+          </span>
+        </div>
+      )}
+
       <div className="mt-3 space-y-1 flex-1">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground line-clamp-1">
           {brand.name}
@@ -154,8 +167,24 @@ export function ProductCard2({
         </div>
       )}
 
-      {/* Add to cart button */}
-      {(showAddToCart || !showStock) && <AddToCartButton product={product} />}
+      {/* Add to cart button - only for inventory products */}
+      {!isAffiliate && (showAddToCart || !showStock) && (
+        <AddToCartButton product={product} />
+      )}
+
+      {/* Affiliate buy button */}
+      {isAffiliate && affiliateLink && (
+        <button
+          onClick={(e) => {
+            e.preventDefault()
+            window.open(affiliateLink, '_blank', 'noopener,noreferrer')
+          }}
+          className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-full bg-primary-pink text-sm font-semibold text-white hover:bg-primary-pink/90 transition-colors"
+        >
+          Mua ngay
+          <ExternalLink className="h-4 w-4" />
+        </button>
+      )}
 
       {/* View detail link */}
       <Link

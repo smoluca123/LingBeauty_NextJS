@@ -40,6 +40,9 @@ export const getOrderByIdAPI = async (
     .get(`order/${orderId}`)
     .json<IApiResponseWrapperType<IOrderDataType>>()
 
+// Alias for server-side usage
+export const getOrderByIdServerAPI = getOrderByIdAPI
+
 export const cancelOrderAPI = async (
   orderId: string,
   payload: ICancelOrderPayload,

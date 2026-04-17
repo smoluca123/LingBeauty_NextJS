@@ -5,6 +5,7 @@ import {
   getSharedWishlistClientAPI,
   checkWishlistStatusClientAPI,
 } from '@/lib/apis/client/wishlist-apis'
+import { useAuthUser } from '@/hooks/use-auth'
 
 // Query keys
 export const wishlistKeys = {
@@ -22,6 +23,7 @@ export const wishlistKeys = {
  * Hook to get user's wishlist with infinite scroll
  */
 export const useWishlist = (limit = 20) => {
+  const user = useAuthUser()
   return useInfiniteQuery({
     queryKey: [...wishlistKeys.list(), limit],
     queryFn: ({ pageParam = 1 }) => getWishlistClientAPI(pageParam, limit),
@@ -30,6 +32,7 @@ export const useWishlist = (limit = 20) => {
       return data.hasMore ? data.page + 1 : undefined
     },
     initialPageParam: 1,
+    enabled: !!user,
   })
 }
 
@@ -64,9 +67,10 @@ export const useSharedWishlist = (shareToken: string, limit = 20) => {
  * Hook to check if product is in wishlist
  */
 export const useWishlistStatus = (productId: string, variantId?: string) => {
+  const user = useAuthUser()
   return useQuery({
     queryKey: wishlistKeys.status(productId, variantId),
     queryFn: () => checkWishlistStatusClientAPI({ productId, variantId }),
-    enabled: !!productId,
+    enabled: !!productId && !!user,
   })
 }

@@ -83,6 +83,9 @@ export interface IAdminProductDataType {
   weight?: string
   metaTitle?: string
   metaDesc?: string
+  productType?: 'INVENTORY' | 'AFFILIATE'
+  affiliateLink?: string
+  affiliateSource?: string
   primaryImage?: IAdminProductImage
   productCategories: IAdminProductCategory[] // API: [{ category: {...} }]
   brand?: IAdminBrandDataType
@@ -166,6 +169,9 @@ export interface ICreateProductPayload {
   weight?: number
   metaTitle?: string
   metaDesc?: string
+  productType?: 'INVENTORY' | 'AFFILIATE'
+  affiliateLink?: string
+  affiliateSource?: string
   variants?: ICreateProductVariantPayload[]
 }
 
@@ -199,6 +205,9 @@ export interface IUpdateProductPayload {
   weight?: number
   metaTitle?: string
   metaDesc?: string
+  productType?: 'INVENTORY' | 'AFFILIATE'
+  affiliateLink?: string
+  affiliateSource?: string
   variants?: IUpdateProductVariantInProductPayload[]
 }
 
@@ -253,6 +262,9 @@ export interface IProductFormData {
   isActive: boolean
   isFeatured: boolean
   weight: number
+  productType?: 'INVENTORY' | 'AFFILIATE'
+  affiliateLink?: string
+  affiliateSource?: string
   variants: ICreateProductVariantPayload[]
 }
 
