@@ -167,7 +167,8 @@ export function useEditProductForm(product: IAdminProductDataType) {
           size: v.size || undefined,
           type: v.type || undefined,
           displayType: v.displayType,
-          price: v.price,
+          // If price is 0 or not set, use basePrice
+          price: v.price || formData.basePrice,
           quantity: v.quantity,
           lowStockThreshold: v.lowStockThreshold,
         }
