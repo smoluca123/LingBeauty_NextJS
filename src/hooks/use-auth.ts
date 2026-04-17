@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import { useAuthStore } from '@/stores/auth.store';
-import { kyNextInstance } from '@/lib/kyInstance/kyNext';
-import type { IGetAuthResponse } from '@/lib/types/interfaces/apis/auth.interfaces';
+import { useAuthStore } from '@/stores/auth.store'
+import { kyNextInstance } from '@/lib/kyInstance/kyNext'
+import type { IGetAuthResponse } from '@/lib/types/interfaces/apis/auth.interfaces'
 
 /**
  * Hook to access authentication state from Zustand store.
@@ -14,15 +14,15 @@ import type { IGetAuthResponse } from '@/lib/types/interfaces/apis/auth.interfac
  * - useLogoutMutation() from '@/hooks/mutations/auth.mutation'
  */
 export function useAuthUser() {
-  return useAuthStore((s) => s.user);
+  return useAuthStore((s) => s.user)
 }
 
 export function useIsAuthenticated() {
-  return useAuthStore((s) => s.isAuthenticated);
+  return useAuthStore((s) => s.isAuthenticated)
 }
 
 export function useAuthLoading() {
-  return useAuthStore((s) => s.isLoading);
+  return useAuthStore((s) => s.isLoading)
 }
 
 /**
@@ -30,24 +30,24 @@ export function useAuthLoading() {
  * Returns a function that can be called to refresh.
  */
 export function useRefreshAuth() {
-  const setUser = useAuthStore((s) => s.setUser);
-  const clearAuth = useAuthStore((s) => s.clearAuth);
+  const setUser = useAuthStore((s) => s.setUser)
+  const clearAuth = useAuthStore((s) => s.clearAuth)
 
   const refreshAuth = async () => {
     try {
       const data = await kyNextInstance
         .get('auth/validate-token')
-        .json<IGetAuthResponse>();
+        .json<IGetAuthResponse>()
 
       if (data.isAuthenticated && data.user) {
-        setUser(data.user);
+        setUser(data.user)
       } else {
-        clearAuth();
+        clearAuth()
       }
     } catch {
-      clearAuth();
+      clearAuth()
     }
-  };
+  }
 
-  return refreshAuth;
+  return refreshAuth
 }

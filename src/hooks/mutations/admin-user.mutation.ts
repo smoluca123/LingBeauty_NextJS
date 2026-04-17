@@ -25,7 +25,7 @@ export const useBanUserMutation = () => {
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IAdminUserDataType>
       >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
-        if (!oldData || !response.data) return oldData
+        if (!oldData?.data?.items || !response.data) return oldData
         return {
           ...oldData,
           data: {
@@ -62,7 +62,7 @@ export const useBanUserBulkMutation = () => {
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IAdminUserDataType>
       >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
-        if (!oldData) return oldData
+        if (!oldData?.data?.items) return oldData
 
         const userIdMap = new Map(
           items.map((item) => [item.userId, item.isBanned]),
@@ -112,7 +112,7 @@ export const useUpdateUserByAdminMutation = () => {
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IAdminUserDataType>
       >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
-        if (!oldData || !response.data) return oldData
+        if (!oldData?.data?.items || !response.data) return oldData
         return {
           ...oldData,
           data: {
@@ -148,7 +148,7 @@ export const useCreateUserMutation = () => {
       queryClient.setQueriesData<
         IApiPaginationResponseWrapperType<IAdminUserDataType>
       >({ queryKey: adminUserQueryKeys.all }, (oldData) => {
-        if (!oldData || !response.data) return oldData
+        if (!oldData?.data?.items || !response.data) return oldData
         return {
           ...oldData,
           data: {

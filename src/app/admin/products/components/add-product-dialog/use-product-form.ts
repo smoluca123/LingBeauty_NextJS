@@ -126,8 +126,8 @@ export function useProductForm() {
       payload.variants = formData.variants.map((v) => ({
         ...v,
         sku: v.sku || generateSku(formData.name),
-        // Backend yêu cầu price là number >= 0 — fallback 0 khi không điền
-        price: v.price ?? 0,
+        // If price is 0 or not set, use basePrice
+        price: v.price || formData.basePrice,
       }))
     }
 
