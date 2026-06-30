@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { getAllAdminReviewsAPI } from '@/lib/apis/server/admin-review-apis';
-import { isKyHttpError } from '@/lib/utils/error-handler';
+import { HTTPError } from 'ky';
 
 // GET /api/admin/reviews/stats - Get review statistics
 export async function GET(request: NextRequest) {
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     // Forward the exact BE error response
-    if (isKyHttpError(error)) {
+    if (error instanceof HTTPError) {
       const errorBody = await error.response.json().catch(() => ({
         success: false,
         message: error.message,
