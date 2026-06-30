@@ -31,7 +31,7 @@ export async function proxyRoute<T>(
           success: false,
           message: error.message,
         }))
-      console.log(errorBody)
+      console.error(errorBody)
 
       console.error('[proxyRoute] HTTPError:', {
         status: error.response.status,
