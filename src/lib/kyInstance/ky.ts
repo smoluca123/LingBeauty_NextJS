@@ -75,7 +75,8 @@ export const kyInstance = ky.create({
           const accessToken = cookieStore.get('accessToken')?.value
 
           if (!accessToken) {
-            return response
+            // Clone before returning so ky can still read the body for HTTPError
+            return response.clone()
           }
 
           try {
@@ -89,14 +90,13 @@ export const kyInstance = ky.create({
             return ky(newRequest)
           } catch {
             cookieStore.delete('accessToken')
-            return response
+            // Clone before returning so ky can still read the body for HTTPError
+            return response.clone()
           }
         }
 
         return response
       },
-
-      
     ],
   },
 })
