@@ -1,8 +1,29 @@
-import { HTTPError } from 'ky'
-
 /**
  * Error handling utilities for API calls and error message extraction
  */
+
+/**
+ * Duck-typing check for ky HTTPError.
+ *
+ * Using `instanceof HTTPError` is unreliable in Next.js production (Vercel) because
+ * `ky` can be bundled into separate chunks (Route Handler vs Server Action bundles),
+ * resulting in different class references. The `instanceof` check then always returns
+ * `false` even when the error IS an HTTPError, causing the fallback "Internal server error".
+ *
+ * Duck-typing on `error.name` and `error.response` is safe across bundle boundaries.
+ */
+export function isKyHttpError(
+  error: unknown,
+): error is { name: string; message: string; response: Response } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    (error as { name: unknown }).name === 'HTTPError' &&
+    'response' in error &&
+    (error as { response: unknown }).response instanceof Response
+  )
+}
 
 /**
  * Standardized error handler for client API functions
@@ -23,10 +44,12 @@ export const handleApiError = async (
   error: unknown,
   defaultMessage = 'An error occurred',
 ): Promise<never> => {
-  if (error instanceof HTTPError) {
+  if (isKyHttpError(error)) {
     const data = await error.response.json().catch(() => ({}))
     const message =
-      (data as { message?: string }).message || error.message || defaultMessage
+      (data as { message?: string }).message ||
+      error.message ||
+      defaultMessage
     throw new Error(message)
   }
 
@@ -73,7 +96,7 @@ export async function extractErrorMessage(
   error: unknown,
   fallback: string,
 ): Promise<string> {
-  if (error instanceof HTTPError) {
+  if (isKyHttpError(error)) {
     try {
       const errorData = await error.response.json()
       return errorData?.message || fallback
