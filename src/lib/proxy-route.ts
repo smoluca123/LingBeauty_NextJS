@@ -21,34 +21,35 @@ export async function proxyRoute<T>(
     const result = await handlerFn()
     return NextResponse.json(result)
   } catch (error) {
-    // Forward the exact BE error response (status code + body) to the client.
-    // Use duck-typing instead of `instanceof HTTPError` to avoid module
-    // bundling issues on Vercel where multiple ky instances can exist,
-    // causing instanceof to silently return false.
-    const isHttpError =
-      error instanceof HTTPError ||
-      (typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        (error as { response: unknown }).response instanceof Response)
+    // Forward the exact BE error response (status code + body) to the client
+    if (error instanceof HTTPError) {
+      const errorBody = await error.response
+        .clone()
+        .json()
+        .catch(() => ({
+          success: false,
+          message: error.message,
+        }))
 
-    if (isHttpError) {
-      const httpError = error as HTTPError
-      const errorBody = await httpError.response.json().catch(() => ({
-        success: false,
-        message: httpError.message,
-      }))
-      return NextResponse.json(errorBody, { status: httpError.response.status })
+      console.error('[proxyRoute] HTTPError:', {
+        status: error.response.status,
+        body: errorBody,
+      })
+
+      return NextResponse.json(errorBody, { status: error.response.status })
     }
 
-    // Log unexpected (non-HTTP) errors to help diagnose production issues
-    console.error('[proxyRoute] Unexpected error type:', {
-      name: (error as Error)?.name,
-      message: (error as Error)?.message,
-      constructor: (error as object)?.constructor?.name,
-    })
+    // Forward known Error messages instead of generic fallback
+    if (error instanceof Error) {
+      console.error('[proxyRoute] Error:', error.message, error.stack)
+      return NextResponse.json(
+        { success: false, message: error.message },
+        { status: 500 },
+      )
+    }
 
-    // Fallback for unexpected errors (network errors, etc.)
+    // Fallback for truly unexpected errors
+    console.error('[proxyRoute] Unknown error:', error)
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 },
