@@ -78,6 +78,11 @@ export const kyInstance = ky.create({
             return response
           }
 
+          // Clone response before any async work that might consume the body,
+          // so we can return a readable response if refresh fails.
+          // This is critical on Vercel runtime where body can only be read once.
+          const clonedResponse = response.clone()
+
           try {
             const refreshed = await refreshTokenOnce(accessToken)
             request.headers.set('accessToken', refreshed.accessToken)
@@ -89,14 +94,12 @@ export const kyInstance = ky.create({
             return ky(newRequest)
           } catch {
             cookieStore.delete('accessToken')
-            return response
+            return clonedResponse
           }
         }
 
         return response
       },
-
-      
     ],
   },
 })
