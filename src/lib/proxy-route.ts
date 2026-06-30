@@ -22,6 +22,7 @@ export async function proxyRoute<T>(
     return NextResponse.json(result)
   } catch (error) {
     // Forward the exact BE error response (status code + body) to the client
+    // console.log(error)
     if (error instanceof HTTPError) {
       const errorBody = await error.response
         .clone()
@@ -30,6 +31,7 @@ export async function proxyRoute<T>(
           success: false,
           message: error.message,
         }))
+      console.log(errorBody)
 
       console.error('[proxyRoute] HTTPError:', {
         status: error.response.status,
