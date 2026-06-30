@@ -70,30 +70,36 @@ export const kyInstance = ky.create({
     ],
     afterResponse: [
       async (request, _options, response) => {
-        if (response.status === 401) {
-          const cookieStore = await cookies()
-          const accessToken = cookieStore.get('accessToken')?.value
-
-          if (!accessToken) {
-            return response
-          }
-
-          try {
-            const refreshed = await refreshTokenOnce(accessToken)
-            request.headers.set('accessToken', refreshed.accessToken)
-
-            // Retry the original request with new token
-            const newRequest = new Request(request, {
-              headers: request.headers,
-            })
-            return ky(newRequest)
-          } catch {
-            cookieStore.delete('accessToken')
-            return response
-          }
+        // Only intercept 401 responses for token refresh
+        if (response.status !== 401) {
+          // Return undefined for all non-401 responses
+          // so ky handles them normally (throws HTTPError for 4xx/5xx)
+          return
         }
 
-        return response
+        const cookieStore = await cookies()
+        const accessToken = cookieStore.get('accessToken')?.value
+
+        if (!accessToken) {
+          // No token to refresh — let ky handle the 401 response normally
+          // so it throws an HTTPError that proxyRoute can catch and forward
+          return
+        }
+
+        try {
+          const refreshed = await refreshTokenOnce(accessToken)
+          request.headers.set('accessToken', refreshed.accessToken)
+
+          // Retry the original request with new token
+          const newRequest = new Request(request, {
+            headers: request.headers,
+          })
+          return ky(newRequest)
+        } catch {
+          // Refresh failed — clear cookie and let ky throw HTTPError for the 401
+          cookieStore.delete('accessToken')
+          return
+        }
       },
 
       
