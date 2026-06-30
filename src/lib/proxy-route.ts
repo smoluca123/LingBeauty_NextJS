@@ -1,5 +1,5 @@
-import { HTTPError } from "ky";
 import { NextResponse } from "next/server";
+import { isKyHttpError } from "@/lib/utils/error-handler";
 
 /**
  * Wraps a server action for use in a Next.js proxy route handler.
@@ -22,7 +22,7 @@ export async function proxyRoute<T>(
     return NextResponse.json(result);
   } catch (error) {
     // Forward the exact BE error response (status code + body) to the client
-    if (error instanceof HTTPError) {
+    if (isKyHttpError(error)) {
       const errorBody = await error.response.json().catch(() => ({
         success: false,
         message: error.message,
@@ -37,3 +37,4 @@ export async function proxyRoute<T>(
     );
   }
 }
+
