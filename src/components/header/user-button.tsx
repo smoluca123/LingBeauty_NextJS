@@ -63,7 +63,7 @@ export function UserButton() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/orders" className="cursor-pointer">
+            <Link href="/profile/orders" className="cursor-pointer">
               <ShoppingBag className="mr-2 h-4 w-4" />
               Đơn hàng
             </Link>
