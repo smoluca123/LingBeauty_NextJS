@@ -22,36 +22,15 @@ export async function proxyRoute<T>(
     return NextResponse.json(result)
   } catch (error) {
     // Forward the exact BE error response (status code + body) to the client
-    // console.log(error)
     if (error instanceof HTTPError) {
-      const errorBody = await error.response
-        .clone()
-        .json()
-        .catch(() => ({
-          success: false,
-          message: error.message,
-        }))
-      console.error(errorBody)
-
-      console.error('[proxyRoute] HTTPError:', {
-        status: error.response.status,
-        body: errorBody,
-      })
-
+      const errorBody = await error.response.json().catch(() => ({
+        success: false,
+        message: error.message,
+      }))
       return NextResponse.json(errorBody, { status: error.response.status })
     }
 
-    // Forward known Error messages instead of generic fallback
-    if (error instanceof Error) {
-      console.error('[proxyRoute] Error:', error.message, error.stack)
-      return NextResponse.json(
-        { success: false, message: error.message },
-        { status: 500 },
-      )
-    }
-
-    // Fallback for truly unexpected errors
-    console.error('[proxyRoute] Unknown error:', error)
+    // Fallback for unexpected errors
     return NextResponse.json(
       { success: false, message: 'Internal server error' },
       { status: 500 },
